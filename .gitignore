@@ -21,4 +21,4 @@ Thumbs.db
 
 # Secrets / config
 .env
-run_discovery.py
+run_output.txt
