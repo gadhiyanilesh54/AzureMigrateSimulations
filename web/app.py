@@ -28,6 +28,13 @@ from digital_twin_migrate.azure_mapping import generate_recommendations  # noqa:
 from digital_twin_migrate.config import VCenterConfig  # noqa: E402
 from digital_twin_migrate.guest_discovery import GuestDiscoverer, Credential, DatabaseCredential, deep_probe_databases  # noqa: E402
 from digital_twin_migrate.workload_mapping import generate_workload_recommendations  # noqa: E402
+from digital_twin_migrate.enrichment import (  # noqa: E402
+    ingest_telemetry,
+    MonitoringTool,
+    EnrichmentResult,
+    apply_enrichment_to_confidence,
+    generate_sample_enrichment,
+)
 
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -44,6 +51,7 @@ _WORKLOAD_DATA_FILE = DATA_DIR / "workload_discovery.json"
 _WHATIF_OVERRIDES_FILE = DATA_DIR / "whatif_overrides.json"
 _WL_WHATIF_OVERRIDES_FILE = DATA_DIR / "workload_whatif_overrides.json"
 _PERF_HISTORY_FILE = DATA_DIR / "perf_history.json"
+_ENRICHMENT_DATA_FILE = DATA_DIR / "enrichment_data.json"
 
 
 def _save_json(path: Path, obj: dict) -> None:
@@ -87,6 +95,10 @@ _whatif_overrides: dict[str, dict] = {}
 
 # Workload What-If overrides: { workload_key: { service, region, pricing } }
 _workload_whatif_overrides: dict[str, dict] = {}
+
+# Enrichment data store: { vm_name: EnrichmentTelemetry.to_dict() }
+_enrichment_data: dict[str, dict] = {}
+_enrichment_history: list[dict] = []  # list of ingestion results
 
 # ---------------------------------------------------------------------------
 # Performance Collector – collects VM & workload perf every 15 minutes
@@ -328,7 +340,7 @@ def _compute_perf_stats(samples: list[dict], field: str) -> dict:
 
 def _auto_load_from_data_dir() -> None:
     """Auto-load persisted data from data/ folder on startup."""
-    global _data, _discovery_state, _workload_data, _whatif_overrides, _workload_whatif_overrides
+    global _data, _discovery_state, _workload_data, _whatif_overrides, _workload_whatif_overrides, _enrichment_data, _enrichment_history
 
     # Load vCenter discovery
     vc = _load_json(_VCENTER_DATA_FILE)
@@ -367,6 +379,13 @@ def _auto_load_from_data_dir() -> None:
     # Load perf history and start collector
     _load_perf_history()
     _start_perf_collector()
+
+    # Load enrichment data
+    enr = _load_json(_ENRICHMENT_DATA_FILE)
+    if enr:
+        _enrichment_data.update(enr.get("telemetry", {}))
+        _enrichment_history = enr.get("history", [])
+        logger.info("Auto-loaded enrichment data for %d entities", len(_enrichment_data))
 
 
 def _load_data() -> dict:
@@ -865,13 +884,21 @@ def api_topology():
 
 @app.route("/api/vms")
 def api_vms():
-    """All VMs with recommendation data joined."""
+    """All VMs with recommendation data joined and enrichment boosts applied."""
     d = _load_data()
     rec_map = {r["vm_name"]: r for r in d["recommendations"]}
     result = []
     for vm in d["vms"]:
-        rec = rec_map.get(vm["name"], {})
-        result.append({**vm, "recommendation": rec})
+        rec = dict(rec_map.get(vm["name"], {}))
+        # Apply enrichment confidence boost if available
+        enr = _enrichment_data.get(vm["name"])
+        if enr and rec:
+            boost = enr.get("confidence_boost", 0)
+            base = rec.get("confidence_score", 50)
+            rec["confidence_score"] = apply_enrichment_to_confidence(base, boost)
+            rec["enrichment_boost"] = boost
+            rec["enrichment_tool"] = enr.get("monitoring_tool", "")
+        result.append({**vm, "recommendation": rec, "enrichment": enr})
     return jsonify(result)
 
 
@@ -1706,10 +1733,29 @@ def api_workload_status():
 
 @app.route("/api/workloads/results")
 def api_workload_results():
-    """Return discovered workloads and recommendations."""
+    """Return discovered workloads and recommendations with enrichment boosts."""
     if not _workload_data:
         return jsonify({"error": "No workload data. Run discovery first."}), 404
-    return jsonify(_workload_data)
+
+    # Apply enrichment boosts to workload recommendation confidence
+    data = dict(_workload_data)
+    if _enrichment_data and "recommendations" in data:
+        boosted_recs = []
+        for rec in data["recommendations"]:
+            rec = dict(rec)
+            vm_name = rec.get("vm_name", "")
+            enr = _enrichment_data.get(vm_name)
+            if enr:
+                boost = enr.get("confidence_boost", 0)
+                # Workload recs use 'confidence' not 'confidence_score'
+                base = rec.get("confidence", 50)
+                rec["confidence"] = apply_enrichment_to_confidence(base, boost)
+                rec["enrichment_boost"] = boost
+                rec["enrichment_tool"] = enr.get("monitoring_tool", "")
+            boosted_recs.append(rec)
+        data["recommendations"] = boosted_recs
+
+    return jsonify(data)
 
 
 @app.route("/api/workloads/topology")
@@ -2337,6 +2383,190 @@ def api_perf_global_summary():
         "last_collection": _perf_collector_state.get("last_collection"),
         "samples_collected": _perf_collector_state.get("samples_collected", 0),
     })
+
+
+# ---------------------------------------------------------------------------
+# Enrichment Data Loop – monitoring telemetry ingestion
+# ---------------------------------------------------------------------------
+
+@app.route("/api/enrichment/tools")
+def api_enrichment_tools():
+    """Return list of supported monitoring tools."""
+    tools = [
+        {"id": "dynatrace",     "name": "Dynatrace",      "icon": "bi-graph-up",     "color": "#6f2da8"},
+        {"id": "new_relic",      "name": "New Relic",       "icon": "bi-bar-chart",    "color": "#008c99"},
+        {"id": "datadog",        "name": "Datadog",         "icon": "bi-clipboard-data","color": "#632ca6"},
+        {"id": "splunk",         "name": "Splunk",          "icon": "bi-search",       "color": "#65a637"},
+        {"id": "prometheus",     "name": "Prometheus",      "icon": "bi-fire",         "color": "#e6522c"},
+        {"id": "app_dynamics",   "name": "AppDynamics",     "icon": "bi-activity",     "color": "#2196f3"},
+        {"id": "zabbix",         "name": "Zabbix",          "icon": "bi-cpu",          "color": "#d40000"},
+        {"id": "custom",         "name": "Custom / Other",  "icon": "bi-filetype-json","color": "#6c757d"},
+    ]
+    return jsonify(tools)
+
+
+@app.route("/api/enrichment/upload", methods=["POST"])
+def api_enrichment_upload():
+    """Upload monitoring telemetry data (JSON) for enrichment.
+
+    Form fields:
+        tool  – monitoring tool identifier (dynatrace, new_relic, …)
+        file  – JSON file upload, OR
+        json  – JSON payload in the request body
+    """
+    global _enrichment_data, _enrichment_history
+
+    tool = request.form.get("tool") or request.json.get("tool", "custom") if request.is_json else request.form.get("tool", "custom")
+
+    # Get JSON data from uploaded file or request body
+    raw_data = None
+    if "file" in request.files:
+        f = request.files["file"]
+        if f.filename:
+            try:
+                raw_data = json.loads(f.read().decode("utf-8"))
+            except json.JSONDecodeError:
+                return jsonify({"error": "Invalid JSON file"}), 400
+    elif request.is_json:
+        raw_data = request.json.get("data")
+        tool = request.json.get("tool", tool)
+
+    if not raw_data:
+        return jsonify({"error": "No data provided. Upload a JSON file or send JSON body."}), 400
+
+    # Get all known VM names for matching
+    vm_names = [vm["name"] for vm in _data.get("vms", [])]
+    if not vm_names:
+        return jsonify({"error": "No VMs discovered yet. Run vCenter discovery first."}), 400
+
+    # Ingest the telemetry
+    result = ingest_telemetry(raw_data, tool, vm_names)
+
+    # Merge into enrichment store (latest wins per VM)
+    for tel in result.telemetry:
+        _enrichment_data[tel.entity_name] = tel.to_dict()
+
+    # Add to history
+    _enrichment_history.append(result.to_dict())
+
+    # Persist enrichment data
+    _save_json(_ENRICHMENT_DATA_FILE, {
+        "telemetry": _enrichment_data,
+        "history": _enrichment_history,
+    })
+
+    return jsonify({
+        "status": "success",
+        "tool": result.tool,
+        "entities_matched": result.entities_matched,
+        "entities_unmatched": result.entities_unmatched,
+        "total_records": result.total_records,
+        "message": f"Ingested {result.entities_matched} of {result.total_records} entities from {tool}",
+    })
+
+
+@app.route("/api/enrichment/generate_sample", methods=["POST"])
+def api_enrichment_generate_sample():
+    """Generate sample monitoring telemetry for demo purposes."""
+    global _enrichment_data, _enrichment_history
+
+    vm_names = [vm["name"] for vm in _data.get("vms", [])]
+    if not vm_names:
+        return jsonify({"error": "No VMs discovered yet."}), 400
+
+    body = request.get_json(silent=True) or {}
+    tool = body.get("tool", "dynatrace")
+
+    # Generate sample data
+    sample = generate_sample_enrichment(vm_names, tool)
+
+    # Ingest it
+    result = ingest_telemetry(sample, tool, vm_names)
+
+    for tel in result.telemetry:
+        _enrichment_data[tel.entity_name] = tel.to_dict()
+    _enrichment_history.append(result.to_dict())
+
+    _save_json(_ENRICHMENT_DATA_FILE, {
+        "telemetry": _enrichment_data,
+        "history": _enrichment_history,
+    })
+
+    return jsonify({
+        "status": "success",
+        "tool": tool,
+        "entities_matched": result.entities_matched,
+        "total_records": result.total_records,
+        "message": f"Generated & ingested sample {tool} data for {result.entities_matched} VMs",
+    })
+
+
+@app.route("/api/enrichment/status")
+def api_enrichment_status():
+    """Return current enrichment status and summary statistics."""
+    total_vms = len(_data.get("vms", []))
+    enriched_count = len(_enrichment_data)
+    tools_used = list(set(e.get("monitoring_tool", "") for e in _enrichment_data.values()))
+
+    # Calculate average confidence boost
+    boosts = [e.get("confidence_boost", 0) for e in _enrichment_data.values()]
+    avg_boost = round(sum(boosts) / len(boosts), 1) if boosts else 0.0
+
+    # Count metrics coverage
+    metrics_coverage = {}
+    for e in _enrichment_data.values():
+        m = e.get("metrics", {})
+        for k, v in m.items():
+            if v is not None:
+                metrics_coverage[k] = metrics_coverage.get(k, 0) + 1
+
+    return jsonify({
+        "total_vms": total_vms,
+        "enriched_vms": enriched_count,
+        "coverage_pct": round(enriched_count / total_vms * 100, 1) if total_vms else 0,
+        "tools_used": tools_used,
+        "avg_confidence_boost": avg_boost,
+        "total_ingestions": len(_enrichment_history),
+        "metrics_coverage": metrics_coverage,
+        "last_ingestion": _enrichment_history[-1].get("ingested_at") if _enrichment_history else None,
+    })
+
+
+@app.route("/api/enrichment/data")
+def api_enrichment_data():
+    """Return all enrichment telemetry records."""
+    return jsonify({
+        "telemetry": _enrichment_data,
+        "count": len(_enrichment_data),
+    })
+
+
+@app.route("/api/enrichment/vm/<vm_name>")
+def api_enrichment_vm(vm_name: str):
+    """Return enrichment data for a specific VM."""
+    data = _enrichment_data.get(vm_name)
+    if not data:
+        return jsonify({"error": f"No enrichment data for VM '{vm_name}'"}), 404
+    return jsonify(data)
+
+
+@app.route("/api/enrichment/history")
+def api_enrichment_history():
+    """Return the enrichment ingestion history."""
+    return jsonify({
+        "history": _enrichment_history,
+        "count": len(_enrichment_history),
+    })
+
+
+@app.route("/api/enrichment/clear", methods=["POST"])
+def api_enrichment_clear():
+    """Clear all enrichment data."""
+    global _enrichment_data, _enrichment_history
+    _enrichment_data = {}
+    _enrichment_history = []
+    _save_json(_ENRICHMENT_DATA_FILE, {"telemetry": {}, "history": []})
+    return jsonify({"status": "cleared"})
 
 
 # ---------------------------------------------------------------------------

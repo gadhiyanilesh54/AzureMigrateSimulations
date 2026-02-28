@@ -22,3 +22,6 @@ Thumbs.db
 # Secrets / config
 .env
 run_output.txt
+
+# Generated data
+data/enrichment_data.json
