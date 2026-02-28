@@ -2251,6 +2251,326 @@ def api_perf_global_summary():
 
 
 # ---------------------------------------------------------------------------
+# Business Case API — CxO-level on-prem vs Azure TCO comparison
+# ---------------------------------------------------------------------------
+
+# On-premises cost assumptions per host per month (industry averages)
+_ONPREM_COST_ASSUMPTIONS = {
+    "server_hw_amortized_monthly": 800.0,      # hardware depreciation per host (3yr amortisation)
+    "server_maintenance_pct": 0.10,             # 10% of HW cost for maintenance/support
+    "vmware_license_per_cpu_monthly": 25.0,     # vSphere licence per physical CPU
+    "windows_license_per_vm_monthly": 15.0,     # Windows Server licence per VM
+    "rhel_license_per_vm_monthly": 8.0,         # RHEL licence per VM
+    "storage_per_tb_monthly": 40.0,             # SAN / NAS storage cost per TB
+    "networking_per_host_monthly": 50.0,        # switches, firewalls, load balancers amortised
+    "dc_power_cooling_per_host_monthly": 200.0, # data-centre power, cooling, rack space
+    "it_staff_cost_monthly": 12000.0,           # 1 FTE admin cost (salary + benefits)
+    "vms_per_admin": 50,                        # industry average admin-to-VM ratio
+    "security_compliance_per_vm_monthly": 5.0,  # AV, patching, compliance tooling
+    "backup_dr_per_vm_monthly": 12.0,           # backup software + DR site amortised
+    "downtime_cost_per_hour": 5000.0,           # business cost of unplanned downtime
+    "avg_downtime_hours_per_year": 8.0,         # typical on-prem unplanned downtime
+}
+
+# Azure additional cost factors
+_AZURE_COST_ADDITIONS = {
+    "azure_support_plan_monthly": 100.0,        # Standard support plan
+    "azure_monitor_per_vm_monthly": 2.50,       # Log Analytics + diagnostics
+    "azure_backup_per_vm_monthly": 8.0,         # Azure Backup per VM
+    "azure_security_center_per_vm_monthly": 7.50,  # Defender for Servers P2
+    "migration_tooling_one_time": 5000.0,       # Azure Migrate + tooling
+    "training_one_time": 10000.0,               # Staff training
+    "migration_services_per_vm": 150.0,         # professional services per VM
+}
+
+
+@app.route("/api/businesscase")
+def api_business_case():
+    """Generate a comprehensive business case comparing on-prem TCO vs Azure.
+
+    Query params:
+        pricing_model  – pay_as_you_go | 1_year_ri | 3_year_ri | savings_plan_1yr | savings_plan_3yr
+        target_region  – Azure region (default: eastus)
+        analysis_years – TCO horizon (default: 3)
+        include_paas   – include workload PaaS savings (default: true)
+    """
+    if not _data or not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded"}), 404
+
+    pricing_model = request.args.get("pricing_model", "3_year_ri")
+    target_region = request.args.get("target_region", "eastus")
+    analysis_years = int(request.args.get("analysis_years", "3"))
+    include_paas = request.args.get("include_paas", "true").lower() == "true"
+
+    vms = _data["vms"]
+    recs = _data.get("recommendations", [])
+    hosts = _data.get("hosts", [])
+    datastores = _data.get("datastores", [])
+
+    num_vms = len(vms)
+    num_hosts = len(hosts) or max(1, num_vms // 15)  # estimate if hosts missing
+    powered_on = sum(1 for v in vms if v.get("power_state") == "poweredOn")
+    windows_vms = sum(1 for v in vms if v.get("guest_os_family") == "windows")
+    linux_vms = sum(1 for v in vms if v.get("guest_os_family") == "linux")
+
+    total_vcpus = sum(v.get("num_cpus", 0) for v in vms)
+    total_memory_gb = sum(v.get("memory_mb", 0) for v in vms) / 1024
+    total_disk_tb = sum(v.get("total_disk_gb", 0) for v in vms) / 1024
+    total_storage_tb = sum(ds.get("capacity_gb", 0) for ds in datastores) / 1024 if datastores else total_disk_tb * 1.5
+
+    # Physical CPU count (estimate 2 sockets per host, each typically 8-16 cores)
+    total_physical_cpus = num_hosts * 2
+
+    assumptions = _ONPREM_COST_ASSUMPTIONS
+    azure_adds = _AZURE_COST_ADDITIONS
+
+    # === ON-PREM MONTHLY COSTS ===
+    hw_cost = num_hosts * assumptions["server_hw_amortized_monthly"]
+    hw_maint = hw_cost * assumptions["server_maintenance_pct"]
+    vmware_lic = total_physical_cpus * assumptions["vmware_license_per_cpu_monthly"]
+    windows_lic = windows_vms * assumptions["windows_license_per_vm_monthly"]
+    linux_lic = linux_vms * assumptions["rhel_license_per_vm_monthly"]
+    os_licensing = windows_lic + linux_lic
+    storage_cost = total_storage_tb * assumptions["storage_per_tb_monthly"]
+    network_cost = num_hosts * assumptions["networking_per_host_monthly"]
+    dc_facilities = num_hosts * assumptions["dc_power_cooling_per_host_monthly"]
+    num_admins = max(1, math.ceil(num_vms / assumptions["vms_per_admin"]))
+    staff_cost = num_admins * assumptions["it_staff_cost_monthly"]
+    security_cost = num_vms * assumptions["security_compliance_per_vm_monthly"]
+    backup_dr = num_vms * assumptions["backup_dr_per_vm_monthly"]
+    downtime_monthly = (assumptions["downtime_cost_per_hour"] * assumptions["avg_downtime_hours_per_year"]) / 12
+
+    onprem_monthly = (hw_cost + hw_maint + vmware_lic + os_licensing +
+                      storage_cost + network_cost + dc_facilities +
+                      staff_cost + security_cost + backup_dr + downtime_monthly)
+    onprem_annual = onprem_monthly * 12
+
+    onprem_breakdown = {
+        "hardware_depreciation": round(hw_cost, 2),
+        "hardware_maintenance": round(hw_maint, 2),
+        "vmware_licensing": round(vmware_lic, 2),
+        "os_licensing": round(os_licensing, 2),
+        "storage": round(storage_cost, 2),
+        "networking": round(network_cost, 2),
+        "datacenter_facilities": round(dc_facilities, 2),
+        "it_staff": round(staff_cost, 2),
+        "security_compliance": round(security_cost, 2),
+        "backup_disaster_recovery": round(backup_dr, 2),
+        "downtime_cost": round(downtime_monthly, 2),
+    }
+
+    # === AZURE MONTHLY COSTS ===
+    region_mult = REGION_MULTIPLIERS.get(target_region, 1.0)
+    ri_mult = RI_DISCOUNTS.get(pricing_model, 1.0)
+
+    # Compute cost from recommendations
+    base_azure_compute = sum(r.get("estimated_monthly_cost_usd", 0) for r in recs)
+    azure_compute = base_azure_compute * region_mult * ri_mult
+
+    # Azure managed services
+    azure_support = azure_adds["azure_support_plan_monthly"]
+    azure_monitor = num_vms * azure_adds["azure_monitor_per_vm_monthly"]
+    azure_backup = num_vms * azure_adds["azure_backup_per_vm_monthly"]
+    azure_security = num_vms * azure_adds["azure_security_center_per_vm_monthly"]
+
+    # Staff savings: cloud requires fewer admins (industry: 2x VM/admin ratio)
+    cloud_admins = max(1, math.ceil(num_vms / (assumptions["vms_per_admin"] * 2)))
+    azure_staff = cloud_admins * assumptions["it_staff_cost_monthly"]
+
+    # No VMware licensing, reduced OS licensing (AHUB for Windows)
+    azure_os_licensing = round(linux_vms * assumptions["rhel_license_per_vm_monthly"] * 0.5, 2)  # RHEL discount
+
+    azure_monthly = (azure_compute + azure_support + azure_monitor +
+                     azure_backup + azure_security + azure_staff + azure_os_licensing)
+    azure_annual = azure_monthly * 12
+
+    azure_breakdown = {
+        "compute_vms": round(azure_compute, 2),
+        "support_plan": round(azure_support, 2),
+        "monitoring": round(azure_monitor, 2),
+        "backup": round(azure_backup, 2),
+        "security_defender": round(azure_security, 2),
+        "it_staff": round(azure_staff, 2),
+        "os_licensing": round(azure_os_licensing, 2),
+    }
+
+    # === MIGRATION ONE-TIME COSTS ===
+    migration_one_time = (azure_adds["migration_tooling_one_time"] +
+                          azure_adds["training_one_time"] +
+                          num_vms * azure_adds["migration_services_per_vm"])
+
+    migration_breakdown = {
+        "migration_tooling": azure_adds["migration_tooling_one_time"],
+        "staff_training": azure_adds["training_one_time"],
+        "professional_services": round(num_vms * azure_adds["migration_services_per_vm"], 2),
+    }
+
+    # === PaaS SAVINGS (optional) ===
+    paas_savings_monthly = 0.0
+    paas_details = []
+    if include_paas and _workload_data and _workload_data.get("recommendations"):
+        for wlrec in _workload_data["recommendations"]:
+            approach = wlrec.get("migration_approach", "rehost")
+            if approach in ("replatform", "refactor"):
+                wl_cost = wlrec.get("estimated_monthly_cost_usd", 0)
+                # PaaS typically saves 20-40% over IaaS equivalent
+                savings = wl_cost * 0.25
+                paas_savings_monthly += savings
+                paas_details.append({
+                    "workload": wlrec.get("workload_name", ""),
+                    "vm_name": wlrec.get("vm_name", ""),
+                    "service": wlrec.get("azure_service", ""),
+                    "approach": approach,
+                    "monthly_savings": round(savings, 2),
+                })
+
+    azure_monthly_with_paas = azure_monthly - paas_savings_monthly
+    azure_annual_with_paas = azure_monthly_with_paas * 12
+
+    # === TCO COMPARISON (multi-year) ===
+    monthly_savings = onprem_monthly - azure_monthly_with_paas
+    annual_savings = monthly_savings * 12
+    savings_pct = round((monthly_savings / onprem_monthly) * 100, 1) if onprem_monthly > 0 else 0
+
+    # Year-by-year projection
+    yearly_projection = []
+    cumulative_savings = -migration_one_time  # start negative (migration investment)
+    for year in range(1, analysis_years + 1):
+        onprem_year_cost = onprem_annual * (1.03 ** (year - 1))  # 3% YoY cost increase on-prem
+        azure_year_cost = azure_annual_with_paas * (1.01 ** (year - 1))  # 1% Azure cost growth
+        year_savings = onprem_year_cost - azure_year_cost
+        cumulative_savings += year_savings
+        yearly_projection.append({
+            "year": year,
+            "onprem_cost": round(onprem_year_cost, 2),
+            "azure_cost": round(azure_year_cost, 2),
+            "net_savings": round(year_savings, 2),
+            "cumulative_savings": round(cumulative_savings, 2),
+        })
+
+    # Payback period (months)
+    if monthly_savings > 0:
+        payback_months = math.ceil(migration_one_time / monthly_savings)
+    else:
+        payback_months = -1  # no payback
+
+    total_tco_onprem = sum(y["onprem_cost"] for y in yearly_projection)
+    total_tco_azure = sum(y["azure_cost"] for y in yearly_projection) + migration_one_time
+
+    # === KEY BENEFITS (qualitative + quantitative) ===
+    key_benefits = [
+        {
+            "icon": "cash-coin",
+            "title": "Cost Reduction",
+            "description": f"Save ${annual_savings:,.0f}/year ({savings_pct}% reduction) by eliminating hardware, facilities, and VMware licensing costs.",
+        },
+        {
+            "icon": "shield-check",
+            "title": "Enhanced Security",
+            "description": "Microsoft Defender for Cloud, Azure DDoS Protection, and built-in compliance certifications (SOC 2, ISO 27001, HIPAA).",
+        },
+        {
+            "icon": "lightning-charge",
+            "title": "Business Agility",
+            "description": f"Scale from {num_vms} VMs to thousands in minutes. No hardware procurement lead times.",
+        },
+        {
+            "icon": "arrow-repeat",
+            "title": "Disaster Recovery",
+            "description": "Azure Site Recovery provides 99.9% SLA with automated failover. Reduce DR costs by eliminating secondary data centre.",
+        },
+        {
+            "icon": "people",
+            "title": "Staff Optimisation",
+            "description": f"Reduce admin overhead from {num_admins} FTEs to {cloud_admins} FTEs. Re-deploy staff to innovation projects.",
+        },
+        {
+            "icon": "graph-up-arrow",
+            "title": "Innovation",
+            "description": "Access 200+ Azure services including AI/ML, IoT, and data analytics without additional infrastructure investment.",
+        },
+    ]
+
+    # === RISK ASSESSMENT ===
+    risks = []
+    not_ready = sum(1 for r in recs if r.get("migration_readiness") == "Not Ready")
+    conditional = sum(1 for r in recs if "condition" in r.get("migration_readiness", "").lower())
+    ready = num_vms - not_ready - conditional
+
+    if not_ready > 0:
+        risks.append({
+            "severity": "high",
+            "area": "Compatibility",
+            "description": f"{not_ready} VM(s) flagged as Not Ready — require manual assessment or re-architecture before migration.",
+        })
+    if conditional > 5:
+        risks.append({
+            "severity": "medium",
+            "area": "Conditional Readiness",
+            "description": f"{conditional} VM(s) have conditions that need to be addressed (disk sizes, OS compatibility).",
+        })
+    if num_vms > 100:
+        risks.append({
+            "severity": "medium",
+            "area": "Migration Complexity",
+            "description": f"Large fleet ({num_vms} VMs) — recommend phased migration over {max(3, num_vms // 50)} waves.",
+        })
+    if total_disk_tb > 50:
+        risks.append({
+            "severity": "medium",
+            "area": "Data Transfer",
+            "description": f"{total_disk_tb:.1f} TB of data — consider Azure Data Box for initial transfer to reduce migration window.",
+        })
+    risks.append({
+        "severity": "low",
+        "area": "Change Management",
+        "description": "Staff training and process changes required. Budget for cloud operations training programme.",
+    })
+
+    # === EXECUTIVE SUMMARY METRICS ===
+    exec_summary = {
+        "total_vms": num_vms,
+        "powered_on": powered_on,
+        "total_hosts": num_hosts,
+        "total_vcpus": total_vcpus,
+        "total_memory_gb": round(total_memory_gb, 1),
+        "total_storage_tb": round(total_storage_tb, 1),
+        "readiness_ready": ready,
+        "readiness_conditional": conditional,
+        "readiness_not_ready": not_ready,
+        "readiness_pct": round((ready / num_vms) * 100, 1) if num_vms > 0 else 0,
+    }
+
+    return jsonify({
+        "executive_summary": exec_summary,
+        "pricing_model": pricing_model,
+        "target_region": target_region,
+        "analysis_years": analysis_years,
+        "onprem_monthly": round(onprem_monthly, 2),
+        "onprem_annual": round(onprem_annual, 2),
+        "onprem_breakdown": onprem_breakdown,
+        "azure_monthly": round(azure_monthly_with_paas, 2),
+        "azure_annual": round(azure_annual_with_paas, 2),
+        "azure_breakdown": azure_breakdown,
+        "migration_one_time": round(migration_one_time, 2),
+        "migration_breakdown": migration_breakdown,
+        "paas_savings_monthly": round(paas_savings_monthly, 2),
+        "paas_details": paas_details,
+        "monthly_savings": round(monthly_savings, 2),
+        "annual_savings": round(annual_savings, 2),
+        "savings_pct": savings_pct,
+        "total_tco_onprem": round(total_tco_onprem, 2),
+        "total_tco_azure": round(total_tco_azure, 2),
+        "total_tco_savings": round(total_tco_onprem - total_tco_azure, 2),
+        "payback_months": payback_months,
+        "yearly_projection": yearly_projection,
+        "key_benefits": key_benefits,
+        "risks": risks,
+        "assumptions": {**assumptions, **azure_adds},
+    })
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
