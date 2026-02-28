@@ -440,6 +440,43 @@
                             </div>
                             <div class="text-muted small mb-3 mt-1"><i class="bi bi-info-circle me-1"></i>Add multiple credentials — discovery will try each until one succeeds.</div>
 
+                            <!-- Database Credentials (for deep DB probing) -->
+                            <hr class="border-secondary my-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="small text-muted mb-0"><i class="bi bi-database me-1"></i>Database Credentials <span class="badge bg-info bg-opacity-25 text-info ms-1" style="font-size:0.65rem;">Optional</span></h6>
+                                <button class="btn btn-sm" style="background:#21262d;color:#58a6ff;border:1px solid #30363d;font-size:0.75rem;padding:2px 8px;" onclick="addDbCred()">
+                                    <i class="bi bi-plus-lg me-1"></i>Add
+                                </button>
+                            </div>
+                            <div id="wl-db-creds-list">
+                                <div class="wl-cred-entry mb-2" data-os="db">
+                                    <div class="row g-2 mb-1">
+                                        <div class="col-3">
+                                            <select class="form-select form-select-sm wl-db-engine">
+                                                <option value="auto">Auto-detect</option>
+                                                <option value="mssql">SQL Server</option>
+                                                <option value="mysql">MySQL</option>
+                                                <option value="postgresql">PostgreSQL</option>
+                                                <option value="mongodb">MongoDB</option>
+                                                <option value="redis">Redis</option>
+                                                <option value="oracle">Oracle</option>
+                                                <option value="mariadb">MariaDB</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm wl-db-user" placeholder="Username (e.g. sa)">
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="password" class="form-control form-control-sm wl-db-pass" placeholder="Password">
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="number" class="form-control form-control-sm wl-db-port" placeholder="Port (auto)" title="Leave blank for default port">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-muted small mb-3 mt-1"><i class="bi bi-info-circle me-1"></i>Provide DB credentials to deep-discover databases (schemas, tables, sizes, users). Connects directly to DB engines found on each VM.</div>
+
                             <label class="form-label small">VM Selection</label>
                             <select class="form-select form-select-sm mb-3" id="wl-vm-selection">
                                 <option value="powered_on">Powered On VMs</option>
@@ -2970,6 +3007,55 @@
         container.appendChild(entry);
     }
 
+    function addDbCred() {
+        const container = document.getElementById('wl-db-creds-list');
+        const entry = document.createElement('div');
+        entry.className = 'wl-cred-entry mb-2';
+        entry.dataset.os = 'db';
+        entry.innerHTML = `<div class="row g-2 mb-1">
+            <div class="col-3">
+                <select class="form-select form-select-sm wl-db-engine">
+                    <option value="auto">Auto-detect</option>
+                    <option value="mssql">SQL Server</option>
+                    <option value="mysql">MySQL</option>
+                    <option value="postgresql">PostgreSQL</option>
+                    <option value="mongodb">MongoDB</option>
+                    <option value="redis">Redis</option>
+                    <option value="oracle">Oracle</option>
+                    <option value="mariadb">MariaDB</option>
+                </select>
+            </div>
+            <div class="col-3">
+                <input type="text" class="form-control form-control-sm wl-db-user" placeholder="Username">
+            </div>
+            <div class="col-2">
+                <input type="password" class="form-control form-control-sm wl-db-pass" placeholder="Password">
+            </div>
+            <div class="col-2">
+                <input type="number" class="form-control form-control-sm wl-db-port" placeholder="Port">
+            </div>
+            <div class="col-2 d-flex align-items-center">
+                <button class="btn btn-sm" style="color:#ef4444;background:transparent;border:none;padding:2px 6px;" onclick="this.closest('.wl-cred-entry').remove()" title="Remove"><i class="bi bi-x-lg"></i></button>
+            </div>
+        </div>`;
+        container.appendChild(entry);
+    }
+
+    function collectDbCredentials() {
+        const entries = document.getElementById('wl-db-creds-list').querySelectorAll('.wl-cred-entry');
+        const creds = [];
+        entries.forEach(entry => {
+            const engine = entry.querySelector('.wl-db-engine').value;
+            const user = entry.querySelector('.wl-db-user').value.trim();
+            const pass = entry.querySelector('.wl-db-pass').value;
+            const port = parseInt(entry.querySelector('.wl-db-port').value) || 0;
+            if (user) {
+                creds.push({ engine: engine, username: user, password: pass, port: port });
+            }
+        });
+        return creds;
+    }
+
     function collectCredentials(osType) {
         const prefix = osType === 'linux' ? 'wl-linux' : 'wl-win';
         const listId = osType === 'linux' ? 'wl-linux-creds-list' : 'wl-win-creds-list';
@@ -2989,6 +3075,7 @@
     async function startWorkloadDiscovery() {
         const linuxCreds = collectCredentials('linux');
         const winCreds   = collectCredentials('windows');
+        const dbCreds    = collectDbCredentials();
         const selection = document.getElementById('wl-vm-selection').value;
         const workers   = parseInt(document.getElementById('wl-workers').value) || 5;
         const ipMappings = parseIpMappings();
@@ -3012,6 +3099,7 @@
         };
         if (linuxCreds.length > 0) { body.linux_credentials = linuxCreds; }
         if (winCreds.length > 0)   { body.windows_credentials = winCreds; }
+        if (dbCreds.length > 0)    { body.database_credentials = dbCreds; }
 
         try {
             const res = await fetch('/api/workloads/discover', {
@@ -3110,15 +3198,19 @@
                 details: `Databases: ${(vmw.databases||[]).length} | Web Apps: ${(vmw.web_apps||[]).length} | Containers: ${(vmw.container_runtimes||[]).length} | Orch: ${(vmw.orchestrators||[]).length}`,
             });
             for (const db of (vmw.databases || [])) {
+                const sizeInfo = db.total_size_gb ? ` | Size: ${db.total_size_gb} GB` : (db.size_mb ? ` | Size: ${(db.size_mb/1024).toFixed(2)} GB` : '');
+                const tableInfo = db.table_count ? ` | Tables: ${db.table_count}` : '';
+                const connInfo = db.active_connections ? ` | Active Conns: ${db.active_connections}` : '';
+                const methodBadge = db.discovery_method === 'direct_connect' ? ' ✓ Deep' : '';
                 wlInventoryRows.push({
                     vm: vmw.vm_name,
                     type: 'Database',
                     typeIcon: 'bi-database',
                     typeColor: '#f59e0b',
-                    workload: `${db.engine} (${db.instance_name || 'default'})`,
+                    workload: `${db.engine} (${db.instance_name || 'default'})${methodBadge}`,
                     version: db.version || '?',
                     port: db.port || '',
-                    details: `DBs: ${(db.databases || []).join(', ') || 'N/A'}${db.edition ? ' | Ed: '+db.edition : ''}`,
+                    details: `DBs: ${(db.databases || []).join(', ') || 'N/A'}${db.edition ? ' | Ed: '+db.edition : ''}${sizeInfo}${tableInfo}${connInfo}`,
                 });
             }
             for (const wa of (vmw.web_apps || [])) {

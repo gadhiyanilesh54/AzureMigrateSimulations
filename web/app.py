@@ -26,7 +26,7 @@ sys.path.insert(0, str(_project_root / "src"))
 from digital_twin_migrate.vcenter_discovery import discover_environment  # noqa: E402
 from digital_twin_migrate.azure_mapping import generate_recommendations  # noqa: E402
 from digital_twin_migrate.config import VCenterConfig  # noqa: E402
-from digital_twin_migrate.guest_discovery import GuestDiscoverer, Credential  # noqa: E402
+from digital_twin_migrate.guest_discovery import GuestDiscoverer, Credential, DatabaseCredential, deep_probe_databases  # noqa: E402
 from digital_twin_migrate.workload_mapping import generate_workload_recommendations  # noqa: E402
 
 app = Flask(__name__)
@@ -1499,6 +1499,8 @@ def api_workload_discover():
     {
         "linux_credentials": [{"username": "...", "password": "...", "port": 22}, ...],
         "windows_credentials": [{"username": "...", "password": "...", "port": 5985}, ...],
+        "database_credentials": [{"engine": "mysql|postgresql|mssql|mongodb|redis|auto",
+                                   "username": "...", "password": "...", "port": 3306}, ...],
         "vm_selection": "all" | "powered_on" | ["vm1","vm2"],
         "max_workers": 5,
         "ip_mappings": {"VM-Name": "10.0.0.1", ...}  // optional manual overrides
@@ -1555,6 +1557,18 @@ def api_workload_discover():
     if not linux_creds and not win_creds:
         return jsonify({"error": "Provide at least Linux or Windows credentials"}), 400
 
+    # Parse database credentials for deep DB probing
+    db_creds: list[DatabaseCredential] = []
+    for c in body.get("database_credentials", []):
+        if c.get("username"):
+            db_creds.append(DatabaseCredential(
+                engine=c.get("engine", "auto"),
+                username=c["username"],
+                password=c.get("password", ""),
+                port=int(c.get("port", 0)),
+                host=c.get("host", ""),
+            ))
+
     # Parse manual IP mappings
     manual_map: dict[str, str] = body.get("ip_mappings", {})
 
@@ -1604,7 +1618,9 @@ def api_workload_discover():
         global _workload_data
         try:
             result = _workload_discoverer.discover_all(
-                targets, linux_creds, win_creds, max_workers=max_workers,
+                targets, linux_creds, win_creds,
+                db_creds=db_creds if db_creds else None,
+                max_workers=max_workers,
             )
             # Generate recommendations
             recs = generate_workload_recommendations(result)
@@ -1637,6 +1653,47 @@ def api_workload_discover():
 
     threading.Thread(target=_run_workload_discovery, daemon=True).start()
     return jsonify({"status": "started", "targets": len(targets), "skipped": len(skipped)})
+
+
+@app.route("/api/databases/discover", methods=["POST"])
+def api_database_discover():
+    """Discover databases by connecting directly to DB servers (no SSH/WinRM needed).
+
+    Body JSON:
+    {
+        "targets": [
+            {"host": "10.0.0.5", "engine": "mysql", "username": "root", "password": "...", "port": 3306},
+            {"host": "10.0.0.6", "engine": "auto", "username": "admin", "password": "...", "port": 0},
+            ...
+        ]
+    }
+    """
+    body = request.get_json(force=True)
+    targets = body.get("targets", [])
+    if not targets:
+        return jsonify({"error": "Provide at least one database target"}), 400
+
+    results = []
+    for t in targets:
+        host = t.get("host", "").strip()
+        if not host:
+            continue
+        db_cred = DatabaseCredential(
+            engine=t.get("engine", "auto"),
+            username=t.get("username", ""),
+            password=t.get("password", ""),
+            port=int(t.get("port", 0)),
+            host=host,
+        )
+        discovered = deep_probe_databases(host, [db_cred])
+        from dataclasses import asdict as _asdict
+        for db in discovered:
+            d = _asdict(db)
+            d = json.loads(json.dumps(d, default=str))
+            d["host"] = host
+            results.append(d)
+
+    return jsonify({"databases": results, "total": len(results)})
 
 
 @app.route("/api/workloads/status")

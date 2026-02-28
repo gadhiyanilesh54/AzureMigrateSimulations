@@ -53,6 +53,24 @@ class Credential:
         self.use_sudo = use_sudo
 
 
+class DatabaseCredential:
+    """Credentials for direct database server connections."""
+    def __init__(self, engine: str, username: str, password: str,
+                 *, port: int = 0, host: str = ""):
+        self.engine = engine.lower()    # mssql / mysql / postgresql / oracle / mongodb / redis / auto
+        self.username = username
+        self.password = password
+        self.port = port or self._default_port()
+        self.host = host                # optional — if empty, use the VM's IP
+
+    def _default_port(self) -> int:
+        return {
+            "mssql": 1433, "mysql": 3306, "mariadb": 3306,
+            "postgresql": 5432, "oracle": 1521,
+            "mongodb": 27017, "redis": 6379,
+        }.get(self.engine, 0)
+
+
 # ---------------------------------------------------------------------------
 # Remote command runners
 # ---------------------------------------------------------------------------
@@ -776,6 +794,459 @@ def _probe_win_orchestrators(ip: str, cred: Credential) -> list[DiscoveredOrches
 
 
 # ===================================================================
+#  DIRECT DATABASE PROBING (via Python DB drivers)
+# ===================================================================
+
+def _deep_probe_mysql(host: str, db_cred: DatabaseCredential,
+                      existing: DiscoveredDatabase | None = None) -> DiscoveredDatabase:
+    """Connect directly to MySQL/MariaDB and discover databases, tables, sizes."""
+    port = db_cred.port or 3306
+    db = existing or DiscoveredDatabase(engine=DatabaseEngine.MYSQL, port=port, host=host)
+    db.host = host
+    db.discovery_method = "direct_connect"
+    try:
+        import pymysql  # type: ignore
+    except ImportError:
+        try:
+            import mysql.connector as pymysql  # type: ignore
+        except ImportError:
+            db.connection_error = "pymysql or mysql-connector-python not installed"
+            logger.warning("MySQL driver not available for deep probe on %s", host)
+            return db
+
+    try:
+        conn = pymysql.connect(host=host, port=port, user=db_cred.username,
+                               password=db_cred.password, connect_timeout=10)
+        cur = conn.cursor()
+
+        # Version
+        cur.execute("SELECT VERSION()")
+        row = cur.fetchone()
+        if row:
+            db.version = str(row[0])
+            if "mariadb" in db.version.lower():
+                db.engine = DatabaseEngine.MARIADB
+
+        # Databases
+        cur.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA "
+                    "WHERE SCHEMA_NAME NOT IN ('information_schema','performance_schema','mysql','sys')")
+        db.databases = [r[0] for r in cur.fetchall()]
+
+        # Table count
+        cur.execute("SELECT COUNT(*) FROM information_schema.TABLES "
+                    "WHERE TABLE_SCHEMA NOT IN ('information_schema','performance_schema','mysql','sys')")
+        db.table_count = cur.fetchone()[0]
+
+        # Schema count
+        db.schema_count = len(db.databases)
+
+        # Total size in GB
+        cur.execute("SELECT ROUND(SUM(data_length + index_length) / 1073741824, 2) "
+                    "FROM information_schema.TABLES")
+        row = cur.fetchone()
+        db.total_size_gb = float(row[0]) if row and row[0] else 0.0
+        db.size_mb = db.total_size_gb * 1024
+
+        # Max connections
+        cur.execute("SHOW VARIABLES LIKE 'max_connections'")
+        row = cur.fetchone()
+        if row:
+            db.max_connections = int(row[1])
+
+        # Active connections
+        cur.execute("SELECT COUNT(*) FROM information_schema.PROCESSLIST")
+        db.active_connections = cur.fetchone()[0]
+
+        # Users
+        try:
+            cur.execute("SELECT DISTINCT User FROM mysql.user WHERE User != ''")
+            db.users = [r[0] for r in cur.fetchall()]
+        except Exception:
+            pass
+
+        # Edition
+        try:
+            cur.execute("SHOW VARIABLES LIKE 'version_comment'")
+            row = cur.fetchone()
+            if row:
+                db.edition = str(row[1])
+        except Exception:
+            pass
+
+        db.instance_name = db.instance_name or "default"
+        db.status = "running"
+        db.connection_error = ""
+        cur.close()
+        conn.close()
+        logger.info("Deep MySQL probe on %s:%d — %d databases, %.2f GB",
+                     host, port, len(db.databases), db.total_size_gb)
+    except Exception as exc:
+        db.connection_error = str(exc)
+        logger.warning("MySQL deep probe failed on %s:%d — %s", host, port, exc)
+    return db
+
+
+def _deep_probe_postgresql(host: str, db_cred: DatabaseCredential,
+                           existing: DiscoveredDatabase | None = None) -> DiscoveredDatabase:
+    """Connect directly to PostgreSQL and discover databases, tables, sizes."""
+    port = db_cred.port or 5432
+    db = existing or DiscoveredDatabase(engine=DatabaseEngine.POSTGRESQL, port=port, host=host)
+    db.host = host
+    db.discovery_method = "direct_connect"
+    try:
+        import psycopg2  # type: ignore
+    except ImportError:
+        db.connection_error = "psycopg2 not installed"
+        logger.warning("psycopg2 not available for deep probe on %s", host)
+        return db
+
+    try:
+        conn = psycopg2.connect(host=host, port=port, user=db_cred.username,
+                                password=db_cred.password, dbname="postgres",
+                                connect_timeout=10)
+        conn.autocommit = True
+        cur = conn.cursor()
+
+        # Version
+        cur.execute("SELECT version()")
+        row = cur.fetchone()
+        if row:
+            m = re.search(r'PostgreSQL (\d+[\.\d]*)', str(row[0]))
+            if m:
+                db.version = m.group(1)
+
+        # Databases
+        cur.execute("SELECT datname FROM pg_database WHERE datistemplate = false")
+        db.databases = [r[0] for r in cur.fetchall()]
+
+        # Schema count (across all user DBs, from pg_namespace of current db)
+        cur.execute("SELECT COUNT(*) FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' "
+                    "AND nspname != 'information_schema'")
+        db.schema_count = cur.fetchone()[0]
+
+        # Table count (current db)
+        cur.execute("SELECT COUNT(*) FROM information_schema.tables "
+                    "WHERE table_schema NOT IN ('pg_catalog','information_schema')")
+        db.table_count = cur.fetchone()[0]
+
+        # Total size in GB
+        cur.execute("SELECT ROUND(SUM(pg_database_size(datname))::numeric / 1073741824, 2) "
+                    "FROM pg_database WHERE datistemplate = false")
+        row = cur.fetchone()
+        db.total_size_gb = float(row[0]) if row and row[0] else 0.0
+        db.size_mb = db.total_size_gb * 1024
+
+        # Max connections
+        cur.execute("SHOW max_connections")
+        row = cur.fetchone()
+        if row:
+            db.max_connections = int(row[0])
+
+        # Active connections
+        cur.execute("SELECT COUNT(*) FROM pg_stat_activity")
+        db.active_connections = cur.fetchone()[0]
+
+        # Users
+        cur.execute("SELECT usename FROM pg_user")
+        db.users = [r[0] for r in cur.fetchall()]
+
+        # Edition
+        cur.execute("SELECT version()")
+        row = cur.fetchone()
+        if row:
+            db.edition = str(row[0]).split(",")[0] if row[0] else ""
+
+        db.instance_name = db.instance_name or "default"
+        db.status = "running"
+        db.connection_error = ""
+        cur.close()
+        conn.close()
+        logger.info("Deep PostgreSQL probe on %s:%d — %d databases, %.2f GB",
+                     host, port, len(db.databases), db.total_size_gb)
+    except Exception as exc:
+        db.connection_error = str(exc)
+        logger.warning("PostgreSQL deep probe failed on %s:%d — %s", host, port, exc)
+    return db
+
+
+def _deep_probe_mssql(host: str, db_cred: DatabaseCredential,
+                      existing: DiscoveredDatabase | None = None) -> DiscoveredDatabase:
+    """Connect directly to SQL Server and discover databases, tables, sizes."""
+    port = db_cred.port or 1433
+    db = existing or DiscoveredDatabase(engine=DatabaseEngine.MSSQL, port=port, host=host)
+    db.host = host
+    db.discovery_method = "direct_connect"
+    try:
+        import pymssql  # type: ignore
+    except ImportError:
+        db.connection_error = "pymssql not installed"
+        logger.warning("pymssql not available for deep probe on %s", host)
+        return db
+
+    try:
+        conn = pymssql.connect(server=host, port=str(port), user=db_cred.username,
+                               password=db_cred.password, login_timeout=10)
+        cur = conn.cursor()
+
+        # Version & Edition
+        cur.execute("SELECT @@VERSION")
+        row = cur.fetchone()
+        if row:
+            ver_str = str(row[0])
+            m = re.search(r'(\d+\.\d+[\.\d]*)', ver_str)
+            if m:
+                db.version = m.group(1)
+            # Extract edition
+            m2 = re.search(r'(Enterprise|Standard|Developer|Express|Web)', ver_str)
+            if m2:
+                db.edition = m2.group(1)
+
+        # Databases
+        cur.execute("SELECT name FROM sys.databases WHERE database_id > 4")
+        db.databases = [r[0] for r in cur.fetchall()]
+
+        # Table count
+        cur.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_type = 'BASE TABLE'")
+        db.table_count = cur.fetchone()[0]
+
+        # Schema count
+        cur.execute("SELECT COUNT(DISTINCT table_schema) FROM information_schema.tables")
+        db.schema_count = cur.fetchone()[0]
+
+        # Total size in GB
+        cur.execute("SELECT ROUND(SUM(CAST(size AS BIGINT)) * 8.0 / 1048576, 2) "
+                    "FROM sys.master_files")
+        row = cur.fetchone()
+        db.total_size_gb = float(row[0]) if row and row[0] else 0.0
+        db.size_mb = db.total_size_gb * 1024
+
+        # Max connections (SQL Server default is 32767)
+        cur.execute("SELECT @@MAX_CONNECTIONS")
+        row = cur.fetchone()
+        if row:
+            db.max_connections = int(row[0])
+
+        # Active connections
+        cur.execute("SELECT COUNT(*) FROM sys.dm_exec_sessions WHERE is_user_process = 1")
+        db.active_connections = cur.fetchone()[0]
+
+        # Users
+        cur.execute("SELECT name FROM sys.server_principals WHERE type IN ('S','U') "
+                    "AND name NOT LIKE '##%' AND name != 'sa'")
+        db.users = [r[0] for r in cur.fetchall()]
+
+        db.instance_name = db.instance_name or "MSSQLSERVER"
+        db.status = "running"
+        db.connection_error = ""
+        cur.close()
+        conn.close()
+        logger.info("Deep MSSQL probe on %s:%d — %d databases, %.2f GB",
+                     host, port, len(db.databases), db.total_size_gb)
+    except Exception as exc:
+        db.connection_error = str(exc)
+        logger.warning("MSSQL deep probe failed on %s:%d — %s", host, port, exc)
+    return db
+
+
+def _deep_probe_mongodb(host: str, db_cred: DatabaseCredential,
+                        existing: DiscoveredDatabase | None = None) -> DiscoveredDatabase:
+    """Connect directly to MongoDB and discover databases, collections, sizes."""
+    port = db_cred.port or 27017
+    db = existing or DiscoveredDatabase(engine=DatabaseEngine.MONGODB, port=port, host=host)
+    db.host = host
+    db.discovery_method = "direct_connect"
+    try:
+        import pymongo  # type: ignore
+    except ImportError:
+        db.connection_error = "pymongo not installed"
+        logger.warning("pymongo not available for deep probe on %s", host)
+        return db
+
+    try:
+        client = pymongo.MongoClient(
+            host=host, port=port,
+            username=db_cred.username or None,
+            password=db_cred.password or None,
+            serverSelectionTimeoutMS=10000, connectTimeoutMS=10000,
+        )
+        # Force connection
+        server_info = client.server_info()
+        db.version = server_info.get("version", "unknown")
+
+        # Databases
+        db_names = [n for n in client.list_database_names()
+                    if n not in ("admin", "config", "local")]
+        db.databases = db_names
+
+        # Collection (table) count
+        total_collections = 0
+        total_size = 0
+        for db_name in db_names:
+            d = client[db_name]
+            total_collections += len(d.list_collection_names())
+            stats = d.command("dbStats")
+            total_size += stats.get("dataSize", 0) + stats.get("indexSize", 0)
+        db.table_count = total_collections
+        db.schema_count = len(db_names)
+        db.total_size_gb = round(total_size / 1073741824, 2)
+        db.size_mb = db.total_size_gb * 1024
+
+        # Users
+        try:
+            admin_db = client["admin"]
+            users_info = admin_db.command("usersInfo")
+            db.users = [u["user"] for u in users_info.get("users", [])]
+        except Exception:
+            pass
+
+        # Active connections
+        try:
+            status = client.admin.command("serverStatus")
+            conns = status.get("connections", {})
+            db.active_connections = conns.get("current", 0)
+            db.max_connections = conns.get("available", 0) + conns.get("current", 0)
+        except Exception:
+            pass
+
+        db.instance_name = db.instance_name or "default"
+        db.status = "running"
+        db.connection_error = ""
+        client.close()
+        logger.info("Deep MongoDB probe on %s:%d — %d databases, %.2f GB",
+                     host, port, len(db.databases), db.total_size_gb)
+    except Exception as exc:
+        db.connection_error = str(exc)
+        logger.warning("MongoDB deep probe failed on %s:%d — %s", host, port, exc)
+    return db
+
+
+def _deep_probe_redis(host: str, db_cred: DatabaseCredential,
+                      existing: DiscoveredDatabase | None = None) -> DiscoveredDatabase:
+    """Connect directly to Redis and discover basic stats."""
+    port = db_cred.port or 6379
+    db = existing or DiscoveredDatabase(engine=DatabaseEngine.REDIS, port=port, host=host)
+    db.host = host
+    db.discovery_method = "direct_connect"
+    try:
+        import redis as redis_lib  # type: ignore
+    except ImportError:
+        db.connection_error = "redis package not installed"
+        logger.warning("redis-py not available for deep probe on %s", host)
+        return db
+
+    try:
+        r = redis_lib.Redis(
+            host=host, port=port,
+            password=db_cred.password or None,
+            socket_connect_timeout=10, decode_responses=True,
+        )
+        info = r.info()
+        db.version = info.get("redis_version", "unknown")
+        db.active_connections = info.get("connected_clients", 0)
+        db.max_connections = int(info.get("maxclients", 0))
+        db.edition = info.get("redis_mode", "standalone")
+
+        # DB sizes
+        db_sizes = {k: v for k, v in info.items() if k.startswith("db")}
+        db.databases = list(db_sizes.keys()) if db_sizes else ["db0"]
+        db.table_count = sum(v.get("keys", 0) if isinstance(v, dict) else 0
+                             for v in db_sizes.values())
+
+        # Memory as size
+        used_mem = info.get("used_memory", 0)
+        db.total_size_gb = round(used_mem / 1073741824, 3)
+        db.size_mb = round(used_mem / 1048576, 2)
+
+        db.instance_name = db.instance_name or "default"
+        db.status = "running"
+        db.connection_error = ""
+        r.close()
+        logger.info("Deep Redis probe on %s:%d — %.2f GB used memory",
+                     host, port, db.total_size_gb)
+    except Exception as exc:
+        db.connection_error = str(exc)
+        logger.warning("Redis deep probe failed on %s:%d — %s", host, port, exc)
+    return db
+
+
+_DEEP_PROBE_MAP = {
+    "mysql": _deep_probe_mysql,
+    "mariadb": _deep_probe_mysql,
+    "postgresql": _deep_probe_postgresql,
+    "mssql": _deep_probe_mssql,
+    "mongodb": _deep_probe_mongodb,
+    "redis": _deep_probe_redis,
+}
+
+_ENGINE_PORT_MAP = {
+    3306: "mysql", 5432: "postgresql", 1433: "mssql",
+    1521: "oracle", 27017: "mongodb", 6379: "redis",
+}
+
+
+def deep_probe_databases(
+    host: str,
+    db_creds: list[DatabaseCredential],
+    existing_dbs: list[DiscoveredDatabase] | None = None,
+) -> list[DiscoveredDatabase]:
+    """Enrich or create DiscoveredDatabase entries using direct DB credentials.
+
+    1. For each existing discovered DB, try matching DB credentials and run deep probe.
+    2. For DB credentials with engine != 'auto' that didn't match any existing DB,
+       probe as new databases on the host.
+    3. For 'auto' credentials, try common ports to auto-detect engines.
+    """
+    existing = list(existing_dbs or [])
+    results: list[DiscoveredDatabase] = []
+    used_creds: set[int] = set()      # indices of creds already consumed
+
+    # Pass 1: enrich existing databases
+    for db in existing:
+        eng_key = db.engine.value.lower()
+        for ci, cred in enumerate(db_creds):
+            if cred.engine in (eng_key, "auto") or (cred.port and cred.port == db.port):
+                probe_fn = _DEEP_PROBE_MAP.get(eng_key)
+                if probe_fn:
+                    probe_fn(host, cred, existing=db)
+                    used_creds.add(ci)
+                    break
+        results.append(db)
+
+    # Pass 2: discover new engines from unused credentials
+    existing_engines = {(db.engine.value.lower(), db.port) for db in existing}
+    for ci, cred in enumerate(db_creds):
+        if ci in used_creds:
+            continue
+        if cred.engine == "auto":
+            # Try all common ports
+            for port, eng_name in _ENGINE_PORT_MAP.items():
+                if (eng_name, port) in existing_engines:
+                    continue
+                probe_fn = _DEEP_PROBE_MAP.get(eng_name)
+                if probe_fn:
+                    auto_cred = DatabaseCredential(
+                        engine=eng_name, username=cred.username,
+                        password=cred.password, port=port, host=cred.host,
+                    )
+                    new_db = probe_fn(host, auto_cred)
+                    if not new_db.connection_error:
+                        results.append(new_db)
+                        existing_engines.add((eng_name, port))
+        else:
+            eng_key = cred.engine
+            port = cred.port or DatabaseCredential(engine=eng_key, username="", password="")._default_port()
+            if (eng_key, port) in existing_engines:
+                continue
+            probe_fn = _DEEP_PROBE_MAP.get(eng_key)
+            if probe_fn:
+                new_db = probe_fn(host, cred)
+                if not new_db.connection_error:
+                    results.append(new_db)
+
+    return results
+
+
+# ===================================================================
 #  MAIN DISCOVERY ORCHESTRATOR
 # ===================================================================
 
@@ -820,11 +1291,13 @@ class GuestDiscoverer:
 
     def discover_vm(self, vm_name: str, ip: str, os_family: str,
                     linux_creds: list[Credential] | Credential | None = None,
-                    windows_creds: list[Credential] | Credential | None = None) -> VMWorkloads:
+                    windows_creds: list[Credential] | Credential | None = None,
+                    db_creds: list[DatabaseCredential] | None = None) -> VMWorkloads:
         """Run all probes against a single VM, trying multiple credentials.
 
         Accepts either a single Credential or a list of Credentials.
         Each credential is attempted in order until one succeeds.
+        Database credentials are used for deep probing after OS-level discovery.
         """
         wl = VMWorkloads(vm_name=vm_name, ip_addresses=[ip], os_family=os_family)
 
@@ -910,6 +1383,15 @@ class GuestDiscoverer:
             for orch in wl.orchestrators:
                 orch.vm_name = vm_name
 
+            # Deep database probing with DB credentials
+            if db_creds:
+                logger.debug("Running deep DB probes on %s with %d DB credentials",
+                             vm_name, len(db_creds))
+                wl.databases = deep_probe_databases(ip, db_creds, wl.databases)
+                # Re-set vm_name on any new DB entries
+                for db in wl.databases:
+                    db.vm_name = vm_name
+
             wl.scan_status = "complete"
 
         except Exception as exc:
@@ -926,6 +1408,7 @@ class GuestDiscoverer:
         vm_targets: list[dict],
         linux_creds: list[Credential] | Credential | None = None,
         windows_creds: list[Credential] | Credential | None = None,
+        db_creds: list[DatabaseCredential] | None = None,
         max_workers: int = 5,
     ) -> WorkloadDiscoveryResult:
         """
@@ -938,6 +1421,8 @@ class GuestDiscoverer:
         linux_creds / windows_creds : list[Credential] | Credential | None
             One or more credentials for the respective OS families.
             Each credential is tried in order until one succeeds.
+        db_creds : list[DatabaseCredential] | None
+            Database credentials for deep probing (direct DB connections).
         max_workers : int
             Parallelism for SSH/WinRM connections.
 
@@ -967,7 +1452,7 @@ class GuestDiscoverer:
             ip = target["ip"]
             os = target["os_family"]
             self._update(current_vm=name, message=f"Scanning {name} ({ip})…")
-            wl = self.discover_vm(name, ip, os, linux_creds, windows_creds)
+            wl = self.discover_vm(name, ip, os, linux_creds, windows_creds, db_creds=db_creds)
             done += 1
             if wl.scan_status == "error":
                 errors += 1

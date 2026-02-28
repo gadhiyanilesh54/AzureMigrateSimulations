@@ -72,6 +72,16 @@ class DiscoveredDatabase:
     size_mb: float = 0.0
     status: str = "running"
     edition: str = ""          # e.g. Enterprise, Standard, Community
+    # Extended fields from deep DB credential-based discovery
+    host: str = ""             # hostname / IP used to connect
+    table_count: int = 0
+    schema_count: int = 0
+    total_size_gb: float = 0.0
+    max_connections: int = 0
+    active_connections: int = 0
+    users: list[str] = field(default_factory=list)
+    discovery_method: str = "process_scan"   # process_scan | direct_connect
+    connection_error: str = ""               # error message if direct connect failed
 
 
 @dataclass
