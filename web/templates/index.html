@@ -193,10 +193,20 @@
                     </div>
                     <div class="col-4 d-flex align-items-end">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="vcPerf" checked>
+                            <input class="form-check-input" type="checkbox" id="vcPerf" checked
+                                   onchange="document.getElementById('perfDurationRow').style.display=this.checked?'block':'none'">
                             <label class="form-check-label" for="vcPerf">Collect perf data</label>
                         </div>
                     </div>
+                </div>
+                <div class="mb-3" id="perfDurationRow">
+                    <label class="form-label" for="vcPerfDuration">Performance Data Capture Duration</label>
+                    <select class="form-select" id="vcPerfDuration">
+                        <option value="1">1 Day</option>
+                        <option value="7" selected>7 Days (Recommended)</option>
+                        <option value="30">30 Days</option>
+                    </select>
+                    <div class="form-text" style="color:#8b949e">Longer duration gives more accurate right-sizing recommendations</div>
                 </div>
                 <button type="submit" class="btn btn-azure w-100" id="btnConnect">
                     <i class="bi bi-plug me-2"></i>Connect &amp; Discover
@@ -3904,6 +3914,7 @@
         const port = parseInt(document.getElementById('vcPort').value) || 443;
         const ssl  = document.getElementById('vcSsl').checked;
         const perf = document.getElementById('vcPerf').checked;
+        const perfDays = parseInt(document.getElementById('vcPerfDuration').value) || 7;
 
         hideConnectError();
         document.getElementById('btnConnect').disabled = true;
@@ -3916,7 +3927,8 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 vcenter_url: url, username: user, password: pass,
-                port: port, disable_ssl: ssl, collect_perf: perf
+                port: port, disable_ssl: ssl, collect_perf: perf,
+                perf_duration_days: perfDays
             })
         })
         .then(r => r.json())

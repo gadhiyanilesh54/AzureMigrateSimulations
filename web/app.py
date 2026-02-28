@@ -93,8 +93,8 @@ _workload_whatif_overrides: dict[str, dict] = {}
 # ---------------------------------------------------------------------------
 
 PERF_INTERVAL_SECONDS = 900          # 15 minutes
-PERF_HISTORY_MAX_HOURS = 24          # rolling window
-PERF_HISTORY_MAX_SAMPLES = int(PERF_HISTORY_MAX_HOURS * 3600 / PERF_INTERVAL_SECONDS)  # 96
+PERF_HISTORY_MAX_HOURS = 7 * 24      # default: 7 days rolling window
+PERF_HISTORY_MAX_SAMPLES = int(PERF_HISTORY_MAX_HOURS * 3600 / PERF_INTERVAL_SECONDS)
 
 # Perf data store: { vm_name: [ { ts, cpu_pct, mem_pct, disk_iops, net_kbps } ] }
 _perf_history: dict[str, list[dict]] = {}
@@ -109,6 +109,7 @@ _perf_collector_state: dict = {
     "interval_seconds": PERF_INTERVAL_SECONDS,
     "vms_monitored": 0,
     "workloads_monitored": 0,
+    "duration_days": 7,
 }
 
 _perf_collector_stop = threading.Event()
@@ -284,6 +285,17 @@ def _load_perf_history() -> None:
         total_samples = sum(len(v) for v in _perf_history.values())
         logger.info("Loaded perf history: %d VMs, %d total samples",
                     len(_perf_history), total_samples)
+
+
+def _set_perf_duration(days: int) -> None:
+    """Update the perf collection rolling window duration."""
+    global PERF_HISTORY_MAX_HOURS, PERF_HISTORY_MAX_SAMPLES
+    days = max(1, min(30, days))  # clamp to 1-30
+    PERF_HISTORY_MAX_HOURS = days * 24
+    PERF_HISTORY_MAX_SAMPLES = int(PERF_HISTORY_MAX_HOURS * 3600 / PERF_INTERVAL_SECONDS)
+    _perf_collector_state["duration_days"] = days
+    logger.info("Perf duration set to %d day(s) (%d hours, max %d samples)",
+                days, PERF_HISTORY_MAX_HOURS, PERF_HISTORY_MAX_SAMPLES)
 
 
 def _start_perf_collector() -> None:
@@ -599,6 +611,10 @@ def api_connect():
     port = int(body.get("port", 443))
     disable_ssl = body.get("disable_ssl", True)
     collect_perf = body.get("collect_perf", True)
+    perf_duration_days = int(body.get("perf_duration_days", 7))
+
+    # Update perf collection window based on user selection
+    _set_perf_duration(perf_duration_days)
 
     if not host or not username or not password:
         return jsonify({"error": "vCenter URL, username, and password are required"}), 400
@@ -2109,7 +2125,23 @@ def api_perf_status():
         **_perf_collector_state,
         "total_vm_samples": total_vm_samples,
         "total_workload_samples": total_wl_samples,
+        "max_hours": PERF_HISTORY_MAX_HOURS,
+        "max_samples": PERF_HISTORY_MAX_SAMPLES,
     })
+
+
+@app.route("/api/perf/duration", methods=["POST"])
+def api_perf_set_duration():
+    """Change the perf collection rolling window.
+
+    Body JSON: { "days": 1 | 7 | 30 }
+    """
+    body = request.get_json(force=True)
+    days = int(body.get("days", 7))
+    _set_perf_duration(days)
+    return jsonify({"status": "ok", "duration_days": days,
+                    "max_hours": PERF_HISTORY_MAX_HOURS,
+                    "max_samples": PERF_HISTORY_MAX_SAMPLES})
 
 
 @app.route("/api/perf/start", methods=["POST"])
