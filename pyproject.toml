@@ -1,0 +1,18 @@
+[project]
+name = "azure-migrate-simulations"
+version = "0.1.0"
+description = "Discover VMware vCenter workloads and simulate Azure migration scenarios"
+requires-python = ">=3.10"
+dependencies = [
+    "pyVmomi>=8.0.0.1",
+    "azure-digitaltwins-core>=1.2.0",
+    "azure-identity>=1.15.0",
+    "azure-mgmt-digitaltwins>=6.4.0",
+    "azure-mgmt-resource>=23.0.0",
+    "rich>=13.0.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+]
+
+[project.scripts]
+dt-migrate = "digital_twin_migrate.main:main"

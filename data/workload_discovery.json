@@ -1,0 +1,5205 @@
+{
+  "result": {
+    "vm_workloads": [
+      {
+        "vm_name": "WindowsVM174",
+        "ip_addresses": [
+          "10.126.86.191"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM173",
+        "ip_addresses": [
+          "10.126.86.188"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "jmamidi-HyperVAppl",
+        "ip_addresses": [
+          "10.126.86.87"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.87', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.87', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM175",
+        "ip_addresses": [
+          "10.126.86.182"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.182', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.182', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM164",
+        "ip_addresses": [
+          "10.126.86.163"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.163', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.163', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "[Do-Not-Touch] SI-E2E-Win-2",
+        "ip_addresses": [
+          "10.126.86.36"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.36', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.36', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-VMWare-CCY-0",
+        "ip_addresses": [
+          "10.126.86.93"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.93', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.93', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM171",
+        "ip_addresses": [
+          "10.126.86.181"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "[Do-Not-Touch] SI-E2E-Lin-1",
+        "ip_addresses": [
+          "10.126.86.110"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "[Do-Not-Touch] SI-E2E-Lin-2",
+        "ip_addresses": [
+          "10.126.86.26"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-VMWare-ECY-1",
+        "ip_addresses": [
+          "10.126.86.24"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM170",
+        "ip_addresses": [
+          "10.126.86.179"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.179', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.179', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-Physical-ECY-0",
+        "ip_addresses": [
+          "10.126.86.160"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.160', port=5985): Max retries exceeded with url: /wsman (Caused by NewConnectionError(\"HTTPConnection(host='10.126.86.160', port=5985): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM176",
+        "ip_addresses": [
+          "10.126.86.194"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.194', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.194', port=5985) at 0x265292ec740>, 'Connection to 10.126.86.194 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM165",
+        "ip_addresses": [
+          "10.126.86.166"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.166', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.166', port=5985) at 0x26528f179e0>, 'Connection to 10.126.86.166 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-Physical-CCY-0",
+        "ip_addresses": [
+          "10.126.86.207"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.207', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.207', port=5985) at 0x26529d70ad0>, 'Connection to 10.126.86.207 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM169",
+        "ip_addresses": [
+          "10.126.86.176"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.176', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.176', port=5985) at 0x265293f1160>, 'Connection to 10.126.86.176 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM172",
+        "ip_addresses": [
+          "10.126.86.184"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.184', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.184', port=5985) at 0x265293f0c80>, 'Connection to 10.126.86.184 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM168",
+        "ip_addresses": [
+          "10.126.86.175"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.175', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.175', port=5985) at 0x265293f1e20>, 'Connection to 10.126.86.175 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM177",
+        "ip_addresses": [
+          "10.126.86.199"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.199', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.199', port=5985) at 0x265293f3560>, 'Connection to 10.126.86.199 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM178",
+        "ip_addresses": [
+          "10.126.86.206"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.206', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.206', port=5985) at 0x265293f3da0>, 'Connection to 10.126.86.206 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-Physical-CCY-1",
+        "ip_addresses": [
+          "10.126.86.73"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.73', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.73', port=5985) at 0x265295339e0>, 'Connection to 10.126.86.73 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM180",
+        "ip_addresses": [
+          "10.126.86.183"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.183', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.183', port=5985) at 0x26529fa9df0>, 'Connection to 10.126.86.183 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "jeevikag-ut-linux",
+        "ip_addresses": [
+          "10.126.86.49"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "[WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "[Do-Not-Touch]-SI-Linux-1",
+        "ip_addresses": [
+          "10.150.248.74"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Error reading SSH protocol banner[WinError 10054] An existing connection was forcibly closed by the remote host",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "[Do-Not-Touch] SI-E2E-Win-3",
+        "ip_addresses": [
+          "10.126.86.130"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.130', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.130', port=5985) at 0x26529cda630>, 'Connection to 10.126.86.130 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "shig-20260226-ccy-onebox",
+        "ip_addresses": [
+          "10.150.248.43"
+        ],
+        "os_family": "windows",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "shig-20260226-ccy-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Default Web Site",
+            "port": 80,
+            "binding": "*:80:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-20260226-ccy-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Microsoft Azure Appliance Configuration Manager",
+            "port": 80,
+            "binding": ":44368:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 80,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 135,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 956,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 139,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 445,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 3389,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 4656,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5357,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5985,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40341,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 3748,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40342,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 3748,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40343,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 5544,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40344,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 5544,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 44368,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 47001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49664,
+            "protocol": "tcp",
+            "process": "lsass",
+            "pid": 728,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49665,
+            "protocol": "tcp",
+            "process": "wininit",
+            "pid": 564,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49666,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1312,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49667,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 2212,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 54305,
+            "protocol": "tcp",
+            "process": "services",
+            "pid": 708,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 54349,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 5812,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 56776,
+            "protocol": "tcp",
+            "process": "spoolsv",
+            "pid": 2648,
+            "address": "0.0.0.0"
+          }
+        ],
+        "established_connections": [
+          {
+            "local_port": 63770,
+            "remote_ip": "2603:1046:2000:90::9",
+            "remote_port": 443,
+            "process": "",
+            "pid": 820
+          },
+          {
+            "local_port": 63729,
+            "remote_ip": "2603:1046:2000:90::9",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1736
+          },
+          {
+            "local_port": 63727,
+            "remote_ip": "2603:1046:2000:90::9",
+            "remote_port": 443,
+            "process": "",
+            "pid": 8220
+          },
+          {
+            "local_port": 63744,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63743,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63742,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63741,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63740,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63739,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63738,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63737,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63736,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63735,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63734,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63733,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63732,
+            "remote_ip": "40.78.202.42",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1328
+          },
+          {
+            "local_port": 63731,
+            "remote_ip": "10.150.101.38",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1328
+          },
+          {
+            "local_port": 63723,
+            "remote_ip": "51.11.192.49",
+            "remote_port": 443,
+            "process": "",
+            "pid": 6604
+          },
+          {
+            "local_port": 63717,
+            "remote_ip": "51.11.192.49",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1328
+          },
+          {
+            "local_port": 63714,
+            "remote_ip": "20.189.173.14",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5572
+          },
+          {
+            "local_port": 63710,
+            "remote_ip": "20.189.173.14",
+            "remote_port": 443,
+            "process": "",
+            "pid": 820
+          },
+          {
+            "local_port": 63707,
+            "remote_ip": "20.189.173.14",
+            "remote_port": 443,
+            "process": "",
+            "pid": 8220
+          },
+          {
+            "local_port": 63693,
+            "remote_ip": "20.42.73.28",
+            "remote_port": 443,
+            "process": "",
+            "pid": 6924
+          },
+          {
+            "local_port": 63537,
+            "remote_ip": "20.213.196.214",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1736
+          },
+          {
+            "local_port": 63438,
+            "remote_ip": "20.50.80.209",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1736
+          },
+          {
+            "local_port": 61642,
+            "remote_ip": "20.50.88.245",
+            "remote_port": 443,
+            "process": "",
+            "pid": 4112
+          },
+          {
+            "local_port": 59778,
+            "remote_ip": "10.150.248.118",
+            "remote_port": 22,
+            "process": "",
+            "pid": 820
+          },
+          {
+            "local_port": 59769,
+            "remote_ip": "10.150.248.118",
+            "remote_port": 22,
+            "process": "",
+            "pid": 820
+          },
+          {
+            "local_port": 56441,
+            "remote_ip": "20.65.135.140",
+            "remote_port": 443,
+            "process": "",
+            "pid": 3748
+          },
+          {
+            "local_port": 5985,
+            "remote_ip": "10.91.231.140",
+            "remote_port": 63639,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 445,
+            "remote_ip": "10.150.248.46",
+            "remote_port": 57462,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 445,
+            "remote_ip": "10.150.248.46",
+            "remote_port": 57459,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 445,
+            "remote_ip": "10.150.248.46",
+            "remote_port": 57461,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 445,
+            "remote_ip": "10.150.248.46",
+            "remote_port": 57460,
+            "process": "",
+            "pid": 4
+          }
+        ]
+      },
+      {
+        "vm_name": "[Do-Not-Touch] SI-E2E-Win-1",
+        "ip_addresses": [
+          "10.126.86.107"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.107', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.107', port=5985) at 0x26529cd9c10>, 'Connection to 10.126.86.107 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM179",
+        "ip_addresses": [
+          "10.126.86.209"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.209', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.209', port=5985) at 0x265294e16a0>, 'Connection to 10.126.86.209 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-Physical-ECY-1",
+        "ip_addresses": [
+          "10.126.86.91"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.91', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.91', port=5985) at 0x265296308c0>, 'Connection to 10.126.86.91 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "okd-worker-01",
+        "ip_addresses": [
+          "10.150.252.180"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "okd-worker-01",
+            "runtime": "nodejs",
+            "runtime_version": "unknown",
+            "framework": "Node.js",
+            "app_name": "",
+            "port": 3000,
+            "binding": "",
+            "app_pool": "",
+            "status": "running",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [
+          {
+            "vm_name": "okd-worker-01",
+            "runtime": "podman",
+            "version": "5.6.0",
+            "containers": [],
+            "total_containers": 0,
+            "running_containers": 0
+          }
+        ],
+        "orchestrators": [
+          {
+            "vm_name": "okd-worker-01",
+            "type": "kubernetes",
+            "version": "1.34.2",
+            "role": "control-plane",
+            "cluster_name": "",
+            "node_count": 0,
+            "pod_count": 0,
+            "namespace_count": 0
+          }
+        ],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WindowsVM167",
+        "ip_addresses": [
+          "10.126.86.172"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.126.86.172', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.126.86.172', port=5985) at 0x265296831d0>, 'Connection to 10.126.86.172 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "Poornima-linux-machine",
+        "ip_addresses": [
+          "10.150.252.170"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-win-k8s-container-w1",
+        "ip_addresses": [
+          "10.150.252.165"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.165', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.165', port=5985) at 0x2652948b1d0>, 'Connection to 10.150.252.165 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-win-k8s-container-m1",
+        "ip_addresses": [
+          "10.150.252.127"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.127', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.127', port=5985) at 0x265297262d0>, 'Connection to 10.150.252.127 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "dmpGqlsWindows",
+        "ip_addresses": [
+          "10.150.252.149"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-swarm-container-linux-m1",
+        "ip_addresses": [
+          "10.150.252.169"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [
+          {
+            "vm_name": "nigadh-swarm-container-linux-m1",
+            "engine": "mariadb",
+            "version": "10.11.13",
+            "instance_name": "default",
+            "port": 3306,
+            "databases": [],
+            "size_mb": 0.0,
+            "status": "running",
+            "edition": ""
+          },
+          {
+            "vm_name": "nigadh-swarm-container-linux-m1",
+            "engine": "postgresql",
+            "version": "16.11",
+            "instance_name": "default",
+            "port": 5432,
+            "databases": [],
+            "size_mb": 0.0,
+            "status": "running",
+            "edition": ""
+          }
+        ],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5432,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 33841,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 53,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.54"
+          },
+          {
+            "port": 3306,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 53,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.53%lo"
+          },
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "[::]"
+          },
+          {
+            "port": 2377,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 8080,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 7946,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          }
+        ],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-k8s-container-m1",
+        "ip_addresses": [
+          "10.150.252.154"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "nigadh-k8s-container-m1",
+            "runtime": "nodejs",
+            "runtime_version": "unknown",
+            "framework": "Node.js",
+            "app_name": "",
+            "port": 3000,
+            "binding": "",
+            "app_pool": "",
+            "status": "running",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [
+          {
+            "vm_name": "nigadh-k8s-container-m1",
+            "type": "kubernetes",
+            "version": "1.29.15",
+            "role": "control-plane",
+            "cluster_name": "kubernetes-admin@kubernetes",
+            "node_count": 0,
+            "pod_count": 0,
+            "namespace_count": 0
+          }
+        ],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "okd-helper",
+        "ip_addresses": [
+          "10.150.248.95"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "okd-helper",
+            "runtime": "nodejs",
+            "runtime_version": "unknown",
+            "framework": "Node.js",
+            "app_name": "",
+            "port": 3000,
+            "binding": "",
+            "app_pool": "",
+            "status": "running",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 6443,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 10256,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 10249,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 10248,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 443,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 53,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 22623,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 80,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 19001,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 8888,
+            "protocol": "tcp",
+            "process": "python3",
+            "pid": 116314,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9099,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 1338,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 34433,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 25000,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 10250,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 10257,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 10259,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "[::]"
+          },
+          {
+            "port": 16443,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 53,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "[::]"
+          }
+        ],
+        "established_connections": []
+      },
+      {
+        "vm_name": "hritikgoyaloracle-vm",
+        "ip_addresses": [
+          "10.150.248.56"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-swarm-container-linux-w1",
+        "ip_addresses": [
+          "10.150.252.175"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [
+          {
+            "vm_name": "nigadh-swarm-container-linux-w1",
+            "engine": "mariadb",
+            "version": "10.11.13",
+            "instance_name": "default",
+            "port": 3306,
+            "databases": [],
+            "size_mb": 0.0,
+            "status": "running",
+            "edition": ""
+          },
+          {
+            "vm_name": "nigadh-swarm-container-linux-w1",
+            "engine": "postgresql",
+            "version": "16.11",
+            "instance_name": "default",
+            "port": 5432,
+            "databases": [],
+            "size_mb": 0.0,
+            "status": "running",
+            "edition": ""
+          }
+        ],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 3306,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5432,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 53,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.54"
+          },
+          {
+            "port": 42419,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.1"
+          },
+          {
+            "port": 53,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "127.0.0.53%lo"
+          },
+          {
+            "port": 7946,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "*"
+          },
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "",
+            "pid": 0,
+            "address": "[::]"
+          }
+        ],
+        "established_connections": []
+      },
+      {
+        "vm_name": "swjai-sql-appl",
+        "ip_addresses": [
+          "10.150.252.136"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.136', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.136', port=5985) at 0x26529554a10>, 'Connection to 10.150.252.136 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "klakshitha-ecy-testing",
+        "ip_addresses": [
+          "10.150.252.153"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.153', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.153', port=5985) at 0x26529556390>, 'Connection to 10.150.252.153 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "azm-gql-austriaeast",
+        "ip_addresses": [
+          "10.150.248.132"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.132', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.132', port=5985) at 0x26529556360>, 'Connection to 10.150.248.132 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "swjai-appl-02",
+        "ip_addresses": [
+          "10.150.248.141"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.141', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.141', port=5985) at 0x2652982d340>, 'Connection to 10.150.248.141 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "azm-gql-belgiumcentral",
+        "ip_addresses": [
+          "10.150.248.114"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.114', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.114', port=5985) at 0x2652982c890>, 'Connection to 10.150.248.114 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "DmpGqlsLinux082025",
+        "ip_addresses": [
+          "10.150.248.74"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Error reading SSH protocol banner[WinError 10054] An existing connection was forcibly closed by the remote host",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "azm-gql-swedencentral",
+        "ip_addresses": [
+          "10.150.248.85"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.85', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.85', port=5985) at 0x2652982db80>, 'Connection to 10.150.248.85 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "miniagarwal-ccyMigrateServer",
+        "ip_addresses": [
+          "10.150.252.108"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.108', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.108', port=5985) at 0x2652982f7d0>, 'Connection to 10.150.252.108 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "rahasija-jmamidi-HyperVApplianceclone",
+        "ip_addresses": [
+          "10.150.252.158"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.158', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.158', port=5985) at 0x2652982f230>, 'Connection to 10.150.252.158 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "AppCAT-selfhost-dev",
+        "ip_addresses": [
+          "10.150.252.160"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.160', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.160', port=5985) at 0x26529439c40>, 'Connection to 10.150.252.160 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "shig-260130-disconnected-test",
+        "ip_addresses": [
+          "10.150.248.125"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.125', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.125', port=5985) at 0x26529726e70>, 'Connection to 10.150.248.125 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "miniagarwal-MigratePhysicalServers",
+        "ip_addresses": [
+          "10.150.248.71"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.71', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.71', port=5985) at 0x2652a046690>, 'Connection to 10.150.248.71 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "AzMigrateAgentsTAM-LinuxTestVM-DONOTTOUCH",
+        "ip_addresses": [
+          "10.150.252.148"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "WebAppGQLTest-Ubuntu",
+        "ip_addresses": [
+          "10.150.251.168"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "Perf-Ubuntu",
+        "ip_addresses": [
+          "10.150.248.118"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "V2arcmRoleTestingapp",
+        "ip_addresses": [
+          "10.150.252.189"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.189', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.189', port=5985) at 0x265297cc2f0>, 'Connection to 10.150.252.189 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "harshgidra-vm",
+        "ip_addresses": [
+          "10.150.248.49"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "the specified credentials were rejected by the server",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-test-ecy-appliance",
+        "ip_addresses": [
+          "10.150.252.114"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.114', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.114', port=5985) at 0x2652a0472c0>, 'Connection to 10.150.252.114 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "aasinghal-linux",
+        "ip_addresses": [
+          "10.150.252.125"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [
+          {
+            "vm_name": "aasinghal-linux",
+            "runtime": "podman",
+            "version": "1.4.2-stable2",
+            "containers": [],
+            "total_containers": 0,
+            "running_containers": 0
+          }
+        ],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "sshd",
+            "pid": 2630,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 22,
+            "protocol": "tcp",
+            "process": "sshd",
+            "pid": 2630,
+            "address": "[::]"
+          }
+        ],
+        "established_connections": []
+      },
+      {
+        "vm_name": "adkanetk-scaleout",
+        "ip_addresses": [
+          "10.150.248.99"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.99', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.99', port=5985) at 0x26529abd4c0>, 'Connection to 10.150.248.99 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "sasiServerAppliance",
+        "ip_addresses": [
+          "10.150.248.33"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.33', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.33', port=5985) at 0x26529abc200>, 'Connection to 10.150.248.33 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SI-E2E-LIN",
+        "ip_addresses": [
+          "10.150.248.35"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "Authentication failed.",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "nigadh-k8s-container-w1",
+        "ip_addresses": [
+          "10.150.248.88"
+        ],
+        "os_family": "linux",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "nigadh-k8s-container-w1",
+            "runtime": "nodejs",
+            "runtime_version": "unknown",
+            "framework": "Node.js",
+            "app_name": "",
+            "port": 3000,
+            "binding": "",
+            "app_pool": "",
+            "status": "running",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [
+          {
+            "vm_name": "nigadh-k8s-container-w1",
+            "type": "kubernetes",
+            "version": "1.29.15",
+            "role": "worker",
+            "cluster_name": "",
+            "node_count": 0,
+            "pod_count": 0,
+            "namespace_count": 0
+          }
+        ],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SDMicrosoftAzureMigration",
+        "ip_addresses": [
+          "10.150.252.128"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.128', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.128', port=5985) at 0x2652983f230>, 'Connection to 10.150.252.128 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "[DND] hishinde-swc",
+        "ip_addresses": [
+          "10.150.248.65"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.65', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.65', port=5985) at 0x26529e25ca0>, 'Connection to 10.150.248.65 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "SD2MicrosoftAzureMigration",
+        "ip_addresses": [
+          "10.150.248.79"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.79', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.79', port=5985) at 0x26529743c80>, 'Connection to 10.150.248.79 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "appl-sgrover",
+        "ip_addresses": [
+          "10.150.252.140"
+        ],
+        "os_family": "windows",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "appl-sgrover",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Default Web Site",
+            "port": 80,
+            "binding": "*:80:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "appl-sgrover",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Microsoft Azure Appliance Configuration Manager",
+            "port": 80,
+            "binding": ":44368:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 80,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 135,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 972,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 139,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 445,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 3389,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 588,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5357,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5985,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40341,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 6220,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40342,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 6220,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40343,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 3008,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40344,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 3008,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 44368,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 47001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49664,
+            "protocol": "tcp",
+            "process": "lsass",
+            "pid": 744,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49665,
+            "protocol": "tcp",
+            "process": "wininit",
+            "pid": 608,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49666,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1152,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49667,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1656,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49668,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 2132,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49669,
+            "protocol": "tcp",
+            "process": "spoolsv",
+            "pid": 2532,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49690,
+            "protocol": "tcp",
+            "process": "services",
+            "pid": 724,
+            "address": "0.0.0.0"
+          }
+        ],
+        "established_connections": [
+          {
+            "local_port": 56759,
+            "remote_ip": "2603:1040:a06:6::2",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2908
+          },
+          {
+            "local_port": 50284,
+            "remote_ip": "2603:1046:2000:90::9",
+            "remote_port": 443,
+            "process": "",
+            "pid": 12084
+          },
+          {
+            "local_port": 50281,
+            "remote_ip": "2603:1046:2000:90::9",
+            "remote_port": 443,
+            "process": "",
+            "pid": 856
+          },
+          {
+            "local_port": 64207,
+            "remote_ip": "10.150.252.170",
+            "remote_port": 22,
+            "process": "",
+            "pid": 10212
+          },
+          {
+            "local_port": 64181,
+            "remote_ip": "20.42.73.27",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2928
+          },
+          {
+            "local_port": 62781,
+            "remote_ip": "20.37.198.118",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2780
+          },
+          {
+            "local_port": 61810,
+            "remote_ip": "10.150.248.118",
+            "remote_port": 22,
+            "process": "",
+            "pid": 3676
+          },
+          {
+            "local_port": 61801,
+            "remote_ip": "10.150.248.118",
+            "remote_port": 22,
+            "process": "",
+            "pid": 3676
+          },
+          {
+            "local_port": 58186,
+            "remote_ip": "172.212.233.20",
+            "remote_port": 443,
+            "process": "",
+            "pid": 6220
+          },
+          {
+            "local_port": 52427,
+            "remote_ip": "10.150.251.168",
+            "remote_port": 22,
+            "process": "",
+            "pid": 3676
+          },
+          {
+            "local_port": 52424,
+            "remote_ip": "10.150.251.168",
+            "remote_port": 22,
+            "process": "",
+            "pid": 3676
+          },
+          {
+            "local_port": 50286,
+            "remote_ip": "20.242.181.1",
+            "remote_port": 443,
+            "process": "",
+            "pid": 9232
+          },
+          {
+            "local_port": 50283,
+            "remote_ip": "51.104.15.253",
+            "remote_port": 443,
+            "process": "",
+            "pid": 856
+          },
+          {
+            "local_port": 50265,
+            "remote_ip": "20.50.88.241",
+            "remote_port": 443,
+            "process": "",
+            "pid": 3676
+          },
+          {
+            "local_port": 50252,
+            "remote_ip": "20.44.10.122",
+            "remote_port": 443,
+            "process": "",
+            "pid": 3676
+          },
+          {
+            "local_port": 50220,
+            "remote_ip": "20.213.196.214",
+            "remote_port": 443,
+            "process": "",
+            "pid": 12084
+          },
+          {
+            "local_port": 50181,
+            "remote_ip": "20.189.173.14",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5496
+          },
+          {
+            "local_port": 50132,
+            "remote_ip": "20.189.173.15",
+            "remote_port": 443,
+            "process": "",
+            "pid": 10212
+          },
+          {
+            "local_port": 49770,
+            "remote_ip": "52.182.143.211",
+            "remote_port": 443,
+            "process": "",
+            "pid": 12084
+          },
+          {
+            "local_port": 5985,
+            "remote_ip": "10.91.231.149",
+            "remote_port": 59804,
+            "process": "",
+            "pid": 4
+          }
+        ]
+      },
+      {
+        "vm_name": "shig-onebox-ecy",
+        "ip_addresses": [
+          "10.150.248.73"
+        ],
+        "os_family": "windows",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Default Web Site",
+            "port": 80,
+            "binding": "*:80:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Microsoft Azure Appliance Configuration Manager",
+            "port": 80,
+            "binding": ":44368:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "MyApp",
+            "port": 80,
+            "binding": "*:8080:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "IkeaStore",
+            "port": 80,
+            "binding": "*:9001:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "CityLibrary",
+            "port": 80,
+            "binding": "*:9002:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "SecureBank",
+            "port": 80,
+            "binding": "*:9003:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "AzurePortal",
+            "port": 80,
+            "binding": "*:9004:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox-ecy",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "PokemonGame",
+            "port": 80,
+            "binding": "*:9005:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 80,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 135,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 968,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 139,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 445,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 3389,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1028,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5357,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5985,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 8080,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9002,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9003,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9004,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9005,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40341,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 3220,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40342,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 3220,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40343,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 2876,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40344,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 2876,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 44368,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 47001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49664,
+            "protocol": "tcp",
+            "process": "lsass",
+            "pid": 736,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49665,
+            "protocol": "tcp",
+            "process": "wininit",
+            "pid": 584,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49666,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1256,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49667,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1712,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49668,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 2180,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49669,
+            "protocol": "tcp",
+            "process": "spoolsv",
+            "pid": 2436,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49674,
+            "protocol": "tcp",
+            "process": "services",
+            "pid": 716,
+            "address": "0.0.0.0"
+          }
+        ],
+        "established_connections": [
+          {
+            "local_port": 64748,
+            "remote_ip": "20.213.196.214",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2712
+          },
+          {
+            "local_port": 5985,
+            "remote_ip": "10.91.231.155",
+            "remote_port": 57278,
+            "process": "",
+            "pid": 4
+          }
+        ]
+      },
+      {
+        "vm_name": "shig-2026-02-27-online",
+        "ip_addresses": [
+          "10.150.248.46"
+        ],
+        "os_family": "windows",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "shig-2026-02-27-online",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Default Web Site",
+            "port": 80,
+            "binding": "*:80:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-2026-02-27-online",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Microsoft Azure Appliance Configuration Manager",
+            "port": 80,
+            "binding": ":44368:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 80,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 135,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 940,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 139,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 445,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 3389,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 3468,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5357,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5985,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40341,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 7436,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40342,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 7436,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40343,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 6104,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40344,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 6104,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 44368,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 47001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49329,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 2212,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49664,
+            "protocol": "tcp",
+            "process": "lsass",
+            "pid": 712,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49665,
+            "protocol": "tcp",
+            "process": "wininit",
+            "pid": 548,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49666,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1288,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 50832,
+            "protocol": "tcp",
+            "process": "spoolsv",
+            "pid": 2644,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 57302,
+            "protocol": "tcp",
+            "process": "services",
+            "pid": 692,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 57330,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 3452,
+            "address": "0.0.0.0"
+          }
+        ],
+        "established_connections": [
+          {
+            "local_port": 63256,
+            "remote_ip": "2404:f801:4800:20:988:ab38:98e9:f9a7",
+            "remote_port": 5985,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62790,
+            "remote_ip": "2603:1046:2000:60::12",
+            "remote_port": 443,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62781,
+            "remote_ip": "2603:1046:2000:60::12",
+            "remote_port": 443,
+            "process": "",
+            "pid": 7560
+          },
+          {
+            "local_port": 58499,
+            "remote_ip": "2603:1046:2000:90::7",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1820
+          },
+          {
+            "local_port": 62802,
+            "remote_ip": "104.208.16.88",
+            "remote_port": 443,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62801,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62794,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62793,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1633,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62792,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1633,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62788,
+            "remote_ip": "20.44.10.122",
+            "remote_port": 443,
+            "process": "",
+            "pid": 7212
+          },
+          {
+            "local_port": 62784,
+            "remote_ip": "20.44.10.122",
+            "remote_port": 443,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62783,
+            "remote_ip": "20.44.10.122",
+            "remote_port": 443,
+            "process": "",
+            "pid": 7560
+          },
+          {
+            "local_port": 62780,
+            "remote_ip": "10.150.5.61",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62779,
+            "remote_ip": "20.44.10.122",
+            "remote_port": 443,
+            "process": "",
+            "pid": 3736
+          },
+          {
+            "local_port": 62776,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62775,
+            "remote_ip": "20.189.173.4",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5744
+          },
+          {
+            "local_port": 62718,
+            "remote_ip": "13.69.239.78",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5004
+          },
+          {
+            "local_port": 62713,
+            "remote_ip": "23.100.122.113",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2548
+          },
+          {
+            "local_port": 62609,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62608,
+            "remote_ip": "10.150.5.61",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62560,
+            "remote_ip": "10.150.94.111",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62534,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62519,
+            "remote_ip": "10.150.94.111",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62497,
+            "remote_ip": "10.150.90.128",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62496,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62461,
+            "remote_ip": "10.150.94.110",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62460,
+            "remote_ip": "10.150.94.97",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62458,
+            "remote_ip": "10.150.94.151",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62457,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1633,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62456,
+            "remote_ip": "10.150.94.97",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62455,
+            "remote_ip": "10.150.94.111",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62454,
+            "remote_ip": "10.150.5.61",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62449,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62448,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62447,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62446,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62445,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62444,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62443,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62442,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62439,
+            "remote_ip": "10.150.94.151",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62438,
+            "remote_ip": "10.150.94.151",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62393,
+            "remote_ip": "10.150.94.97",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62391,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1633,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62381,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62380,
+            "remote_ip": "10.150.94.111",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62347,
+            "remote_ip": "10.150.94.151",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62346,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62345,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62344,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62339,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62338,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62337,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62336,
+            "remote_ip": "20.50.88.234",
+            "remote_port": 443,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62288,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62124,
+            "remote_ip": "40.78.202.42",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5744
+          },
+          {
+            "local_port": 62110,
+            "remote_ip": "10.150.94.97",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 62042,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61913,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61774,
+            "remote_ip": "10.150.94.111",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61770,
+            "remote_ip": "10.150.94.139",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61766,
+            "remote_ip": "10.150.94.97",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61503,
+            "remote_ip": "10.150.5.61",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61482,
+            "remote_ip": "10.150.90.128",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61473,
+            "remote_ip": "10.150.94.139",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61394,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61393,
+            "remote_ip": "10.150.94.139",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61382,
+            "remote_ip": "10.150.5.61",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61380,
+            "remote_ip": "10.150.94.97",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61376,
+            "remote_ip": "10.150.94.110",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61374,
+            "remote_ip": "10.150.90.128",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61368,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61363,
+            "remote_ip": "10.150.94.139",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61359,
+            "remote_ip": "10.150.94.156",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61358,
+            "remote_ip": "10.150.94.156",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61356,
+            "remote_ip": "10.150.94.156",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61355,
+            "remote_ip": "10.150.94.156",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61352,
+            "remote_ip": "10.150.94.110",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61266,
+            "remote_ip": "10.150.94.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61265,
+            "remote_ip": "10.150.94.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61263,
+            "remote_ip": "10.150.94.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61262,
+            "remote_ip": "10.150.94.88",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 61260,
+            "remote_ip": "10.150.94.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 61008,
+            "remote_ip": "20.50.88.242",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2880
+          },
+          {
+            "local_port": 60913,
+            "remote_ip": "10.150.101.36",
+            "remote_port": 22,
+            "process": "",
+            "pid": 5004
+          },
+          {
+            "local_port": 60899,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 60879,
+            "remote_ip": "10.150.101.0",
+            "remote_port": 22,
+            "process": "",
+            "pid": 5004
+          },
+          {
+            "local_port": 60665,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 60338,
+            "remote_ip": "10.150.100.244",
+            "remote_port": 22,
+            "process": "",
+            "pid": 5004
+          },
+          {
+            "local_port": 60051,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 60045,
+            "remote_ip": "10.150.94.139",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 59757,
+            "remote_ip": "10.150.94.151",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 58565,
+            "remote_ip": "20.213.196.212",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2548
+          },
+          {
+            "local_port": 58536,
+            "remote_ip": "10.150.100.248",
+            "remote_port": 22,
+            "process": "",
+            "pid": 5004
+          },
+          {
+            "local_port": 58508,
+            "remote_ip": "40.78.204.19",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1820
+          },
+          {
+            "local_port": 57960,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57820,
+            "remote_ip": "20.65.135.140",
+            "remote_port": 443,
+            "process": "",
+            "pid": 7436
+          },
+          {
+            "local_port": 57672,
+            "remote_ip": "10.150.94.111",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57462,
+            "remote_ip": "10.150.248.43",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57461,
+            "remote_ip": "10.150.248.43",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57460,
+            "remote_ip": "10.150.248.43",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57459,
+            "remote_ip": "10.150.248.43",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57364,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57363,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57362,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57360,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57359,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57358,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57356,
+            "remote_ip": "10.150.94.131",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57354,
+            "remote_ip": "10.150.94.151",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57351,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57343,
+            "remote_ip": "10.150.12.229",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57342,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57341,
+            "remote_ip": "10.150.4.122",
+            "remote_port": 1433,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57340,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57333,
+            "remote_ip": "10.150.94.139",
+            "remote_port": 1437,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57305,
+            "remote_ip": "10.150.90.173",
+            "remote_port": 1436,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57304,
+            "remote_ip": "10.150.90.155",
+            "remote_port": 1435,
+            "process": "",
+            "pid": 9004
+          },
+          {
+            "local_port": 57299,
+            "remote_ip": "10.150.12.251",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57297,
+            "remote_ip": "10.150.12.251",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57294,
+            "remote_ip": "10.150.12.251",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57293,
+            "remote_ip": "10.150.12.251",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57288,
+            "remote_ip": "10.150.93.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57280,
+            "remote_ip": "10.150.93.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57277,
+            "remote_ip": "10.150.93.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 57274,
+            "remote_ip": "10.150.93.130",
+            "remote_port": 445,
+            "process": "",
+            "pid": 4
+          },
+          {
+            "local_port": 5985,
+            "remote_ip": "10.91.231.142",
+            "remote_port": 54881,
+            "process": "",
+            "pid": 4
+          }
+        ]
+      },
+      {
+        "vm_name": "jeevikag-pvtstamptestingvm",
+        "ip_addresses": [
+          "10.150.252.183"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.183', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.183', port=5985) at 0x26529e27e60>, 'Connection to 10.150.252.183 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "JmamidiUbuntu",
+        "ip_addresses": [
+          "10.150.248.39"
+        ],
+        "os_family": "linux",
+        "scan_status": "error",
+        "scan_error": "[WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "shig-onebox",
+        "ip_addresses": [
+          "10.150.252.143"
+        ],
+        "os_family": "windows",
+        "scan_status": "complete",
+        "scan_error": "",
+        "databases": [],
+        "web_apps": [
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Default Web Site",
+            "port": 80,
+            "binding": "*:80:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "Microsoft Azure Appliance Configuration Manager",
+            "port": 80,
+            "binding": ":44368:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "MyApp",
+            "port": 80,
+            "binding": "*:8080:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "IkeaStore",
+            "port": 80,
+            "binding": "*:9001:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "CityLibrary",
+            "port": 80,
+            "binding": "*:9002:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "SecureBank",
+            "port": 80,
+            "binding": "*:9003:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "AzurePortal",
+            "port": 80,
+            "binding": "*:9004:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          },
+          {
+            "vm_name": "shig-onebox",
+            "runtime": "dotnet_framework",
+            "runtime_version": "",
+            "framework": "ASP.NET (IIS)",
+            "app_name": "PokemonGame",
+            "port": 80,
+            "binding": "*:9005:",
+            "app_pool": "",
+            "status": "started",
+            "process_name": "",
+            "pid": 0
+          }
+        ],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [
+          {
+            "port": 80,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 135,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 988,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 139,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 445,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 3389,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 508,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5357,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 5985,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 8080,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9002,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9003,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9004,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 9005,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40341,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 5624,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40342,
+            "protocol": "tcp",
+            "process": "himds",
+            "pid": 5624,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40343,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 1080,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 40344,
+            "protocol": "tcp",
+            "process": "arcproxy",
+            "pid": 1080,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 44368,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 47001,
+            "protocol": "tcp",
+            "process": "System",
+            "pid": 4,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49664,
+            "protocol": "tcp",
+            "process": "lsass",
+            "pid": 716,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49665,
+            "protocol": "tcp",
+            "process": "wininit",
+            "pid": 580,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49666,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1120,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49667,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 1600,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49668,
+            "protocol": "tcp",
+            "process": "svchost",
+            "pid": 2212,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49669,
+            "protocol": "tcp",
+            "process": "spoolsv",
+            "pid": 2632,
+            "address": "0.0.0.0"
+          },
+          {
+            "port": 49684,
+            "protocol": "tcp",
+            "process": "services",
+            "pid": 696,
+            "address": "0.0.0.0"
+          }
+        ],
+        "established_connections": [
+          {
+            "local_port": 50488,
+            "remote_ip": "2603:1046:2000:60::13",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2464
+          },
+          {
+            "local_port": 50485,
+            "remote_ip": "2603:1046:2000:60::12",
+            "remote_port": 443,
+            "process": "",
+            "pid": 736
+          },
+          {
+            "local_port": 50483,
+            "remote_ip": "2603:1046:2000:60::12",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2388
+          },
+          {
+            "local_port": 50481,
+            "remote_ip": "2603:1046:2000:60::12",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 65416,
+            "remote_ip": "52.168.117.169",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2388
+          },
+          {
+            "local_port": 65039,
+            "remote_ip": "10.67.183.11",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 64236,
+            "remote_ip": "10.67.178.41",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 63093,
+            "remote_ip": "10.67.183.28",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 63063,
+            "remote_ip": "10.67.177.62",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 63027,
+            "remote_ip": "10.67.178.65",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 62167,
+            "remote_ip": "10.67.183.9",
+            "remote_port": 22,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 62156,
+            "remote_ip": "10.67.183.9",
+            "remote_port": 22,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 61793,
+            "remote_ip": "10.67.176.53",
+            "remote_port": 22,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 61790,
+            "remote_ip": "10.67.176.53",
+            "remote_port": 22,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 61789,
+            "remote_ip": "10.150.248.118",
+            "remote_port": 22,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 61788,
+            "remote_ip": "10.150.248.118",
+            "remote_port": 22,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 60580,
+            "remote_ip": "20.192.185.68",
+            "remote_port": 443,
+            "process": "",
+            "pid": 736
+          },
+          {
+            "local_port": 59497,
+            "remote_ip": "10.67.180.74",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 59477,
+            "remote_ip": "10.150.252.125",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 59475,
+            "remote_ip": "10.67.183.0",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 59418,
+            "remote_ip": "40.78.194.18",
+            "remote_port": 443,
+            "process": "",
+            "pid": 5624
+          },
+          {
+            "local_port": 56240,
+            "remote_ip": "10.67.183.11",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 54345,
+            "remote_ip": "10.67.178.41",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 54279,
+            "remote_ip": "10.67.183.28",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 53231,
+            "remote_ip": "10.67.177.62",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 53229,
+            "remote_ip": "10.67.178.65",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 50487,
+            "remote_ip": "20.213.196.214",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 50476,
+            "remote_ip": "20.213.196.214",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2464
+          },
+          {
+            "local_port": 50475,
+            "remote_ip": "20.44.10.122",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2088
+          },
+          {
+            "local_port": 50469,
+            "remote_ip": "13.69.239.78",
+            "remote_port": 443,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 50304,
+            "remote_ip": "20.189.173.4",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1656
+          },
+          {
+            "local_port": 50203,
+            "remote_ip": "13.69.239.78",
+            "remote_port": 443,
+            "process": "",
+            "pid": 2464
+          },
+          {
+            "local_port": 50123,
+            "remote_ip": "51.11.192.49",
+            "remote_port": 443,
+            "process": "",
+            "pid": 736
+          },
+          {
+            "local_port": 49704,
+            "remote_ip": "10.67.180.74",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 49679,
+            "remote_ip": "10.67.183.0",
+            "remote_port": 22,
+            "process": "",
+            "pid": 704
+          },
+          {
+            "local_port": 49450,
+            "remote_ip": "20.50.73.12",
+            "remote_port": 443,
+            "process": "",
+            "pid": 1904
+          },
+          {
+            "local_port": 5985,
+            "remote_ip": "10.91.231.135",
+            "remote_port": 59807,
+            "process": "",
+            "pid": 4
+          }
+        ]
+      },
+      {
+        "vm_name": "azm-gql-germanywestcentral",
+        "ip_addresses": [
+          "10.150.252.161"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.252.161', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.252.161', port=5985) at 0x265293f0a70>, 'Connection to 10.150.252.161 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "miniagarwal-MigrateVmware",
+        "ip_addresses": [
+          "10.150.248.179"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.179', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.179', port=5985) at 0x26529631f10>, 'Connection to 10.150.248.179 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "sasiVMwareMySQLAgent",
+        "ip_addresses": [
+          "10.150.248.104"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.104', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.104', port=5985) at 0x265295915e0>, 'Connection to 10.150.248.104 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "miniagarwal-ccyMigrateVmware",
+        "ip_addresses": [
+          "10.150.248.67"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.67', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.67', port=5985) at 0x265293f03e0>, 'Connection to 10.150.248.67 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      },
+      {
+        "vm_name": "simp-waveselfhostccyapp",
+        "ip_addresses": [
+          "10.150.248.110"
+        ],
+        "os_family": "windows",
+        "scan_status": "error",
+        "scan_error": "HTTPConnectionPool(host='10.150.248.110', port=5985): Max retries exceeded with url: /wsman (Caused by ConnectTimeoutError(<HTTPConnection(host='10.150.248.110', port=5985) at 0x265295937d0>, 'Connection to 10.150.248.110 timed out. (connect timeout=30)'))",
+        "databases": [],
+        "web_apps": [],
+        "container_runtimes": [],
+        "orchestrators": [],
+        "listening_ports": [],
+        "established_connections": []
+      }
+    ],
+    "dependencies": [
+      {
+        "source_vm": "shig-20260226-ccy-onebox",
+        "source_workload": "pid-820",
+        "target_vm": "Perf-Ubuntu",
+        "target_workload": "port-22",
+        "target_port": 22,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-20260226-ccy-onebox",
+        "source_workload": "pid-4",
+        "target_vm": "shig-2026-02-27-online",
+        "target_workload": "port-57462",
+        "target_port": 57462,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-20260226-ccy-onebox",
+        "source_workload": "pid-4",
+        "target_vm": "shig-2026-02-27-online",
+        "target_workload": "port-57459",
+        "target_port": 57459,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-20260226-ccy-onebox",
+        "source_workload": "pid-4",
+        "target_vm": "shig-2026-02-27-online",
+        "target_workload": "port-57461",
+        "target_port": 57461,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-20260226-ccy-onebox",
+        "source_workload": "pid-4",
+        "target_vm": "shig-2026-02-27-online",
+        "target_workload": "port-57460",
+        "target_port": 57460,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "appl-sgrover",
+        "source_workload": "pid-10212",
+        "target_vm": "Poornima-linux-machine",
+        "target_workload": "port-22",
+        "target_port": 22,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "appl-sgrover",
+        "source_workload": "pid-3676",
+        "target_vm": "Perf-Ubuntu",
+        "target_workload": "port-22",
+        "target_port": 22,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "appl-sgrover",
+        "source_workload": "pid-3676",
+        "target_vm": "WebAppGQLTest-Ubuntu",
+        "target_workload": "port-22",
+        "target_port": 22,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-2026-02-27-online",
+        "source_workload": "pid-4",
+        "target_vm": "shig-20260226-ccy-onebox",
+        "target_workload": "System",
+        "target_port": 445,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-onebox",
+        "source_workload": "pid-1656",
+        "target_vm": "Perf-Ubuntu",
+        "target_workload": "port-22",
+        "target_port": 22,
+        "protocol": "tcp",
+        "connection_count": 1
+      },
+      {
+        "source_vm": "shig-onebox",
+        "source_workload": "pid-704",
+        "target_vm": "aasinghal-linux",
+        "target_workload": "sshd",
+        "target_port": 22,
+        "protocol": "tcp",
+        "connection_count": 1
+      }
+    ],
+    "total_databases": 4,
+    "total_webapps": 26,
+    "total_containers": 0,
+    "total_orchestrators": 3,
+    "scanned_count": 12,
+    "error_count": 66,
+    "skipped_count": 0
+  },
+  "recommendations": [
+    {
+      "vm_name": "shig-20260226-ccy-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-20260226-ccy-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "okd-worker-01",
+      "workload_name": "nodejs:Node.js",
+      "workload_type": "webapp",
+      "source_engine": "nodejs",
+      "source_version": "unknown",
+      "recommended_azure_service": "App Service P1v3 (Node.js)",
+      "alternative_services": [
+        "Azure Container Apps",
+        "Azure Static Web Apps"
+      ],
+      "estimated_monthly_cost_usd": 108.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "low",
+      "migration_steps": [
+        "Create App Service plan and web app",
+        "Configure deployment (Git, CI/CD, ZIP deploy)",
+        "Set up application settings and connection strings",
+        "Configure custom domain and SSL certificate",
+        "Test and validate application"
+      ],
+      "issues": [],
+      "confidence": 65.0
+    },
+    {
+      "vm_name": "okd-worker-01",
+      "workload_name": "podman (0 containers)",
+      "workload_type": "container",
+      "source_engine": "podman",
+      "source_version": "5.6.0",
+      "recommended_azure_service": "Container Apps",
+      "alternative_services": [
+        "Azure Kubernetes Service"
+      ],
+      "estimated_monthly_cost_usd": 45.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "low",
+      "migration_steps": [
+        "Build container image and push to Azure Container Registry",
+        "Create Container Apps environment",
+        "Deploy container app with Dapr/scaling configuration",
+        "Set up ingress, secrets, and managed identity"
+      ],
+      "issues": [],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "okd-worker-01",
+      "workload_name": "kubernetes (control-plane)",
+      "workload_type": "orchestrator",
+      "source_engine": "kubernetes",
+      "source_version": "1.34.2",
+      "recommended_azure_service": "AKS (managed Kubernetes)",
+      "alternative_services": [
+        "Azure Red Hat OpenShift"
+      ],
+      "estimated_monthly_cost_usd": 200.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create AKS cluster with appropriate node pool sizes",
+        "Push container images to Azure Container Registry",
+        "Convert Docker Compose / manifests to Kubernetes manifests",
+        "Deploy workloads and configure Ingress controller",
+        "Set up monitoring with Container Insights"
+      ],
+      "issues": [],
+      "confidence": 55.0
+    },
+    {
+      "vm_name": "nigadh-swarm-container-linux-m1",
+      "workload_name": "mariadb:default",
+      "workload_type": "database",
+      "source_engine": "mariadb",
+      "source_version": "10.11.13",
+      "recommended_azure_service": "Azure MySQL Flexible (MariaDB-compat)",
+      "alternative_services": [
+        "MariaDB on Azure VM"
+      ],
+      "estimated_monthly_cost_usd": 280.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Assess compatibility using Azure DMS pre-migration assessment",
+        "Use Azure DMS or mysqldump for migration",
+        "Update connection strings (SSL required by default)",
+        "Configure server parameters and firewall rules",
+        "Validate data and test application"
+      ],
+      "issues": [],
+      "confidence": 70.0
+    },
+    {
+      "vm_name": "nigadh-swarm-container-linux-m1",
+      "workload_name": "postgresql:default",
+      "workload_type": "database",
+      "source_engine": "postgresql",
+      "source_version": "16.11",
+      "recommended_azure_service": "Azure PostgreSQL Flexible (GP 4 vCores)",
+      "alternative_services": [
+        "PostgreSQL on Azure VM"
+      ],
+      "estimated_monthly_cost_usd": 290.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Use pg_dump/pg_restore or Azure DMS for migration",
+        "Configure extensions and server parameters",
+        "Update connection strings (SSL required)",
+        "Test application functionality and performance"
+      ],
+      "issues": [],
+      "confidence": 70.0
+    },
+    {
+      "vm_name": "nigadh-k8s-container-m1",
+      "workload_name": "nodejs:Node.js",
+      "workload_type": "webapp",
+      "source_engine": "nodejs",
+      "source_version": "unknown",
+      "recommended_azure_service": "App Service P1v3 (Node.js)",
+      "alternative_services": [
+        "Azure Container Apps",
+        "Azure Static Web Apps"
+      ],
+      "estimated_monthly_cost_usd": 108.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "low",
+      "migration_steps": [
+        "Create App Service plan and web app",
+        "Configure deployment (Git, CI/CD, ZIP deploy)",
+        "Set up application settings and connection strings",
+        "Configure custom domain and SSL certificate",
+        "Test and validate application"
+      ],
+      "issues": [],
+      "confidence": 65.0
+    },
+    {
+      "vm_name": "nigadh-k8s-container-m1",
+      "workload_name": "kubernetes (control-plane)",
+      "workload_type": "orchestrator",
+      "source_engine": "kubernetes",
+      "source_version": "1.29.15",
+      "recommended_azure_service": "AKS (managed Kubernetes)",
+      "alternative_services": [
+        "Azure Red Hat OpenShift"
+      ],
+      "estimated_monthly_cost_usd": 200.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create AKS cluster with appropriate node pool sizes",
+        "Push container images to Azure Container Registry",
+        "Convert Docker Compose / manifests to Kubernetes manifests",
+        "Deploy workloads and configure Ingress controller",
+        "Set up monitoring with Container Insights"
+      ],
+      "issues": [],
+      "confidence": 55.0
+    },
+    {
+      "vm_name": "okd-helper",
+      "workload_name": "nodejs:Node.js",
+      "workload_type": "webapp",
+      "source_engine": "nodejs",
+      "source_version": "unknown",
+      "recommended_azure_service": "App Service P1v3 (Node.js)",
+      "alternative_services": [
+        "Azure Container Apps",
+        "Azure Static Web Apps"
+      ],
+      "estimated_monthly_cost_usd": 108.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "low",
+      "migration_steps": [
+        "Create App Service plan and web app",
+        "Configure deployment (Git, CI/CD, ZIP deploy)",
+        "Set up application settings and connection strings",
+        "Configure custom domain and SSL certificate",
+        "Test and validate application"
+      ],
+      "issues": [],
+      "confidence": 65.0
+    },
+    {
+      "vm_name": "nigadh-swarm-container-linux-w1",
+      "workload_name": "mariadb:default",
+      "workload_type": "database",
+      "source_engine": "mariadb",
+      "source_version": "10.11.13",
+      "recommended_azure_service": "Azure MySQL Flexible (MariaDB-compat)",
+      "alternative_services": [
+        "MariaDB on Azure VM"
+      ],
+      "estimated_monthly_cost_usd": 280.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Assess compatibility using Azure DMS pre-migration assessment",
+        "Use Azure DMS or mysqldump for migration",
+        "Update connection strings (SSL required by default)",
+        "Configure server parameters and firewall rules",
+        "Validate data and test application"
+      ],
+      "issues": [],
+      "confidence": 70.0
+    },
+    {
+      "vm_name": "nigadh-swarm-container-linux-w1",
+      "workload_name": "postgresql:default",
+      "workload_type": "database",
+      "source_engine": "postgresql",
+      "source_version": "16.11",
+      "recommended_azure_service": "Azure PostgreSQL Flexible (GP 4 vCores)",
+      "alternative_services": [
+        "PostgreSQL on Azure VM"
+      ],
+      "estimated_monthly_cost_usd": 290.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Use pg_dump/pg_restore or Azure DMS for migration",
+        "Configure extensions and server parameters",
+        "Update connection strings (SSL required)",
+        "Test application functionality and performance"
+      ],
+      "issues": [],
+      "confidence": 70.0
+    },
+    {
+      "vm_name": "aasinghal-linux",
+      "workload_name": "podman (0 containers)",
+      "workload_type": "container",
+      "source_engine": "podman",
+      "source_version": "1.4.2-stable2",
+      "recommended_azure_service": "Container Apps",
+      "alternative_services": [
+        "Azure Kubernetes Service"
+      ],
+      "estimated_monthly_cost_usd": 45.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "low",
+      "migration_steps": [
+        "Build container image and push to Azure Container Registry",
+        "Create Container Apps environment",
+        "Deploy container app with Dapr/scaling configuration",
+        "Set up ingress, secrets, and managed identity"
+      ],
+      "issues": [],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "nigadh-k8s-container-w1",
+      "workload_name": "nodejs:Node.js",
+      "workload_type": "webapp",
+      "source_engine": "nodejs",
+      "source_version": "unknown",
+      "recommended_azure_service": "App Service P1v3 (Node.js)",
+      "alternative_services": [
+        "Azure Container Apps",
+        "Azure Static Web Apps"
+      ],
+      "estimated_monthly_cost_usd": 108.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "low",
+      "migration_steps": [
+        "Create App Service plan and web app",
+        "Configure deployment (Git, CI/CD, ZIP deploy)",
+        "Set up application settings and connection strings",
+        "Configure custom domain and SSL certificate",
+        "Test and validate application"
+      ],
+      "issues": [],
+      "confidence": 65.0
+    },
+    {
+      "vm_name": "nigadh-k8s-container-w1",
+      "workload_name": "kubernetes (worker)",
+      "workload_type": "orchestrator",
+      "source_engine": "kubernetes",
+      "source_version": "1.29.15",
+      "recommended_azure_service": "AKS (managed Kubernetes)",
+      "alternative_services": [
+        "Azure Red Hat OpenShift"
+      ],
+      "estimated_monthly_cost_usd": 200.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create AKS cluster with appropriate node pool sizes",
+        "Push container images to Azure Container Registry",
+        "Convert Docker Compose / manifests to Kubernetes manifests",
+        "Deploy workloads and configure Ingress controller",
+        "Set up monitoring with Container Insights"
+      ],
+      "issues": [],
+      "confidence": 55.0
+    },
+    {
+      "vm_name": "appl-sgrover",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "appl-sgrover",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox-ecy",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-2026-02-27-online",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-2026-02-27-online",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    },
+    {
+      "vm_name": "shig-onebox",
+      "workload_name": "dotnet_framework:ASP.NET (IIS)",
+      "workload_type": "webapp",
+      "source_engine": "dotnet_framework",
+      "source_version": "",
+      "recommended_azure_service": "App Service P1v3 (Windows)",
+      "alternative_services": [
+        "Azure VM (IIS)"
+      ],
+      "estimated_monthly_cost_usd": 138.0,
+      "migration_approach": "replatform",
+      "migration_complexity": "medium",
+      "migration_steps": [
+        "Create App Service plan (Windows) and web app",
+        "Migrate IIS configuration to App Service",
+        "Use App Service Migration Assistant tool",
+        "Reconfigure authentication and connection strings",
+        "Test with deployment slots before cutover"
+      ],
+      "issues": [
+        ".NET Framework apps may need Windows App Service plan"
+      ],
+      "confidence": 60.0
+    }
+  ],
+  "total_workload_cost": 5298.0
+}
