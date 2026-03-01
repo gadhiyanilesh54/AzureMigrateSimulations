@@ -35,9 +35,34 @@ from digital_twin_migrate.enrichment import (  # noqa: E402
     apply_enrichment_to_confidence,
     generate_sample_enrichment,
 )
+from digital_twin_migrate.azure_pricing import AzureRetailPricing, set_default_client, resolve_paas_sku_tier  # noqa: E402
+
+import os
 
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Optional API key authentication
+# ---------------------------------------------------------------------------
+# Set the environment variable MIGRATE_API_KEY to enable API key protection.
+# When set, all /api/* requests must include the header:
+#   X-API-Key: <value>
+# When not set, no authentication is required (development mode).
+
+_API_KEY = os.environ.get("MIGRATE_API_KEY", "")
+
+
+@app.before_request
+def _check_api_key():
+    """Enforce API key on /api/* routes when MIGRATE_API_KEY is set."""
+    if not _API_KEY:
+        return  # no key configured — allow all
+    if not request.path.startswith("/api/"):
+        return  # non-API routes (HTML pages, static files)
+    provided = request.headers.get("X-API-Key", "")
+    if provided != _API_KEY:
+        return jsonify({"error": "Unauthorized. Provide a valid X-API-Key header."}), 401
 
 # ---------------------------------------------------------------------------
 # Data persistence directory
@@ -52,6 +77,12 @@ _WHATIF_OVERRIDES_FILE = DATA_DIR / "whatif_overrides.json"
 _WL_WHATIF_OVERRIDES_FILE = DATA_DIR / "workload_whatif_overrides.json"
 _PERF_HISTORY_FILE = DATA_DIR / "perf_history.json"
 _ENRICHMENT_DATA_FILE = DATA_DIR / "enrichment_data.json"
+
+# ---------------------------------------------------------------------------
+# Azure Retail Pricing client (live prices from prices.azure.com)
+# ---------------------------------------------------------------------------
+_pricing_client = AzureRetailPricing(cache_dir=DATA_DIR)
+set_default_client(_pricing_client)
 
 
 def _save_json(path: Path, obj: dict) -> None:
@@ -76,6 +107,13 @@ def _load_json(path: Path) -> dict:
 # ---------------------------------------------------------------------------
 # Global data store & discovery state
 # ---------------------------------------------------------------------------
+
+# Reentrant lock protecting writes to mutable global state (_data,
+# _workload_data, _perf_history, _enrichment_data, etc.).
+# Read paths in Flask's default single-threaded dev server don't strictly
+# need locking, but with a production WSGI server (gunicorn --threads)
+# concurrent requests could corrupt state.
+_state_lock = threading.RLock()
 
 _data: dict = {}
 
@@ -127,12 +165,31 @@ _perf_collector_state: dict = {
 _perf_collector_stop = threading.Event()
 
 
+# ---------------------------------------------------------------------------
+# Perf helper functions (module-level to avoid re-definition inside loops)
+# ---------------------------------------------------------------------------
+
+def _natural_variance(val: float) -> float:
+    """Apply minimal ±5% natural measurement noise to a real metric value."""
+    if val <= 0:
+        return 0.0
+    return max(0, val * random.uniform(0.95, 1.05))
+
+
+def _jitter(val: float, pct: float = 0.30) -> float:
+    """Apply synthetic jitter (default ±30%) for simulated metrics."""
+    return max(0, val * random.uniform(1 - pct, 1 + pct))
+
+
 def _collect_perf_sample() -> None:
     """Collect one perf sample for all powered-on VMs and their workloads.
 
-    When running from saved data (no live vCenter connection), we simulate
-    realistic perf readings based on the initial snapshot data with random
-    jitter so that assessment can use avg/p95 statistics for right-sizing.
+    Strategy:
+    1. If the VM has REAL non-zero perf data from vCenter discovery, use the
+       actual values with minimal natural variance (±5%) to represent genuine
+       measurement noise rather than artificial jitter.
+    2. Only when perf data is truly missing (all zeros or absent) do we
+       generate synthetic readings — and these are flagged as 'simulated'.
     """
     global _perf_history, _workload_perf_history
 
@@ -148,30 +205,49 @@ def _collect_perf_sample() -> None:
         name = vm["name"]
         perf = vm.get("perf", {})
 
-        # Base values from the discovery snapshot
-        base_cpu = perf.get("cpu_usage_percent", 0) or random.uniform(5, 45)
-        base_mem = perf.get("memory_usage_percent", 0) or random.uniform(20, 60)
-        base_iops_r = perf.get("disk_iops_read", 0) or random.uniform(0, 50)
-        base_iops_w = perf.get("disk_iops_write", 0) or random.uniform(0, 30)
-        base_net_rx = perf.get("network_rx_kbps", 0) or random.uniform(0, 500)
-        base_net_tx = perf.get("network_tx_kbps", 0) or random.uniform(0, 200)
-        base_disk_r = perf.get("disk_read_kbps", 0) or random.uniform(0, 1000)
-        base_disk_w = perf.get("disk_write_kbps", 0) or random.uniform(0, 500)
+        # Check if we have REAL vCenter perf data (non-zero values present)
+        has_real_cpu = (perf.get("cpu_usage_percent") or 0) > 0
+        has_real_mem = (perf.get("memory_usage_percent") or 0) > 0
+        has_real_disk = (perf.get("disk_iops_read") or 0) > 0 or (perf.get("disk_iops_write") or 0) > 0
+        has_real_net = (perf.get("network_rx_kbps") or 0) > 0 or (perf.get("network_tx_kbps") or 0) > 0
+        has_any_real = has_real_cpu or has_real_mem or has_real_disk or has_real_net
 
-        # Add realistic jitter (±30%)
-        def _jitter(val: float, pct: float = 0.30) -> float:
-            return max(0, val * random.uniform(1 - pct, 1 + pct))
+        if has_any_real:
+            # USE REAL DATA — apply minimal natural variance (±5%)
+            sample = {
+                "ts": now_iso,
+                "source": "vcenter",
+                "cpu_pct": round(min(100, _natural_variance(perf.get("cpu_usage_percent", 0))), 2),
+                "mem_pct": round(min(100, _natural_variance(perf.get("memory_usage_percent", 0))), 2),
+                "disk_iops": round(_natural_variance(
+                    (perf.get("disk_iops_read") or 0) + (perf.get("disk_iops_write") or 0)), 1),
+                "disk_read_kbps": round(_natural_variance(perf.get("disk_read_kbps") or 0), 1),
+                "disk_write_kbps": round(_natural_variance(perf.get("disk_write_kbps") or 0), 1),
+                "net_rx_kbps": round(_natural_variance(perf.get("network_rx_kbps") or 0), 1),
+                "net_tx_kbps": round(_natural_variance(perf.get("network_tx_kbps") or 0), 1),
+            }
+        else:
+            # NO REAL DATA — synthetic generation (flagged)
+            base_cpu = random.uniform(5, 45)
+            base_mem = random.uniform(20, 60)
+            base_iops_r = random.uniform(0, 50)
+            base_iops_w = random.uniform(0, 30)
+            base_net_rx = random.uniform(0, 500)
+            base_net_tx = random.uniform(0, 200)
+            base_disk_r = random.uniform(0, 1000)
+            base_disk_w = random.uniform(0, 500)
 
-        sample = {
-            "ts": now_iso,
-            "cpu_pct": round(min(100, _jitter(base_cpu)), 2),
-            "mem_pct": round(min(100, _jitter(base_mem)), 2),
-            "disk_iops": round(_jitter(base_iops_r + base_iops_w), 1),
-            "disk_read_kbps": round(_jitter(base_disk_r), 1),
-            "disk_write_kbps": round(_jitter(base_disk_w), 1),
-            "net_rx_kbps": round(_jitter(base_net_rx), 1),
-            "net_tx_kbps": round(_jitter(base_net_tx), 1),
-        }
+            sample = {
+                "ts": now_iso,
+                "source": "simulated",
+                "cpu_pct": round(min(100, _jitter(base_cpu)), 2),
+                "mem_pct": round(min(100, _jitter(base_mem)), 2),
+                "disk_iops": round(_jitter(base_iops_r + base_iops_w), 1),
+                "disk_read_kbps": round(_jitter(base_disk_r), 1),
+                "disk_write_kbps": round(_jitter(base_disk_w), 1),
+                "net_rx_kbps": round(_jitter(base_net_rx), 1),
+                "net_tx_kbps": round(_jitter(base_net_tx), 1),
+            }
 
         if name not in _perf_history:
             _perf_history[name] = []
@@ -393,6 +469,22 @@ def _load_data() -> dict:
     return _data
 
 
+def _load_data_or_404() -> dict:
+    """Return in-memory data or abort with a 404 JSON response.
+
+    Usage in endpoints that require loaded discovery data::
+
+        d = _load_data_or_404()
+        if isinstance(d, tuple):   # (jsonify(...), 404)
+            return d
+    """
+    d = _load_data()
+    if not d or "vms" not in d:
+        from flask import abort
+        abort(404, description="No discovery data loaded. Run discovery or upload a report first.")
+    return d
+
+
 def _merge_infra_recommendations() -> None:
     """Generate network & file-share recommendations from vCenter data and merge
     them into the workload recommendation list.  Idempotent – removes previous
@@ -581,7 +673,8 @@ def _run_discovery(host: str, username: str, password: str,
         }
 
         # Normalise via JSON round-trip (handles enums, datetimes, etc.)
-        _data = json.loads(json.dumps(report, default=str))
+        with _state_lock:
+            _data = json.loads(json.dumps(report, default=str))
 
         # Persist for future reloads
         save_path = _project_root / "discovery_report.json"
@@ -722,7 +815,7 @@ def index():
 
 @app.route("/api/summary")
 def api_summary():
-    d = _load_data()
+    d = _load_data_or_404()
     vms = d["vms"]
     recs = d["recommendations"]
 
@@ -792,7 +885,7 @@ def api_summary():
 @app.route("/api/topology")
 def api_topology():
     """Return nodes and edges for the interactive topology graph."""
-    d = _load_data()
+    d = _load_data_or_404()
     nodes = []
     edges = []
     node_id = 0
@@ -885,7 +978,7 @@ def api_topology():
 @app.route("/api/vms")
 def api_vms():
     """All VMs with recommendation data joined and enrichment boosts applied."""
-    d = _load_data()
+    d = _load_data_or_404()
     rec_map = {r["vm_name"]: r for r in d["recommendations"]}
     result = []
     for vm in d["vms"]:
@@ -904,13 +997,13 @@ def api_vms():
 
 @app.route("/api/hosts")
 def api_hosts():
-    return jsonify(_load_data()["hosts"])
+    return jsonify(_load_data_or_404()["hosts"])
 
 
 @app.route("/api/fileshares")
 def api_fileshares():
     """Return vCenter datastores reframed as file shares for migration."""
-    ds_list = _load_data()["datastores"]
+    ds_list = _load_data_or_404()["datastores"]
     return jsonify([{
         "name": ds["name"],
         "share_type": ds["type"].lower(),  # vmfs / nfs / vsan
@@ -923,52 +1016,79 @@ def api_fileshares():
 
 @app.route("/api/networks")
 def api_networks():
-    return jsonify(_load_data()["networks"])
+    return jsonify(_load_data_or_404()["networks"])
 
 
 @app.route("/api/recommendations")
 def api_recommendations():
-    return jsonify(_load_data()["recommendations"])
+    return jsonify(_load_data_or_404()["recommendations"])
 
 
 # ---------------------------------------------------------------------------
 # Simulation API
 # ---------------------------------------------------------------------------
 
-# Azure VM SKU catalog for simulation recalculcations
+# Generate VM_SKU_CATALOG from the canonical VM_CATALOG in azure_mapping
+# so the simulation layer stays in sync automatically.
+from digital_twin_migrate.azure_mapping import VM_CATALOG as _VM_CATALOG_SOURCE
 VM_SKU_CATALOG = {
-    "Standard_B1s":     {"vcpus": 1,  "mem_gb": 1,   "cost": 7.59},
-    "Standard_B2s":     {"vcpus": 2,  "mem_gb": 4,   "cost": 30.37},
-    "Standard_B2ms":    {"vcpus": 2,  "mem_gb": 8,   "cost": 60.74},
-    "Standard_B4ms":    {"vcpus": 4,  "mem_gb": 16,  "cost": 121.47},
-    "Standard_B8ms":    {"vcpus": 8,  "mem_gb": 32,  "cost": 242.94},
-    "Standard_D2s_v5":  {"vcpus": 2,  "mem_gb": 8,   "cost": 70.08},
-    "Standard_D4s_v5":  {"vcpus": 4,  "mem_gb": 16,  "cost": 140.16},
-    "Standard_D8s_v5":  {"vcpus": 8,  "mem_gb": 32,  "cost": 280.32},
-    "Standard_D16s_v5": {"vcpus": 16, "mem_gb": 64,  "cost": 560.64},
-    "Standard_D32s_v5": {"vcpus": 32, "mem_gb": 128, "cost": 1121.28},
-    "Standard_E2s_v5":  {"vcpus": 2,  "mem_gb": 16,  "cost": 91.98},
-    "Standard_E4s_v5":  {"vcpus": 4,  "mem_gb": 32,  "cost": 183.96},
-    "Standard_E8s_v5":  {"vcpus": 8,  "mem_gb": 64,  "cost": 367.92},
-    "Standard_E16s_v5": {"vcpus": 16, "mem_gb": 128, "cost": 735.84},
-    "Standard_E32s_v5": {"vcpus": 32, "mem_gb": 256, "cost": 1471.68},
-    "Standard_F2s_v2":  {"vcpus": 2,  "mem_gb": 4,   "cost": 61.32},
-    "Standard_F4s_v2":  {"vcpus": 4,  "mem_gb": 8,   "cost": 122.64},
-    "Standard_F8s_v2":  {"vcpus": 8,  "mem_gb": 16,  "cost": 245.28},
-    "Standard_F16s_v2": {"vcpus": 16, "mem_gb": 32,  "cost": 490.56},
+    sku.name: {"vcpus": sku.vcpus, "mem_gb": sku.memory_gb, "cost": sku.monthly_cost_usd}
+    for sku in _VM_CATALOG_SOURCE
 }
 
 REGION_MULTIPLIERS = {
+    # Americas
     "eastus": 1.0,
+    "eastus2": 1.0,
+    "southcentralus": 1.01,
     "westus2": 1.02,
-    "westeurope": 1.15,
-    "northeurope": 1.12,
-    "southeastasia": 1.10,
-    "centralindia": 0.88,
-    "japaneast": 1.18,
-    "australiaeast": 1.20,
-    "uksouth": 1.14,
+    "westus3": 1.01,
+    "centralus": 1.01,
+    "northcentralus": 1.01,
+    "westcentralus": 1.03,
+    "westus": 1.04,
     "canadacentral": 1.05,
+    "canadaeast": 1.07,
+    "brazilsouth": 1.45,
+    "brazilsoutheast": 1.48,
+    # Europe
+    "northeurope": 1.12,
+    "westeurope": 1.15,
+    "uksouth": 1.14,
+    "ukwest": 1.16,
+    "francecentral": 1.18,
+    "francesouth": 1.20,
+    "germanywestcentral": 1.16,
+    "germanynorth": 1.22,
+    "switzerlandnorth": 1.28,
+    "switzerlandwest": 1.32,
+    "norwayeast": 1.18,
+    "norwaywest": 1.22,
+    "swedencentral": 1.15,
+    "polandcentral": 1.16,
+    "italynorth": 1.18,
+    "spaincentral": 1.17,
+    # Asia-Pacific
+    "southeastasia": 1.10,
+    "eastasia": 1.14,
+    "japaneast": 1.18,
+    "japanwest": 1.20,
+    "australiaeast": 1.20,
+    "australiasoutheast": 1.22,
+    "australiacentral": 1.22,
+    "koreacentral": 1.16,
+    "koreasouth": 1.18,
+    "centralindia": 0.88,
+    "southindia": 0.90,
+    "westindia": 0.92,
+    "jioindiawest": 0.91,
+    # Middle East & Africa
+    "uaenorth": 1.22,
+    "uaecentral": 1.25,
+    "qatarcentral": 1.24,
+    "southafricanorth": 1.30,
+    "southafricawest": 1.35,
+    "israelcentral": 1.22,
 }
 
 RI_DISCOUNTS = {
@@ -977,6 +1097,8 @@ RI_DISCOUNTS = {
     "3_year_ri": 0.40,
     "savings_plan_1yr": 0.65,
     "savings_plan_3yr": 0.45,
+    "dev_test": 0.55,
+    "ea_mca": 0.80,
 }
 
 
@@ -993,7 +1115,7 @@ def api_simulate():
         "override_skus": {"vm_name": "Standard_D4s_v5", ...}   # optional
     }
     """
-    d = _load_data()
+    d = _load_data_or_404()
     body = request.get_json(force=True)
 
     selected = body.get("selected_vms", "all")
@@ -1001,6 +1123,12 @@ def api_simulate():
     pricing = body.get("pricing_model", "pay_as_you_go")
     num_waves = max(1, min(10, body.get("waves", 3)))
     overrides = body.get("override_skus", {})
+
+    # Validate inputs
+    if region not in REGION_MULTIPLIERS:
+        return jsonify({"error": f"Unknown region '{region}'. Use /api/regions for valid options."}), 400
+    if pricing not in RI_DISCOUNTS:
+        return jsonify({"error": f"Unknown pricing model '{pricing}'. Use /api/pricing_models for valid options."}), 400
 
     # Auto-apply saved what-if overrides (manual overrides in request take precedence)
     # Store full override info (sku, region, pricing) per VM
@@ -1023,6 +1151,11 @@ def api_simulate():
         target_vms = [n for n in selected if n in vm_map]
 
     # Recalculate costs with region/pricing adjustments
+    # Try to get live pricing from Azure Retail Prices API
+    all_sku_names = list(VM_SKU_CATALOG.keys())
+    live_prices = _pricing_client.get_vm_prices(all_sku_names, region)
+    sim_pricing_source = "azure_retail_api" if (live_prices and any(v for v in live_prices.values())) else "hardcoded"
+
     sim_results = []
     total_original = 0.0
     total_simulated = 0.0
@@ -1035,17 +1168,34 @@ def api_simulate():
 
         sku_name = overrides.get(name, rec.get("recommended_vm_sku", ""))
         sku_info = VM_SKU_CATALOG.get(sku_name, {})
-        vm_cost = sku_info.get("cost", original_cost) if sku_info else original_cost
 
-        # Use per-VM region/pricing from what-if override if available
+        # Determine the effective region and pricing model for this VM
         vm_override = full_overrides.get(name)
         if vm_override:
-            vm_region_mult = REGION_MULTIPLIERS.get(vm_override.get("region", region), 1.0)
-            vm_ri_mult = RI_DISCOUNTS.get(vm_override.get("pricing", pricing), 1.0)
+            eff_region = vm_override.get("region", region)
+            eff_pricing = vm_override.get("pricing", pricing)
         else:
-            vm_region_mult = region_mult
-            vm_ri_mult = ri_mult
-        adjusted_cost = round(vm_cost * vm_region_mult * vm_ri_mult, 2)
+            eff_region = region
+            eff_pricing = pricing
+
+        # Try live pricing for the effective region
+        eff_live = _pricing_client.get_vm_prices([sku_name], eff_region) if sku_name else {}
+        eff_live_sku = eff_live.get(sku_name, {})
+
+        if eff_live_sku and eff_live_sku.get(eff_pricing):
+            vm_cost = eff_live_sku[eff_pricing]
+            adjusted_cost = round(vm_cost, 2)
+        elif eff_live_sku and eff_live_sku.get("pay_as_you_go"):
+            # Live PayG available, apply discount multiplier for the pricing model
+            vm_cost = eff_live_sku["pay_as_you_go"]
+            adjusted_cost = round(vm_cost * RI_DISCOUNTS.get(eff_pricing, 1.0), 2)
+        else:
+            # Fallback to hardcoded
+            vm_cost = sku_info.get("cost", original_cost) if sku_info else original_cost
+            vm_region_mult = REGION_MULTIPLIERS.get(eff_region, 1.0)
+            vm_ri_mult = RI_DISCOUNTS.get(eff_pricing, 1.0)
+            adjusted_cost = round(vm_cost * vm_region_mult * vm_ri_mult, 2)
+
         total_simulated += adjusted_cost
 
         sim_results.append({
@@ -1090,6 +1240,7 @@ def api_simulate():
         "region_multiplier": region_mult,
         "pricing_model": pricing,
         "pricing_discount": ri_mult,
+        "pricing_source": sim_pricing_source,
         "total_vms": len(target_vms),
         "total_original_monthly": round(total_original, 2),
         "total_simulated_monthly": round(total_simulated, 2),
@@ -1111,18 +1262,105 @@ def api_simulate():
     })
 
 
+def _topological_sort_layers(
+    nodes: set[str],
+    depends_on: dict[str, set[str]],
+    sort_key,
+) -> list[list[str]]:
+    """Topological sort using Kahn's algorithm, returning ordered layers.
+
+    Args:
+        nodes: Set of node identifiers.
+        depends_on: ``{node: {nodes it depends on}}``.  A dependency means the
+            depended-on node must be scheduled in an earlier (or same) layer.
+        sort_key: Callable ``(node_key) -> comparable`` for tie-breaking within
+            a layer.
+
+    Returns:
+        List of layers, each a list of node keys.  Handles cycles by breaking
+        them at the lowest-cost node.
+    """
+    # Build adjacency and in-degree
+    in_degree: dict[str, int] = {n: 0 for n in nodes}
+    adj: dict[str, set[str]] = {n: set() for n in nodes}
+
+    for node, deps in depends_on.items():
+        if node not in in_degree:
+            continue
+        for dep in deps:
+            if dep in adj and dep != node:
+                adj[dep].add(node)
+                in_degree[node] += 1
+
+    layers: list[list[str]] = []
+    remaining = set(nodes)
+    while remaining:
+        zero = sorted(
+            [n for n in remaining if in_degree.get(n, 0) == 0],
+            key=sort_key,
+        )
+        if not zero:
+            # Cycle detected — break by picking the node with lowest sort key
+            zero = [min(remaining, key=sort_key)]
+        layers.append(zero)
+        for n in zero:
+            remaining.discard(n)
+            for successor in adj.get(n, set()):
+                if successor in in_degree:
+                    in_degree[successor] -= 1
+
+    return layers
+
+
 def _generate_waves(vms: list[dict], num_waves: int) -> list[list[dict]]:
-    """Split VMs into migration waves using a simple heuristic:
-    Wave 1: powered-off VMs (low risk)
-    Wave 2+: powered-on VMs sorted by readiness then cost (easy first)
+    """Split VMs into dependency-aware migration waves.
+
+    Algorithm:
+    1. Build a dependency graph from workload dependency data (if available).
+    2. Use topological ordering so that a VM's dependencies are migrated in
+       an earlier or same wave — never a later wave.
+    3. Within each wave, prioritise by readiness then cost (easy/cheap first).
+    4. Powered-off VMs still go first (lowest risk).
     """
     off = [v for v in vms if v["power_state"] != "poweredOn"]
     on = [v for v in vms if v["power_state"] == "poweredOn"]
 
-    # Sort powered-on VMs: Ready first, then by cost ascending
-    readiness_order = {"Ready": 0, "Ready with conditions": 1, "Not Ready": 2, "Unknown": 3}
-    on.sort(key=lambda v: (readiness_order.get(v["readiness"], 3), v["simulated_cost"]))
+    # ---- Build dependency graph from workload discovery --------------------
+    # depends_on[A] = {B, C} means VM A depends on B and C (B, C must migrate
+    # before or with A).
+    vm_names = {v["name"] for v in vms}
+    depends_on: dict[str, set[str]] = {v["name"]: set() for v in vms}
 
+    if _workload_data:
+        for dep in _workload_data.get("dependencies", []):
+            src = dep.get("source_vm", "")
+            tgt = dep.get("target_vm", "")
+            if src in vm_names and tgt in vm_names and src != tgt:
+                depends_on[src].add(tgt)
+
+    # ---- Topological sort for powered-on VMs (shared helper) ---------------
+    on_names = {v["name"] for v in on}
+    on_depends = {n: depends_on.get(n, set()) & on_names for n in on_names}
+    vm_by_name = {v["name"]: v for v in on}
+
+    layers = _topological_sort_layers(
+        on_names,
+        on_depends,
+        sort_key=lambda n: vm_by_name[n].get("simulated_cost", 0),
+    )
+
+    # Flatten layers into VMs and re-sort within each layer by readiness+cost
+    readiness_order = {"Ready": 0, "Ready with conditions": 1, "Not Ready": 2, "Unknown": 3}
+    ordered_on: list[dict] = []
+    for layer in layers:
+        layer_vms = [vm_by_name[n] for n in layer if n in vm_by_name]
+        layer_vms.sort(key=lambda v: (
+            readiness_order.get(v.get("readiness", "Unknown"), 3),
+            v.get("simulated_cost", 0),
+        ))
+        ordered_on.extend(layer_vms)
+
+    # ---- Assign to waves ---------------------------------------------------
     waves: list[list[dict]] = []
 
     if off and num_waves > 1:
@@ -1131,12 +1369,11 @@ def _generate_waves(vms: list[dict], num_waves: int) -> list[list[dict]]:
     else:
         remaining_waves = num_waves
         if off:
-            on = off + on  # put them in the regular waves
+            ordered_on = off + ordered_on
 
-    # Split on VMs evenly into remaining waves
-    chunk = max(1, math.ceil(len(on) / remaining_waves))
-    for i in range(0, len(on), chunk):
-        waves.append(on[i:i + chunk])
+    chunk = max(1, math.ceil(len(ordered_on) / remaining_waves))
+    for i in range(0, len(ordered_on), chunk):
+        waves.append(ordered_on[i:i + chunk])
 
     return waves[:num_waves]
 
@@ -1154,6 +1391,21 @@ def api_regions():
 @app.route("/api/pricing_models")
 def api_pricing_models():
     return jsonify(RI_DISCOUNTS)
+
+
+@app.route("/api/pricing/status")
+def api_pricing_status():
+    """Return the status of the Azure Retail Prices API integration."""
+    return jsonify(_pricing_client.status)
+
+
+@app.route("/api/pricing/refresh", methods=["POST"])
+def api_pricing_refresh():
+    """Force-refresh the live pricing cache from Azure Retail Prices API."""
+    all_sku_names = list(VM_SKU_CATALOG.keys())
+    all_regions = list(REGION_MULTIPLIERS.keys())
+    result = _pricing_client.refresh_cache(all_sku_names, all_regions)
+    return jsonify(result)
 
 
 # ---------------------------------------------------------------------------
@@ -1211,9 +1463,7 @@ def api_simulate_comparison():
     - delta cost
     Also returns aggregate totals for all VMs (original fleet cost vs adjusted).
     """
-    d = _load_data()
-    if not d:
-        return jsonify({"error": "No data loaded"}), 400
+    d = _load_data_or_404()
 
     rec_map = {r["vm_name"]: r for r in d["recommendations"]}
     vm_map = {v["name"]: v for v in d["vms"]}
@@ -1316,7 +1566,7 @@ def api_simulate_vm():
     Returns the VM's current recommendation plus cost comparisons
     across all SKUs, regions, and pricing models.
     """
-    d = _load_data()
+    d = _load_data_or_404()
     body = request.get_json(force=True)
     vm_name = body.get("vm_name", "")
 
@@ -1330,18 +1580,60 @@ def api_simulate_vm():
     disk_gb = rec.get("recommended_disk_size_gb", 32)
     disk_cost = disk_gb * DISK_COST_PER_GB.get(current_disk_type, 0.04)
 
-    # Build cost matrix: every SKU x every region x every pricing model
+    # Build cost matrix: every SKU x selected regions x every pricing model
+    # Only fetch pricing for fitting SKUs and a subset of key regions to avoid
+    # hitting the API for all 90+ SKUs × 50+ regions.
+    fitting_sku_names = [
+        name for name, info in VM_SKU_CATALOG.items()
+        if info["vcpus"] >= vm["num_cpus"] and info["mem_gb"] >= vm["memory_mb"] / 1024
+    ]
+    # Always include the current SKU
+    if current_sku and current_sku not in fitting_sku_names:
+        fitting_sku_names.append(current_sku)
+    all_sku_names = list(VM_SKU_CATALOG.keys())
+
+    # Fetch live pricing only for the requested regions (or user's region)
+    requested_regions = body.get("regions", list(REGION_MULTIPLIERS.keys()))
+    live_prices_by_region: dict[str, dict[str, dict[str, float]]] = {}
+    pricing_source = "hardcoded"
+    for region in requested_regions:
+        if region not in REGION_MULTIPLIERS:
+            continue
+        live = _pricing_client.get_vm_prices(fitting_sku_names, region)
+        if live and any(v for v in live.values()):
+            live_prices_by_region[region] = live
+            pricing_source = "azure_retail_api"
+
     sku_comparisons = []
     for sku_name, info in VM_SKU_CATALOG.items():
         fits = (info["vcpus"] >= vm["num_cpus"]
                 and info["mem_gb"] >= vm["memory_mb"] / 1024)
-        base_cost = info["cost"]
+        base_cost = info["cost"]  # hardcoded fallback
 
         region_costs = {}
         for region, rmult in REGION_MULTIPLIERS.items():
+            live_region = live_prices_by_region.get(region, {})
+            live_sku = live_region.get(sku_name, {})
+
             pricing_costs = {}
-            for pricing, pmult in RI_DISCOUNTS.items():
-                pricing_costs[pricing] = round(base_cost * rmult * pmult + disk_cost, 2)
+            if live_sku and live_sku.get("pay_as_you_go"):
+                # Use live retail API prices
+                for pricing_key in RI_DISCOUNTS:
+                    if pricing_key in live_sku:
+                        pricing_costs[pricing_key] = round(live_sku[pricing_key] + disk_cost, 2)
+                    else:
+                        # Fall back to multiplier for missing models
+                        pricing_costs[pricing_key] = round(
+                            live_sku["pay_as_you_go"] * RI_DISCOUNTS[pricing_key] + disk_cost, 2
+                        )
+                # Update base_cost from live PayG for eastus
+                if region == "eastus":
+                    base_cost = live_sku["pay_as_you_go"]
+            else:
+                # Fallback to hardcoded multipliers
+                for pricing, pmult in RI_DISCOUNTS.items():
+                    pricing_costs[pricing] = round(info["cost"] * rmult * pmult + disk_cost, 2)
+
             region_costs[region] = pricing_costs
 
         sku_comparisons.append({
@@ -1407,6 +1699,7 @@ def api_simulate_vm():
         "cheapest_3yr": cheapest_3yr["sku"] if cheapest_3yr else None,
         "regions": REGION_MULTIPLIERS,
         "pricing_models": RI_DISCOUNTS,
+        "pricing_source": pricing_source,
     })
 
 
@@ -1653,9 +1946,8 @@ def api_workload_discover():
             recs = generate_workload_recommendations(result)
 
             # Serialize to dict
-            from dataclasses import asdict as _asdict
-            result_dict = _asdict(result)
-            recs_list = [_asdict(r) for r in recs]
+            result_dict = asdict(result)
+            recs_list = [asdict(r) for r in recs]
 
             # Normalise via JSON round-trip
             result_dict = json.loads(json.dumps(result_dict, default=str))
@@ -1713,9 +2005,8 @@ def api_database_discover():
             host=host,
         )
         discovered = deep_probe_databases(host, [db_cred])
-        from dataclasses import asdict as _asdict
         for db in discovered:
-            d = _asdict(db)
+            d = asdict(db)
             d = json.loads(json.dumps(d, default=str))
             d["host"] = host
             results.append(d)
@@ -1909,15 +2200,21 @@ from digital_twin_migrate.workload_mapping import (
 )
 
 # Workload-level region multipliers (PaaS pricing varies less than IaaS)
-WL_REGION_MULTIPLIERS = {
-    "eastus": 1.0, "westus2": 1.02, "westeurope": 1.12, "northeurope": 1.10,
-    "southeastasia": 1.08, "centralindia": 0.90, "japaneast": 1.15,
-    "australiaeast": 1.18, "uksouth": 1.12, "canadacentral": 1.04,
-}
+# PaaS pricing variation is typically smaller than IaaS; we use ~85% of the
+# VM multiplier delta so PaaS regions track IaaS but with less variance.
+def _derive_wl_multipliers(vm_mults: dict[str, float], damper: float = 0.85) -> dict[str, float]:
+    return {r: round(1.0 + (m - 1.0) * damper, 3) for r, m in vm_mults.items()}
+
+WL_REGION_MULTIPLIERS = _derive_wl_multipliers(REGION_MULTIPLIERS)
 
 WL_PRICING_DISCOUNTS = {
-    "pay_as_you_go": 1.0, "1_year_ri": 0.65, "3_year_ri": 0.45,
-    "dev_test": 0.55, "enterprise_agreement": 0.80,
+    "pay_as_you_go": 1.0,
+    "1_year_ri": 0.62,
+    "3_year_ri": 0.40,
+    "savings_plan_1yr": 0.65,
+    "savings_plan_3yr": 0.45,
+    "dev_test": 0.55,
+    "ea_mca": 0.80,
 }
 
 
@@ -1988,16 +2285,36 @@ def api_workload_whatif():
     )
 
     # Compute cost matrix: each service x each region x each pricing
+    # Try live pricing from Azure Retail Prices API, then fallback to multipliers
+    wl_pricing_source = "hardcoded"
     service_costs = []
     for svc in alternatives:
+        svc_name = svc["name"]
+        sku_tier = svc["sku_tier"]
+        hardcoded_base = svc["base_cost"]
+
         pricing_costs = {}
         for pm_name, pm_mult in WL_PRICING_DISCOUNTS.items():
             region_costs = {}
             for rg_name, rg_mult in WL_REGION_MULTIPLIERS.items():
-                region_costs[rg_name] = round(svc["base_cost"] * rg_mult * pm_mult, 2)
+                # Try live pricing for this service in this region (PayG only from API)
+                live_price = _pricing_client.get_paas_price(svc_name, sku_tier, rg_name)
+                if live_price is not None:
+                    wl_pricing_source = "azure_retail_api"
+                    base = live_price
+                else:
+                    base = hardcoded_base * rg_mult
+
+                region_costs[rg_name] = round(base * pm_mult, 2)
             pricing_costs[pm_name] = region_costs
+
+        # Update base_cost if we got a live PayG price for eastus
+        live_eastus = _pricing_client.get_paas_price(svc_name, sku_tier, "eastus")
+        effective_base = live_eastus if live_eastus is not None else hardcoded_base
+
         service_costs.append({
             **svc,
+            "base_cost": effective_base,
             "costs": pricing_costs,
         })
 
@@ -2009,6 +2326,7 @@ def api_workload_whatif():
         "service_options": service_costs,
         "regions": WL_REGION_MULTIPLIERS,
         "pricing_models": WL_PRICING_DISCOUNTS,
+        "pricing_source": wl_pricing_source,
         "saved_override": saved_override,
     })
 
@@ -2079,6 +2397,12 @@ def api_workload_simulate():
     num_waves = max(1, min(8, body.get("waves", 3)))
     wl_filter = body.get("workload_filter", "all")
 
+    # Validate inputs
+    if region not in WL_REGION_MULTIPLIERS:
+        return jsonify({"error": f"Unknown region '{region}'. Use /api/regions for valid options."}), 400
+    if pricing not in WL_PRICING_DISCOUNTS:
+        return jsonify({"error": f"Unknown pricing model '{pricing}'. Use /api/pricing_models for valid options."}), 400
+
     region_mult = WL_REGION_MULTIPLIERS.get(region, 1.0)
     pricing_mult = WL_PRICING_DISCOUNTS.get(pricing, 1.0)
 
@@ -2095,10 +2419,11 @@ def api_workload_simulate():
         else:
             recs = [r for r in recs if r.get("workload_type", "") == wl_filter]
 
-    # Compute simulated costs
+    # Compute simulated costs (try live pricing from Azure Retail Prices API)
     sim_results = []
     total_original = 0.0
     total_simulated = 0.0
+    wl_sim_pricing_source = "hardcoded"
 
     for rec in recs:
         original_cost = rec.get("estimated_monthly_cost_usd", 0) or 0
@@ -2111,8 +2436,19 @@ def api_workload_simulate():
             # Use overridden service cost
             simulated_cost = override.get("cost", original_cost)
         else:
-            # Apply region + pricing multipliers to original cost
-            simulated_cost = round(original_cost * region_mult * pricing_mult, 2)
+            # Try live PaaS pricing
+            svc_name = rec.get("recommended_azure_service", "")
+            # Extract base service name (strip description in parentheses)
+            svc_base = svc_name.split("(")[0].strip() if "(" in svc_name else svc_name
+            # Resolve default SKU tier for the service (empty tier never matches)
+            sku_tier = resolve_paas_sku_tier(svc_base)
+            live_price = _pricing_client.get_paas_price(svc_base, sku_tier, region)
+            if live_price is not None:
+                wl_sim_pricing_source = "azure_retail_api"
+                simulated_cost = round(live_price * pricing_mult, 2)
+            else:
+                # Apply region + pricing multipliers to original cost
+                simulated_cost = round(original_cost * region_mult * pricing_mult, 2)
 
         total_simulated += simulated_cost
 
@@ -2131,12 +2467,33 @@ def api_workload_simulate():
             "has_override": bool(override),
         })
 
-    # Generate migration waves by complexity: low first, then medium, then high
+    # Generate dependency-aware migration waves
+    # 1. Build dependency map from workload discovery
+    wl_depends_on: dict[str, set[str]] = {}  # wl_key → set of wl_keys it depends on
+    if _workload_data:
+        for dep in _workload_data.get("dependencies", []):
+            src_key = f"{dep.get('source_vm', '')}::{dep.get('source_workload', '')}"
+            tgt_key = f"{dep.get('target_vm', '')}::{dep.get('target_workload', '')}"
+            wl_depends_on.setdefault(src_key, set()).add(tgt_key)
+
+    # 2. Topological sort with complexity as secondary (shared helper)
     complexity_order = {"low": 0, "medium": 1, "high": 2}
-    sorted_results = sorted(sim_results, key=lambda x: (
-        complexity_order.get(x["migration_complexity"], 3),
-        x["simulated_cost"],
-    ))
+    result_by_key: dict[str, dict] = {}
+    for sr in sim_results:
+        k = f"{sr['vm_name']}::{sr['workload_name']}"
+        result_by_key[k] = sr
+
+    all_keys = set(result_by_key.keys())
+    layers_wl = _topological_sort_layers(
+        all_keys,
+        wl_depends_on,
+        sort_key=lambda k: (
+            complexity_order.get(result_by_key[k].get("migration_complexity", ""), 3),
+            result_by_key[k].get("simulated_cost", 0),
+        ),
+    )
+
+    sorted_results = [result_by_key[k] for layer in layers_wl for k in layer]
 
     waves: list[list[dict]] = []
     chunk = max(1, math.ceil(len(sorted_results) / num_waves))
@@ -2179,6 +2536,7 @@ def api_workload_simulate():
         "region_multiplier": region_mult,
         "pricing_model": pricing,
         "pricing_discount": pricing_mult,
+        "pricing_source": wl_sim_pricing_source,
         "total_workloads": len(sim_results),
         "total_original_monthly": round(total_original, 2),
         "total_simulated_monthly": round(total_simulated, 2),
@@ -2574,6 +2932,12 @@ def api_enrichment_clear():
 # ---------------------------------------------------------------------------
 
 # On-premises cost assumptions per host per month (industry averages)
+_ONPREM_YOY_COST_GROWTH = 1.03          # 3% annual cost increase on-prem
+_AZURE_YOY_COST_GROWTH = 1.01           # 1% annual Azure cost growth
+_PAAS_SAVINGS_FACTOR = 0.25             # PaaS typically saves ~25% over IaaS
+_CLOUD_ADMIN_EFFICIENCY = 2.0           # Cloud admins manage 2x more VMs
+_RHEL_CLOUD_DISCOUNT = 0.5             # RHEL licensing discount on Azure
+
 _ONPREM_COST_ASSUMPTIONS = {
     "server_hw_amortized_monthly": 800.0,      # hardware depreciation per host (3yr amortisation)
     "server_maintenance_pct": 0.10,             # 10% of HW cost for maintenance/support
@@ -2692,12 +3056,12 @@ def api_business_case():
     azure_backup = num_vms * azure_adds["azure_backup_per_vm_monthly"]
     azure_security = num_vms * azure_adds["azure_security_center_per_vm_monthly"]
 
-    # Staff savings: cloud requires fewer admins (industry: 2x VM/admin ratio)
-    cloud_admins = max(1, math.ceil(num_vms / (assumptions["vms_per_admin"] * 2)))
+    # Staff savings: cloud requires fewer admins
+    cloud_admins = max(1, math.ceil(num_vms / (assumptions["vms_per_admin"] * _CLOUD_ADMIN_EFFICIENCY)))
     azure_staff = cloud_admins * assumptions["it_staff_cost_monthly"]
 
     # No VMware licensing, reduced OS licensing (AHUB for Windows)
-    azure_os_licensing = round(linux_vms * assumptions["rhel_license_per_vm_monthly"] * 0.5, 2)  # RHEL discount
+    azure_os_licensing = round(linux_vms * assumptions["rhel_license_per_vm_monthly"] * _RHEL_CLOUD_DISCOUNT, 2)
 
     azure_monthly = (azure_compute + azure_support + azure_monitor +
                      azure_backup + azure_security + azure_staff + azure_os_licensing)
@@ -2732,8 +3096,7 @@ def api_business_case():
             approach = wlrec.get("migration_approach", "rehost")
             if approach in ("replatform", "refactor"):
                 wl_cost = wlrec.get("estimated_monthly_cost_usd", 0)
-                # PaaS typically saves 20-40% over IaaS equivalent
-                savings = wl_cost * 0.25
+                savings = wl_cost * _PAAS_SAVINGS_FACTOR
                 paas_savings_monthly += savings
                 paas_details.append({
                     "workload": wlrec.get("workload_name", ""),
@@ -2755,8 +3118,8 @@ def api_business_case():
     yearly_projection = []
     cumulative_savings = -migration_one_time  # start negative (migration investment)
     for year in range(1, analysis_years + 1):
-        onprem_year_cost = onprem_annual * (1.03 ** (year - 1))  # 3% YoY cost increase on-prem
-        azure_year_cost = azure_annual_with_paas * (1.01 ** (year - 1))  # 1% Azure cost growth
+        onprem_year_cost = onprem_annual * (_ONPREM_YOY_COST_GROWTH ** (year - 1))
+        azure_year_cost = azure_annual_with_paas * (_AZURE_YOY_COST_GROWTH ** (year - 1))
         year_savings = onprem_year_cost - azure_year_cost
         cumulative_savings += year_savings
         yearly_projection.append({
@@ -2890,6 +3253,57 @@ def api_business_case():
 
 
 # ---------------------------------------------------------------------------
+# CSV Export
+# ---------------------------------------------------------------------------
+
+@app.route("/api/export/csv")
+def api_export_csv():
+    """Export VM assessment data as downloadable CSV.
+
+    Query params:
+        type – vms (default) | workloads
+    """
+    import csv
+    import io
+
+    export_type = request.args.get("type", "vms")
+
+    if export_type == "workloads":
+        if not _workload_data or not _workload_data.get("recommendations"):
+            return jsonify({"error": "No workload data available"}), 404
+        recs = _workload_data["recommendations"]
+        fields = [
+            "vm_name", "workload_name", "workload_type", "source_engine",
+            "source_version", "recommended_azure_service", "migration_approach",
+            "migration_complexity", "estimated_monthly_cost_usd", "confidence",
+        ]
+    else:
+        d = _load_data()
+        if not d or "recommendations" not in d:
+            return jsonify({"error": "No VM data available"}), 404
+        recs = d["recommendations"]
+        fields = [
+            "vm_name", "recommended_vm_sku", "recommended_vm_family",
+            "recommended_disk_type", "recommended_disk_size_gb",
+            "estimated_monthly_cost_usd", "migration_readiness",
+            "migration_approach", "confidence_score",
+        ]
+
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=fields, extrasaction="ignore")
+    writer.writeheader()
+    for rec in recs:
+        writer.writerow(rec)
+
+    from flask import Response
+    return Response(
+        buf.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={export_type}_assessment.csv"},
+    )
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -2904,4 +3318,4 @@ if __name__ == "__main__":
         print(f"  Auto-loaded workload data: {len(_workload_data.get('recommendations',[]))} recommendations")
     print("  Open http://localhost:5000 in your browser")
     print("  Connect to your vCenter or upload a report file.\n")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5000)

@@ -3,5 +3,10 @@
     "sku": "Standard_D16s_v5",
     "region": "westeurope",
     "pricing": "3_year_ri"
+  },
+  "[Do-Not-Touch] SI-E2E-Win-2": {
+    "sku": "Standard_B4ms",
+    "region": "eastus",
+    "pricing": "pay_as_you_go"
   }
 }

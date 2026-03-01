@@ -90,6 +90,17 @@
         .cost-savings { color: var(--success-green); }
         .cost-increase { color: var(--danger-red); }
 
+        /* Pricing source badges */
+        .pricing-badge { display:inline-flex; align-items:center; gap:4px; font-size:0.7rem; font-weight:600; padding:2px 8px; border-radius:12px; letter-spacing:0.3px; vertical-align:middle; }
+        .pricing-badge-live { background:rgba(63,185,80,0.15); color:#3fb950; border:1px solid rgba(63,185,80,0.3); }
+        .pricing-badge-hardcoded { background:rgba(139,148,158,0.15); color:#8b949e; border:1px solid rgba(139,148,158,0.3); }
+        .pricing-badge-loading { background:rgba(0,120,212,0.15); color:#58a6ff; border:1px solid rgba(0,120,212,0.3); }
+        .pricing-status-dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+        .pricing-status-dot.live { background:#3fb950; }
+        .pricing-status-dot.hardcoded { background:#8b949e; }
+        .pricing-status-dot.loading { background:#58a6ff; animation:pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.4s ease-out; }
 
@@ -244,6 +255,11 @@
                 <i class="bi bi-hdd-network me-1"></i> <span id="navHostName"></span>
             </span>
             <div class="d-flex align-items-center gap-3">
+                <span class="pricing-badge pricing-badge-loading" id="nav-pricing-status" title="Pricing source status"
+                      style="cursor:pointer" onclick="refreshPricingCache()">
+                    <span class="pricing-status-dot loading" id="nav-pricing-dot"></span>
+                    <span id="nav-pricing-label">Checking pricing…</span>
+                </span>
                 <span class="text-white-50 small d-none d-md-inline">
                     <i class="bi bi-cloud-fill me-1"></i> Azure Migration Dashboard
                 </span>
@@ -932,6 +948,8 @@
                                                     <option value="3_year_ri">3-Year Reserved Instance (-60%)</option>
                                                     <option value="savings_plan_1yr">1-Year Savings Plan (-35%)</option>
                                                     <option value="savings_plan_3yr">3-Year Savings Plan (-55%)</option>
+                                                    <option value="dev_test">Dev/Test (-45%)</option>
+                                                    <option value="ea_mca">EA / MCA (-20%)</option>
                                                 </select>
                                                 <label class="form-label">Migration Waves</label>
                                                 <input type="range" class="form-range" id="sim-waves" min="1" max="8" value="3">
@@ -949,7 +967,7 @@
                                                 </button>
                                             </div>
                                             <div class="sim-control" id="sim-cost-card" style="display:none;">
-                                                <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Cost Comparison</h6>
+                                                <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Cost Comparison <span class="pricing-badge pricing-badge-hardcoded ms-2" id="sim-pricing-badge" style="display:none"><span class="pricing-status-dot hardcoded" id="sim-pricing-dot"></span><span id="sim-pricing-label">Hardcoded</span></span></h6>
                                                 <div class="d-flex justify-content-between mb-2">
                                                     <span class="text-muted">Original (Pay-As-You-Go)</span>
                                                     <span id="sim-original-cost" class="fw-bold">—</span>
@@ -1102,10 +1120,12 @@
                                                 <label class="form-label">Pricing Model</label>
                                                 <select class="form-select mb-3" id="wlsim-pricing">
                                                     <option value="pay_as_you_go">Pay-As-You-Go</option>
-                                                    <option value="1_year_ri">1-Year Reserved (-35%)</option>
-                                                    <option value="3_year_ri">3-Year Reserved (-55%)</option>
+                                                    <option value="1_year_ri">1-Year Reserved Instance (-38%)</option>
+                                                    <option value="3_year_ri">3-Year Reserved Instance (-60%)</option>
+                                                    <option value="savings_plan_1yr">1-Year Savings Plan (-35%)</option>
+                                                    <option value="savings_plan_3yr">3-Year Savings Plan (-55%)</option>
                                                     <option value="dev_test">Dev/Test (-45%)</option>
-                                                    <option value="enterprise_agreement">Enterprise Agreement (-20%)</option>
+                                                    <option value="ea_mca">EA / MCA (-20%)</option>
                                                 </select>
                                                 <label class="form-label">Migration Waves</label>
                                                 <input type="range" class="form-range" id="wlsim-waves" min="1" max="8" value="3">
@@ -1124,7 +1144,7 @@
                                                 </button>
                                             </div>
                                             <div class="sim-control" id="wlsim-cost-card" style="display:none;">
-                                                <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Cost Comparison</h6>
+                                                <h6 class="mb-3"><i class="bi bi-calculator me-2"></i>Cost Comparison <span class="pricing-badge pricing-badge-hardcoded ms-2" id="wlsim-pricing-badge" style="display:none"><span class="pricing-status-dot hardcoded" id="wlsim-pricing-dot"></span><span id="wlsim-pricing-label">Hardcoded</span></span></h6>
                                                 <div class="d-flex justify-content-between mb-2">
                                                     <span class="text-muted">Original (Pay-As-You-Go)</span>
                                                     <span id="wlsim-original-cost" class="fw-bold">—</span>
@@ -1212,10 +1232,12 @@
                                 <label class="form-label small mb-1">Pricing Model</label>
                                 <select id="bc-pricing" class="form-select form-select-sm" style="min-width:170px">
                                     <option value="pay_as_you_go">Pay-As-You-Go</option>
-                                    <option value="1_year_ri">1-Year Reserved</option>
-                                    <option value="3_year_ri" selected>3-Year Reserved</option>
+                                    <option value="1_year_ri">1-Year Reserved Instance</option>
+                                    <option value="3_year_ri" selected>3-Year Reserved Instance</option>
                                     <option value="savings_plan_1yr">Savings Plan 1yr</option>
                                     <option value="savings_plan_3yr">Savings Plan 3yr</option>
+                                    <option value="dev_test">Dev/Test</option>
+                                    <option value="ea_mca">EA / MCA</option>
                                 </select>
                             </div>
                             <div class="col-auto">
@@ -1650,7 +1672,7 @@
     <div class="vm-modal-backdrop" id="wl-whatif-backdrop" onclick="if(event.target===this)closeWlWhatIf()">
         <div class="vm-modal">
             <div class="vm-modal-header">
-                <h5><i class="bi bi-layers me-2"></i>Workload What-If: <span id="wl-whatif-title"></span></h5>
+                <h5><i class="bi bi-layers me-2"></i>Workload What-If: <span id="wl-whatif-title"></span> <span class="pricing-badge pricing-badge-hardcoded ms-2" id="wl-whatif-pricing-badge" style="display:none"><span class="pricing-status-dot hardcoded" id="wl-whatif-pricing-dot"></span><span id="wl-whatif-pricing-label">Hardcoded</span></span></h5>
                 <button class="vm-modal-close" onclick="closeWlWhatIf()">&times;</button>
             </div>
             <div class="vm-modal-body">
@@ -1674,10 +1696,12 @@
                     </select>
                     <select class="form-select form-select-sm" id="wl-whatif-pricing" onchange="recalcWlWhatIf()">
                         <option value="pay_as_you_go">Pay-As-You-Go</option>
-                        <option value="1_year_ri">1-Year Reserved (-35%)</option>
-                        <option value="3_year_ri">3-Year Reserved (-55%)</option>
+                        <option value="1_year_ri">1-Year Reserved Instance (-38%)</option>
+                        <option value="3_year_ri">3-Year Reserved Instance (-60%)</option>
+                        <option value="savings_plan_1yr">1-Year Savings Plan (-35%)</option>
+                        <option value="savings_plan_3yr">3-Year Savings Plan (-55%)</option>
                         <option value="dev_test">Dev/Test (-45%)</option>
-                        <option value="enterprise_agreement">Enterprise Agreement (-20%)</option>
+                        <option value="ea_mca">EA / MCA (-20%)</option>
                     </select>
                 </div>
 
@@ -1751,7 +1775,7 @@
     <div class="vm-modal-backdrop" id="vm-whatif-backdrop" onclick="if(event.target===this)closeWhatIf()">
         <div class="vm-modal">
             <div class="vm-modal-header">
-                <h5><i class="bi bi-pc-display me-2"></i>VM What-If Analysis: <span id="whatif-vm-name"></span></h5>
+                <h5><i class="bi bi-pc-display me-2"></i>VM What-If Analysis: <span id="whatif-vm-name"></span> <span class="pricing-badge pricing-badge-hardcoded ms-2" id="whatif-pricing-badge" style="display:none"><span class="pricing-status-dot hardcoded" id="whatif-pricing-dot"></span><span id="whatif-pricing-label">Hardcoded</span></span></h5>
                 <button class="vm-modal-close" onclick="closeWhatIf()">&times;</button>
             </div>
             <div class="vm-modal-body">
@@ -1814,10 +1838,12 @@
                     </select>
                     <select class="form-select form-select-sm" id="whatif-pricing" onchange="recalcWhatIf()">
                         <option value="pay_as_you_go">Pay-As-You-Go</option>
-                        <option value="1_year_ri">1-Year RI (-38%)</option>
-                        <option value="3_year_ri">3-Year RI (-60%)</option>
-                        <option value="savings_plan_1yr">Savings Plan 1yr (-35%)</option>
-                        <option value="savings_plan_3yr">Savings Plan 3yr (-55%)</option>
+                        <option value="1_year_ri">1-Year Reserved Instance (-38%)</option>
+                        <option value="3_year_ri">3-Year Reserved Instance (-60%)</option>
+                        <option value="savings_plan_1yr">1-Year Savings Plan (-35%)</option>
+                        <option value="savings_plan_3yr">3-Year Savings Plan (-55%)</option>
+                        <option value="dev_test">Dev/Test (-45%)</option>
+                        <option value="ea_mca">EA / MCA (-20%)</option>
                     </select>
                     <label class="form-check form-switch d-flex align-items-center gap-2 ms-2">
                         <input class="form-check-input" type="checkbox" id="whatif-show-unfit" onchange="renderSkuGrid()">
@@ -1897,6 +1923,76 @@
     let assessmentSort = { col: 'name', asc: true };
     let topologyNetwork = null;
     let projectionChart = null;
+
+    // ================================================================
+    // PRICING SOURCE HELPERS
+    // ================================================================
+    function updatePricingBadge(prefix, source) {
+        const badge = document.getElementById(prefix + '-pricing-badge');
+        const dot = document.getElementById(prefix + '-pricing-dot');
+        const label = document.getElementById(prefix + '-pricing-label');
+        if (!badge) return;
+        badge.style.display = 'inline-flex';
+        // Remove all badge classes
+        badge.classList.remove('pricing-badge-live', 'pricing-badge-hardcoded', 'pricing-badge-loading');
+        dot.classList.remove('live', 'hardcoded', 'loading');
+        if (source === 'azure_retail_api') {
+            badge.classList.add('pricing-badge-live');
+            dot.classList.add('live');
+            label.textContent = 'Live Pricing';
+            badge.title = 'Prices fetched from Azure Retail Prices API';
+        } else if (source === 'loading') {
+            badge.classList.add('pricing-badge-loading');
+            dot.classList.add('loading');
+            label.textContent = 'Loading…';
+            badge.title = 'Fetching pricing data…';
+        } else {
+            badge.classList.add('pricing-badge-hardcoded');
+            dot.classList.add('hardcoded');
+            label.textContent = 'Estimated';
+            badge.title = 'Using built-in estimated pricing (Azure API unavailable)';
+        }
+    }
+
+    async function checkPricingStatus() {
+        try {
+            const res = await fetch('/api/pricing/status');
+            const st = await res.json();
+            const navBadge = document.getElementById('nav-pricing-status');
+            const navDot = document.getElementById('nav-pricing-dot');
+            const navLabel = document.getElementById('nav-pricing-label');
+            navBadge.classList.remove('pricing-badge-live', 'pricing-badge-hardcoded', 'pricing-badge-loading');
+            navDot.classList.remove('live', 'hardcoded', 'loading');
+            if (st.api_available) {
+                navBadge.classList.add('pricing-badge-live');
+                navDot.classList.add('live');
+                navLabel.textContent = 'Live Pricing';
+                navBadge.title = 'Azure Retail Prices API connected · Cache: ' + st.cache_hits + ' hits / ' + st.api_calls + ' calls';
+            } else {
+                navBadge.classList.add('pricing-badge-hardcoded');
+                navDot.classList.add('hardcoded');
+                navLabel.textContent = 'Estimated Pricing';
+                navBadge.title = 'Azure Retail Prices API unavailable — using built-in estimates';
+            }
+        } catch (e) {
+            console.warn('Pricing status check failed', e);
+        }
+    }
+
+    async function refreshPricingCache() {
+        const navLabel = document.getElementById('nav-pricing-label');
+        const navDot = document.getElementById('nav-pricing-dot');
+        const navBadge = document.getElementById('nav-pricing-status');
+        navLabel.textContent = 'Refreshing…';
+        navBadge.classList.remove('pricing-badge-live', 'pricing-badge-hardcoded');
+        navBadge.classList.add('pricing-badge-loading');
+        navDot.classList.remove('live', 'hardcoded');
+        navDot.classList.add('loading');
+        try {
+            await fetch('/api/pricing/refresh', { method: 'POST' });
+        } catch (e) { /* ignore */ }
+        await checkPricingStatus();
+    }
 
     // ================================================================
     // DASHBOARD
@@ -2516,6 +2612,9 @@
         document.getElementById('sim-results').style.display = 'block';
         document.getElementById('sim-cost-card').style.display = 'block';
 
+        // Pricing source badge
+        updatePricingBadge('sim', sim.pricing_source || 'hardcoded');
+
         // Cost card
         document.getElementById('sim-original-cost').textContent = '$' + sim.total_original_monthly.toLocaleString(undefined, {minimumFractionDigits:2});
         document.getElementById('sim-new-cost').textContent = '$' + sim.total_simulated_monthly.toLocaleString(undefined, {minimumFractionDigits:2});
@@ -2816,6 +2915,9 @@
         ]);
         whatIfData = await simRes.json();
         if (whatIfData.error) { closeWhatIf(); return; }
+
+        // Pricing source badge
+        updatePricingBadge('whatif', whatIfData.pricing_source || 'hardcoded');
 
         const vm = whatIfData.vm;
         const rec = whatIfData.current_recommendation;
@@ -3586,6 +3688,8 @@
         backdrop.style.display = 'flex';
         // Reset
         document.getElementById('wl-whatif-title').textContent = workloadKey.replace('::', ' / ');
+        // Reset pricing source badge
+        updatePricingBadge('wl-whatif', 'loading');
         document.getElementById('wl-whatif-svc-grid').innerHTML = '<div class="text-muted">Loading...</div>';
         document.getElementById('wl-whatif-details').innerHTML = '';
         wlWhatIfSelectedSvc = null;
@@ -3600,6 +3704,9 @@
             const data = await res.json();
             if (data.error) { alert(data.error); closeWlWhatIf(); return; }
             wlWhatIfData = { ...data, workload_key: workloadKey };
+
+            // Pricing source badge
+            updatePricingBadge('wl-whatif', data.pricing_source || 'hardcoded');
 
             // Fill details grid
             const rec = data.recommendation;
@@ -3876,6 +3983,9 @@
         document.getElementById('wlsim-placeholder').style.display = 'none';
         document.getElementById('wlsim-results').style.display = 'block';
         document.getElementById('wlsim-cost-card').style.display = 'block';
+
+        // Pricing source badge
+        updatePricingBadge('wlsim', sim.pricing_source || 'hardcoded');
 
         // Cost card
         document.getElementById('wlsim-original-cost').textContent = '$' + sim.total_original_monthly.toLocaleString(undefined, {minimumFractionDigits:2});
@@ -4336,6 +4446,8 @@
     // INIT — check if data already loaded (e.g. page refresh)
     // ================================================================
     document.addEventListener('DOMContentLoaded', async () => {
+        // Check live pricing status
+        checkPricingStatus();
         try {
             const res = await fetch('/api/status');
             const s = await res.json();

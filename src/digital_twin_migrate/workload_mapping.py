@@ -3,6 +3,12 @@
 Maps on-premises databases, web apps, container runtimes, and orchestrators
 to the most appropriate Azure PaaS / IaaS services with cost estimates,
 migration approach, and step-by-step guidance.
+
+Matching considers workload characteristics beyond just engine name:
+- Database size, connection counts, edition, HA requirements
+- Web app framework, process count, and runtime version
+- Container count and resource requirements
+- Orchestrator node/pod counts for proper sizing
 """
 
 from __future__ import annotations
@@ -477,26 +483,161 @@ _MIGRATION_STEPS: dict[str, list[str]] = {
 
 
 # ---------------------------------------------------------------------------
+# Smart matching helpers — consider DB size, HA, connections, features
+# ---------------------------------------------------------------------------
+
+def _score_db_service(db: DiscoveredDatabase, svc: AzureServiceOption) -> tuple[float, str, list[str]]:
+    """Score and adjust a database service option based on workload characteristics.
+
+    Returns (adjusted_cost, adjusted_tier_display, issues).
+    """
+    cost = svc.estimated_monthly_usd
+    issues: list[str] = []
+    tier_info = svc.sku_tier
+
+    size_gb = db.total_size_gb or (db.size_mb / 1024 if db.size_mb else 0)
+    connections = db.active_connections or db.max_connections or 0
+    edition = (db.edition or "").lower()
+
+    # ---- Size-based tier scaling ----
+    if "SQL Database" in svc.name or "Azure SQL MI" in svc.name or "SQL Managed Instance" in svc.name:
+        if size_gb > 500:
+            cost *= 2.5         # Business Critical 8 vCores range
+            tier_info = "BC_Gen5_8"
+            issues.append(f"Large DB ({size_gb:.0f} GB) — Business Critical tier recommended")
+        elif size_gb > 100:
+            cost *= 1.5
+            tier_info = "GP_Gen5_8"
+        # Connection-based scaling
+        if connections > 200:
+            cost *= 1.3
+            issues.append(f"High connection count ({connections}) — larger compute tier needed")
+
+    elif "MySQL" in svc.name or "PostgreSQL" in svc.name:
+        if "Azure VM" not in svc.name:
+            if size_gb > 500:
+                cost *= 2.2
+                tier_info = "GP_Standard_D8ds_v4"
+                issues.append(f"Large DB ({size_gb:.0f} GB) — 8 vCore tier recommended")
+            elif size_gb > 100:
+                cost *= 1.4
+                tier_info = "GP_Standard_D4ds_v4"
+            if connections > 150:
+                cost *= 1.2
+
+    elif "Cosmos DB" in svc.name:
+        # Scale RUs by size
+        if size_gb > 50:
+            cost = max(cost, 200.0)    # at least 1000 RU/s
+            tier_info = "1000_RUs"
+        if size_gb > 200:
+            cost = max(cost, 800.0)    # autoscale
+            tier_info = "4000_RUs_Autoscale"
+
+    elif "Azure Cache for Redis" in svc.name:
+        if size_gb > 13:
+            cost *= 3.0
+            tier_info = "Premium_P2"
+        elif size_gb > 6:
+            cost *= 2.0
+            tier_info = "Premium_P1"
+
+    # ---- Edition / feature compatibility ----
+    if db.engine == DatabaseEngine.MSSQL:
+        if "enterprise" in edition:
+            if "SQL Database" in svc.name:
+                issues.append("Enterprise edition features (CLR, Service Broker) may not be available in SQL Database — consider SQL MI")
+            # Prefer SQL MI for enterprise edition
+            if "SQL MI" in svc.name or "Managed Instance" in svc.name:
+                cost *= 0.95  # slight preference
+        if "express" in edition and "SQL Database" in svc.name:
+            cost *= 0.5  # Express is tiny — small tier suffices
+            tier_info = "GP_Gen5_2"
+
+    if db.engine == DatabaseEngine.ORACLE:
+        if "enterprise" in edition:
+            issues.append("Oracle Enterprise Edition requires BYOL on Azure VMs")
+            cost *= 1.2  # license premium
+
+    return round(cost, 2), tier_info, issues
+
+
+def _score_webapp_service(wa: DiscoveredWebApp, svc: AzureServiceOption) -> tuple[float, str, list[str]]:
+    """Score a webapp service option based on runtime details.
+
+    Returns (adjusted_cost, note, issues).
+    """
+    cost = svc.estimated_monthly_usd
+    issues: list[str] = []
+    note = ""
+
+    framework = (wa.framework or "").lower()
+    version = wa.runtime_version or ""
+
+    # Framework-specific considerations
+    if wa.runtime == WebAppRuntime.DOTNET_FRAMEWORK:
+        if "Container Apps" in svc.name or "AKS" in svc.name:
+            issues.append(".NET Framework apps require Windows containers — limited support on Container Apps/AKS")
+            cost *= 1.3  # penalty for Windows container overhead
+        if version and version.startswith("2."):
+            issues.append(f".NET Framework {version} is very old — consider modernizing to .NET 8+")
+
+    if wa.runtime == WebAppRuntime.JAVA:
+        if "spring" in framework:
+            # Azure Spring Apps is a natural fit
+            if "Spring Apps" in svc.name:
+                cost *= 0.9  # preference for Spring Apps
+                note = "Spring Boot detected — Azure Spring Apps recommended"
+        if "tomcat" in framework or "jboss" in framework:
+            if "App Service" in svc.name:
+                note = f"{framework.title()} detected — App Service with built-in server support"
+
+    if wa.runtime == WebAppRuntime.NODEJS:
+        if "static" in framework or "next" in framework or "react" in framework or "vue" in framework or "angular" in framework:
+            if "Static Web Apps" in svc.name:
+                cost *= 0.5  # SWA is ideal for static/SPA frameworks
+                note = f"{framework.title()} SPA detected — Static Web Apps ideal"
+
+    return round(cost, 2), note, issues
+
+
+# ---------------------------------------------------------------------------
 # Recommendation generator
 # ---------------------------------------------------------------------------
 
 def generate_workload_recommendations(
     discovery: WorkloadDiscoveryResult,
 ) -> list[WorkloadRecommendation]:
-    """Generate Azure service recommendations for every discovered workload."""
+    """Generate Azure service recommendations for every discovered workload.
+
+    Uses smart matching that considers:
+    - Database: size, connections, edition, engine features
+    - Web apps: framework, runtime version compatibility
+    - Containers: running container count for cost scaling
+    - Orchestrators: node/pod count for proper sizing
+    """
     recs: list[WorkloadRecommendation] = []
 
     for vmw in discovery.vm_workloads:
-        # Databases
+        # Databases — smart matching by size, connections, edition
         for db in vmw.databases:
             options = DB_SERVICE_MAP.get(db.engine, [])
             if not options:
                 continue
-            primary = options[0]
+
+            # Score each option considering workload characteristics
+            scored: list[tuple[float, AzureServiceOption, str, list[str]]] = []
+            for opt in options:
+                adj_cost, tier_info, opt_issues = _score_db_service(db, opt)
+                scored.append((adj_cost, opt, tier_info, opt_issues))
+
+            # Pick the best option: lowest complexity replatform first,
+            # but prefer managed PaaS over IaaS when cost is similar
+            best_cost, primary, best_tier, primary_issues = scored[0]
             alternatives = [o.name for o in options[1:]]
             steps = _MIGRATION_STEPS.get(primary.name, ["Consult Azure migration documentation"])
 
-            issues: list[str] = []
+            issues: list[str] = list(primary_issues)
             confidence = 70.0
             if db.version == "unknown":
                 issues.append("Version not detected — verify compatibility manually")
@@ -505,15 +646,33 @@ def generate_workload_recommendations(
                 issues.append("Oracle licensing requires special consideration on Azure")
                 confidence -= 10
 
+            # Boost confidence when we have detailed discovery data
+            size_gb = db.total_size_gb or (db.size_mb / 1024 if db.size_mb else 0)
+            if size_gb > 0:
+                confidence += 5   # size data available
+            if db.active_connections > 0:
+                confidence += 5   # connection data available
+            if db.edition:
+                confidence += 3   # edition detected
+            if db.discovery_method == "direct_connect":
+                confidence += 7   # deep probe has richer data
+
+            confidence = min(confidence, 100.0)
+
+            display = primary.display
+            if best_tier != primary.sku_tier:
+                # Tier was adjusted by smart matching — reflect in display
+                display = f"{primary.name} ({best_tier})"
+
             recs.append(WorkloadRecommendation(
                 vm_name=vmw.vm_name,
                 workload_name=f"{db.engine.value}:{db.instance_name}",
                 workload_type="database",
                 source_engine=db.engine.value,
                 source_version=db.version,
-                recommended_azure_service=primary.display,
+                recommended_azure_service=display,
                 alternative_services=alternatives,
-                estimated_monthly_cost_usd=primary.estimated_monthly_usd,
+                estimated_monthly_cost_usd=best_cost,
                 migration_approach=primary.migration_approach,
                 migration_complexity=primary.complexity,
                 migration_steps=steps,
@@ -521,7 +680,7 @@ def generate_workload_recommendations(
                 confidence=confidence,
             ))
 
-        # Web apps
+        # Web apps — framework-aware matching
         for wa in vmw.web_apps:
             options = WEBAPP_SERVICE_MAP.get(wa.runtime, [])
             if not options:
@@ -529,15 +688,28 @@ def generate_workload_recommendations(
                 options = [AzureServiceOption(
                     "Azure VM", "Rehost on Azure VM",
                     "webapp", "Standard_D2s_v5", 90.0, "rehost", "low")]
-            primary = options[0]
+
+            # Score each option
+            scored_wa: list[tuple[float, AzureServiceOption, str, list[str]]] = []
+            for opt in options:
+                adj_cost, note, opt_issues = _score_webapp_service(wa, opt)
+                scored_wa.append((adj_cost, opt, note, opt_issues))
+
+            best_cost, primary, best_note, primary_issues = scored_wa[0]
             alternatives = [o.name for o in options[1:]]
             steps = _MIGRATION_STEPS.get(primary.name, ["Consult Azure migration documentation"])
 
-            issues = []
+            issues = list(primary_issues)
             confidence = 65.0
             if wa.runtime == WebAppRuntime.DOTNET_FRAMEWORK:
                 issues.append(".NET Framework apps may need Windows App Service plan")
                 confidence -= 5
+            if wa.framework:
+                confidence += 5  # framework detected
+            if wa.runtime_version:
+                confidence += 3  # version detected
+
+            confidence = min(confidence, 100.0)
 
             recs.append(WorkloadRecommendation(
                 vm_name=vmw.vm_name,
@@ -547,7 +719,7 @@ def generate_workload_recommendations(
                 source_version=wa.runtime_version,
                 recommended_azure_service=primary.display,
                 alternative_services=alternatives,
-                estimated_monthly_cost_usd=primary.estimated_monthly_usd,
+                estimated_monthly_cost_usd=best_cost,
                 migration_approach=primary.migration_approach,
                 migration_complexity=primary.complexity,
                 migration_steps=steps,
@@ -555,17 +727,29 @@ def generate_workload_recommendations(
                 confidence=confidence,
             ))
 
-        # Container runtimes
+        # Container runtimes — scale by count
         for cr in vmw.container_runtimes:
             options = CONTAINER_SERVICE_MAP.get(cr.runtime, [])
             if not options:
                 continue
-            # Scale cost by number of running containers
             count = max(cr.running_containers, 1)
             primary = options[0]
+
+            # If many containers, prefer AKS over individual Container Apps
+            if count > 10 and len(options) > 1:
+                aks_opts = [o for o in options if "Kubernetes" in o.name]
+                if aks_opts:
+                    primary = aks_opts[0]
+
             adjusted_cost = primary.estimated_monthly_usd * count
-            alternatives = [o.name for o in options[1:]]
+            alternatives = [o.name for o in options if o.name != primary.name]
             steps = _MIGRATION_STEPS.get(primary.name, ["Consult Azure migration documentation"])
+
+            issues = []
+            confidence = 60.0
+            if count > 20:
+                issues.append(f"High container count ({count}) — dedicated AKS node pool recommended")
+                confidence += 5  # we know more about capacity needs
 
             recs.append(WorkloadRecommendation(
                 vm_name=vmw.vm_name,
@@ -579,20 +763,34 @@ def generate_workload_recommendations(
                 migration_approach=primary.migration_approach,
                 migration_complexity=primary.complexity,
                 migration_steps=steps,
-                confidence=60.0,
+                issues=issues,
+                confidence=confidence,
             ))
 
-        # Orchestrators
+        # Orchestrators — scale by node count, consider pod density
         for orch in vmw.orchestrators:
             options = ORCHESTRATOR_SERVICE_MAP.get(orch.type, [])
             if not options:
                 continue
             primary = options[0]
-            # Scale cost by node count
             node_mult = max(orch.node_count, 1)
             adjusted_cost = primary.estimated_monthly_usd * node_mult
             alternatives = [o.name for o in options[1:]]
             steps = _MIGRATION_STEPS.get(primary.name, ["Consult Azure migration documentation"])
+
+            issues = []
+            confidence = 55.0
+
+            # Pod density hints
+            if orch.pod_count > 0 and orch.node_count > 0:
+                pods_per_node = orch.pod_count / orch.node_count
+                if pods_per_node > 50:
+                    issues.append(f"High pod density ({pods_per_node:.0f} pods/node) — consider larger node SKU on AKS")
+                confidence += 5
+
+            if orch.node_count > 10:
+                issues.append(f"Large cluster ({orch.node_count} nodes) — consider AKS autoscaler and spot node pools")
+                confidence += 5
 
             recs.append(WorkloadRecommendation(
                 vm_name=vmw.vm_name,
@@ -606,7 +804,8 @@ def generate_workload_recommendations(
                 migration_approach=primary.migration_approach,
                 migration_complexity=primary.complexity,
                 migration_steps=steps,
-                confidence=55.0,
+                issues=issues,
+                confidence=confidence,
             ))
 
     logger.info("Generated %d workload recommendations", len(recs))
