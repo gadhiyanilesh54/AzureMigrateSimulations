@@ -14,6 +14,7 @@ from rich.panel import Panel
 from .azure_mapping import generate_recommendations
 from .azure_provisioning import provision_digital_twins
 from .config import load_config
+from .perf_aggregator import apply_perf_history
 from .twin_builder import create_digital_twin
 from .vcenter_discovery import discover_environment
 from .visualization import (
@@ -71,6 +72,12 @@ def _parse_args() -> argparse.Namespace:
         help="Target Azure region for recommendations (default: eastus).",
     )
     parser.add_argument(
+        "--perf-history",
+        type=str,
+        default=None,
+        help="Path to perf_history.json for enriched percentile-based sizing.",
+    )
+    parser.add_argument(
         "-v", "--verbose",
         action="store_true",
         help="Enable verbose/debug logging.",
@@ -113,6 +120,23 @@ def main() -> None:
     if not env.vms:
         console.print("[yellow]No VMs discovered. Nothing to do.[/]")
         sys.exit(0)
+
+    # ── Step 1b: Enrich with perf history (if provided) ─────────────────
+    perf_path = args.perf_history
+    if perf_path is None:
+        # Auto-detect data/perf_history.json relative to project root
+        auto_path = Path(__file__).resolve().parents[2] / "data" / "perf_history.json"
+        if auto_path.exists():
+            perf_path = str(auto_path)
+
+    if perf_path:
+        console.print(f"\n[bold]Step 1b:[/] Enriching VMs with perf history from {perf_path} …\n")
+        try:
+            matched = apply_perf_history(env, perf_path)
+            console.print(f"  [green]✓ Perf history applied to {matched} / {len(env.vms)} VMs[/]")
+        except Exception as e:
+            console.print(f"  [yellow]⚠ Could not load perf history:[/] {e}")
+            logger.warning("Perf history enrichment failed: %s", e)
 
     # ── Step 2: Generate Azure recommendations ──────────────────────────
     console.print("\n[bold]Step 2:[/] Generating Azure migration recommendations …\n")

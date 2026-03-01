@@ -40,6 +40,14 @@ class VCenterConfig:
     password: str = ""
     disable_ssl: bool = True
 
+    def __repr__(self) -> str:
+        masked_pw = "****" if self.password else ""
+        return (
+            f"VCenterConfig(host={self.host!r}, port={self.port}, "
+            f"username={self.username!r}, password={masked_pw!r}, "
+            f"disable_ssl={self.disable_ssl})"
+        )
+
 
 @dataclass
 class AzureConfig:

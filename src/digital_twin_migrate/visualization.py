@@ -143,14 +143,17 @@ def print_recommendations_table(recommendations: list[AzureRecommendation]) -> N
     table.add_column("VM Name", style="bold", max_width=25)
     table.add_column("Azure VM SKU", style="cyan")
     table.add_column("Family")
-    table.add_column("Disk Type")
-    table.add_column("Disk GB", justify="right")
+    table.add_column("Disks", max_width=40)
     table.add_column("Monthly $", justify="right", style="green")
+    table.add_column("Optimized $", justify="right", style="bright_green")
     table.add_column("Readiness", justify="center")
     table.add_column("Confidence", justify="right")
-    table.add_column("Right-Sizing Note", max_width=40)
+    table.add_column("Sizing", max_width=15)
 
-    total_cost = 0.0
+    total_payg = 0.0
+    total_optimized = 0.0
+    os_eol_warnings: list[tuple[str, str]] = []
+
     for rec in sorted(recommendations, key=lambda r: r.vm_name):
         readiness_style = {
             "Ready": "[green]Ready[/]",
@@ -164,28 +167,61 @@ def print_recommendations_table(recommendations: list[AzureRecommendation]) -> N
             else f"[red]{rec.confidence_score:.0f}%[/]"
         )
 
+        # Per-disk summary
+        if rec.disk_recommendations:
+            disk_lines = []
+            for dr in rec.disk_recommendations:
+                prefix = "[OS]" if dr.is_os_disk else "[Data]"
+                disk_lines.append(f"{prefix} {dr.recommended_type} {dr.recommended_size_gb}GB ${dr.estimated_monthly_cost_usd:.0f}")
+            disk_text = "\n".join(disk_lines)
+        else:
+            disk_text = f"{rec.recommended_disk_type} {rec.recommended_disk_size_gb}GB"
+
+        # Cost columns
+        payg = rec.estimated_monthly_cost_usd
+        optimized = rec.total_tco_optimized_monthly if rec.total_tco_optimized_monthly > 0 else payg
+
+        # Sizing approach
+        sizing_label = rec.sizing_approach.replace("performance_based_", "perf-").replace("as_is", "as-is")
+
+        # Track EOL warnings
+        if rec.os_eol_status and rec.os_eol_status != "supported":
+            os_eol_warnings.append((rec.vm_name, rec.os_eol_detail))
+
         table.add_row(
             rec.vm_name,
             rec.recommended_vm_sku,
             rec.recommended_vm_family,
-            rec.recommended_disk_type,
-            str(rec.recommended_disk_size_gb),
-            f"${rec.estimated_monthly_cost_usd:,.2f}",
+            disk_text,
+            f"${payg:,.2f}",
+            f"${optimized:,.2f}",
             readiness_style,
             conf_style,
-            rec.right_sizing_note[:40] if rec.right_sizing_note else "—",
+            sizing_label,
         )
-        total_cost += rec.estimated_monthly_cost_usd
+        total_payg += payg
+        total_optimized += optimized
 
     console.print(table)
-    console.print(
-        Panel(
-            f"[bold green]Estimated total monthly Azure cost: ${total_cost:,.2f}[/]\n"
-            f"[dim]Estimated annual cost: ${total_cost * 12:,.2f}[/]",
-            title="Cost Summary",
-            border_style="green",
-        )
+
+    # Cost summary panel with PAYG vs optimized
+    savings = total_payg - total_optimized
+    savings_pct = (savings / total_payg * 100) if total_payg > 0 else 0
+    cost_text = (
+        f"[bold green]PAYG monthly:     ${total_payg:,.2f}[/]  (annual: ${total_payg * 12:,.2f})\n"
+        f"[bold bright_green]Optimized monthly: ${total_optimized:,.2f}[/]  (annual: ${total_optimized * 12:,.2f})\n"
+        f"[dim]Potential monthly savings (3yr RI + AHUB): ${savings:,.2f} ({savings_pct:.0f}%)[/]"
     )
+    console.print(Panel(cost_text, title="Cost Summary", border_style="green"))
+
+    # OS EOL warnings
+    if os_eol_warnings:
+        eol_table = Table(title="⚠ OS End-of-Life Warnings", show_lines=True)
+        eol_table.add_column("VM Name", style="bold")
+        eol_table.add_column("EOL Detail", style="yellow")
+        for vm_name, detail in os_eol_warnings:
+            eol_table.add_row(vm_name, detail)
+        console.print(eol_table)
 
 
 # ---------------------------------------------------------------------------
@@ -219,15 +255,18 @@ def print_issues_report(recommendations: list[AzureRecommendation]) -> None:
 # Export to JSON
 # ---------------------------------------------------------------------------
 
-def export_report_json(
+def build_report(
     env: DiscoveredEnvironment,
     recommendations: list[AzureRecommendation],
-    output_path: Path,
-) -> None:
-    """Export the full discovery + recommendations to a JSON file."""
+) -> dict:
+    """Build a serialisable report dict from discovery results and recommendations.
+
+    This is the canonical report structure used by the CLI exporter, the web
+    dashboard, and standalone scripts.
+    """
     from dataclasses import asdict
 
-    report = {
+    return {
         "vcenter_host": env.vcenter_host,
         "summary": {
             "datacenters": len(env.datacenters),
@@ -243,8 +282,32 @@ def export_report_json(
         "datastores": [asdict(ds) for ds in env.datastores],
         "networks": [asdict(n) for n in env.networks],
         "recommendations": [asdict(r) for r in recommendations],
-        "total_monthly_cost_usd": round(sum(r.estimated_monthly_cost_usd for r in recommendations), 2),
+        "total_monthly_cost_usd": round(
+            sum(r.estimated_monthly_cost_usd for r in recommendations), 2
+        ),
+        "total_optimized_monthly_cost_usd": round(
+            sum(r.total_tco_optimized_monthly for r in recommendations), 2
+        ),
+        "os_eol_summary": {
+            "eol_count": sum(1 for r in recommendations if r.os_eol_status == "eol"),
+            "eol_esu_eligible_count": sum(1 for r in recommendations if r.os_eol_status == "eol_esu_eligible"),
+            "supported_count": sum(1 for r in recommendations if r.os_eol_status == "supported"),
+        },
+        "pricing_summary": {
+            "total_payg": round(sum(r.pricing.total_payg_monthly for r in recommendations if r.pricing), 2),
+            "total_optimized": round(sum(r.pricing.total_optimized_monthly for r in recommendations if r.pricing), 2),
+            "ahub_eligible_count": sum(1 for r in recommendations if r.azure_hybrid_benefit_eligible),
+        },
     }
+
+
+def export_report_json(
+    env: DiscoveredEnvironment,
+    recommendations: list[AzureRecommendation],
+    output_path: Path,
+) -> None:
+    """Export the full discovery + recommendations to a JSON file."""
+    report = build_report(env, recommendations)
 
     output_path.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
     logger.info("Report exported to %s", output_path)

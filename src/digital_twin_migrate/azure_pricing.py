@@ -12,6 +12,7 @@ import json
 import logging
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -542,12 +543,24 @@ class AzureRetailPricing:
     ) -> dict[tuple[str, str], float | None]:
         """Fetch pricing for multiple (service_name, sku_tier) pairs.
 
+        Uses a thread pool so requests run concurrently (up to 8 at a time).
         Returns {(service_name, sku_tier): monthly_cost | None, ...}
         """
-        return {
-            (svc, tier): self.get_paas_price(svc, tier, region)
-            for svc, tier in services
-        }
+        results: dict[tuple[str, str], float | None] = {}
+
+        def _fetch_one(svc: str, tier: str) -> tuple[tuple[str, str], float | None]:
+            return (svc, tier), self.get_paas_price(svc, tier, region)
+
+        with ThreadPoolExecutor(max_workers=min(8, len(services) or 1)) as pool:
+            futures = {
+                pool.submit(_fetch_one, svc, tier): (svc, tier)
+                for svc, tier in services
+            }
+            for future in as_completed(futures):
+                key, price = future.result()
+                results[key] = price
+
+        return results
 
     # ---- Cache management -------------------------------------------------
 

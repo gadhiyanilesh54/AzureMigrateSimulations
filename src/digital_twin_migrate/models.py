@@ -24,6 +24,19 @@ class DiskInfo:
     capacity_gb: float = 0.0
     thin_provisioned: bool = False
     datastore_name: str = ""
+    # --- New fields for better assessment ---
+    is_boot_disk: bool = False
+    controller_type: str = ""        # SCSI, NVMe, IDE, paravirtual
+    controller_key: int = 0
+    unit_number: int = 0
+    disk_mode: str = ""               # persistent, independent_persistent, etc.
+    # Per-disk performance (from vSphere perf counters)
+    iops_read: float = 0.0
+    iops_write: float = 0.0
+    throughput_read_kbps: float = 0.0
+    throughput_write_kbps: float = 0.0
+    latency_read_ms: float = 0.0
+    latency_write_ms: float = 0.0
 
 
 @dataclass
@@ -48,6 +61,22 @@ class PerformanceMetrics:
     disk_iops_write: float = 0.0
     network_rx_kbps: float = 0.0
     network_tx_kbps: float = 0.0
+    # --- Percentile-based metrics (from historical data) ---
+    cpu_p50_percent: float = 0.0
+    cpu_p95_percent: float = 0.0
+    cpu_p99_percent: float = 0.0
+    cpu_max_percent: float = 0.0
+    memory_p50_percent: float = 0.0
+    memory_p95_percent: float = 0.0
+    memory_p99_percent: float = 0.0
+    memory_max_percent: float = 0.0
+    disk_iops_p95: float = 0.0
+    disk_throughput_p95_kbps: float = 0.0
+    network_p95_kbps: float = 0.0
+    # Historical data quality
+    sample_count: int = 0
+    collection_period_days: int = 0
+    perf_data_source: str = ""  # "vcenter_realtime", "vcenter_historical", "perf_history", "enrichment"
 
 
 @dataclass
@@ -93,6 +122,25 @@ class DiscoveredVM:
     # Tags / annotations
     tags: dict[str, str] = field(default_factory=dict)
     annotation: str = ""
+
+    # --- New fields for better assessment ---
+    hardware_version: str = ""           # e.g. "vmx-19"
+    boot_type: str = ""                  # "bios" or "efi"
+    cpu_reservation_mhz: int = 0
+    cpu_limit_mhz: int = -1              # -1 = unlimited
+    memory_reservation_mb: int = 0
+    memory_limit_mb: int = -1            # -1 = unlimited
+    cpu_shares: str = ""                 # "low", "normal", "high", or custom value
+    memory_shares: str = ""
+    has_snapshots: bool = False
+    snapshot_count: int = 0
+    snapshot_size_gb: float = 0.0
+    has_linked_clones: bool = False
+    numa_nodes: int = 0
+    cpu_hot_add_enabled: bool = False
+    memory_hot_add_enabled: bool = False
+    guest_os_detailed: str = ""          # detailed OS version from VMware tools
+    firmware: str = ""                   # "bios" or "efi"
 
 
 @dataclass

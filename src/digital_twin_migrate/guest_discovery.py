@@ -861,8 +861,8 @@ def _deep_probe_mysql(host: str, db_cred: DatabaseCredential,
         try:
             cur.execute("SELECT DISTINCT User FROM mysql.user WHERE User != ''")
             db.users = [r[0] for r in cur.fetchall()]
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not fetch MySQL users on %s:%d — %s", host, port, exc)
 
         # Edition
         try:
@@ -870,8 +870,8 @@ def _deep_probe_mysql(host: str, db_cred: DatabaseCredential,
             row = cur.fetchone()
             if row:
                 db.edition = str(row[1])
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not fetch MySQL edition on %s:%d — %s", host, port, exc)
 
         db.instance_name = db.instance_name or "default"
         db.status = "running"
@@ -1096,8 +1096,8 @@ def _deep_probe_mongodb(host: str, db_cred: DatabaseCredential,
             admin_db = client["admin"]
             users_info = admin_db.command("usersInfo")
             db.users = [u["user"] for u in users_info.get("users", [])]
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not fetch MongoDB users on %s:%d — %s", host, port, exc)
 
         # Active connections
         try:
@@ -1105,8 +1105,8 @@ def _deep_probe_mongodb(host: str, db_cred: DatabaseCredential,
             conns = status.get("connections", {})
             db.active_connections = conns.get("current", 0)
             db.max_connections = conns.get("available", 0) + conns.get("current", 0)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not fetch MongoDB connection info on %s:%d — %s", host, port, exc)
 
         db.instance_name = db.instance_name or "default"
         db.status = "running"

@@ -25,3 +25,6 @@ run_output.txt
 
 # Generated data
 data/enrichment_data.json
+data/retail_price_cache.json
+discovery_report.json
+flask.log

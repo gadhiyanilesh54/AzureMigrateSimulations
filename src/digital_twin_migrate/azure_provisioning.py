@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import time
 
+from azure.core.exceptions import HttpResponseError, ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.mgmt.digitaltwins import AzureDigitalTwinsManagementClient
 from azure.mgmt.digitaltwins.models import (
@@ -42,8 +43,11 @@ def _ensure_dt_instance(cfg: AzureConfig, credential) -> str:
         host = existing.host_name
         logger.info("Digital Twins instance %s already exists at %s", cfg.dt_instance_name, host)
         return host
-    except Exception:
-        pass  # instance doesn't exist yet
+    except ResourceNotFoundError:
+        pass  # instance doesn't exist yet — will create below
+    except HttpResponseError as e:
+        logger.warning("Error checking DT instance %s: %s", cfg.dt_instance_name, e)
+        raise
 
     logger.info("Creating Azure Digital Twins instance %s …", cfg.dt_instance_name)
     dt_description = DigitalTwinsDescription(

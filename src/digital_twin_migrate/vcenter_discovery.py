@@ -213,6 +213,32 @@ def _classify_os(guest_full_name: str) -> GuestOSFamily:
     return GuestOSFamily.OTHER
 
 
+def _get_controller_type(vm: vim.VirtualMachine, controller_key: int) -> str:
+    """Look up the controller type for a given controller key."""
+    if not vm.config or not vm.config.hardware:
+        return ""
+    for dev in vm.config.hardware.device:
+        if hasattr(dev, 'key') and dev.key == controller_key:
+            if isinstance(dev, vim.vm.device.ParaVirtualSCSIController):
+                return "pvscsi"
+            elif isinstance(dev, vim.vm.device.VirtualLsiLogicSASController):
+                return "lsilogicsas"
+            elif isinstance(dev, vim.vm.device.VirtualLsiLogicController):
+                return "lsilogic"
+            elif isinstance(dev, vim.vm.device.VirtualBusLogicController):
+                return "buslogic"
+            elif isinstance(dev, vim.vm.device.VirtualNVMEController):
+                return "nvme"
+            elif isinstance(dev, vim.vm.device.VirtualIDEController):
+                return "ide"
+            elif isinstance(dev, vim.vm.device.VirtualAHCIController):
+                return "ahci"
+            elif isinstance(dev, vim.vm.device.VirtualSCSIController):
+                return "scsi"
+            return type(dev).__name__
+    return ""
+
+
 def _extract_disks(vm: vim.VirtualMachine) -> list[DiskInfo]:
     disks: list[DiskInfo] = []
     if not vm.config or not vm.config.hardware:
@@ -222,15 +248,26 @@ def _extract_disks(vm: vim.VirtualMachine) -> list[DiskInfo]:
             backing = dev.backing
             ds_name = ""
             thin = False
+            disk_mode = ""
             if hasattr(backing, "datastore") and backing.datastore:
                 ds_name = backing.datastore.name
             if hasattr(backing, "thinProvisioned"):
                 thin = bool(backing.thinProvisioned)
+            if hasattr(backing, "diskMode"):
+                disk_mode = str(backing.diskMode or "")
+            controller_type = _get_controller_type(vm, dev.controllerKey)
+            # Boot disk heuristic: unit 0 on controller key 1000 (first SCSI controller)
+            is_boot = (dev.controllerKey == 1000 and dev.unitNumber == 0)
             disks.append(DiskInfo(
                 label=dev.deviceInfo.label if dev.deviceInfo else "",
                 capacity_gb=round(dev.capacityInKB / (1024 * 1024), 2) if dev.capacityInKB else 0,
                 thin_provisioned=thin,
                 datastore_name=ds_name,
+                is_boot_disk=is_boot,
+                controller_type=controller_type,
+                controller_key=dev.controllerKey,
+                unit_number=dev.unitNumber,
+                disk_mode=disk_mode,
             ))
     return disks
 
@@ -270,8 +307,108 @@ def _extract_nics(vm: vim.VirtualMachine) -> list[NetworkInfo]:
     return nics
 
 
-def _collect_perf_metrics(content: vim.ServiceContent, vm_obj: vim.VirtualMachine) -> PerformanceMetrics:
-    """Collect real-time performance metrics for a VM using vSphere Performance Manager."""
+def _get_controller_type_from_devices(devices: list, controller_key: int) -> str:
+    """Look up controller type from a flat device list."""
+    for dev in devices:
+        if hasattr(dev, 'key') and dev.key == controller_key:
+            if isinstance(dev, vim.vm.device.ParaVirtualSCSIController):
+                return "pvscsi"
+            elif isinstance(dev, vim.vm.device.VirtualLsiLogicSASController):
+                return "lsilogicsas"
+            elif isinstance(dev, vim.vm.device.VirtualLsiLogicController):
+                return "lsilogic"
+            elif isinstance(dev, vim.vm.device.VirtualBusLogicController):
+                return "buslogic"
+            elif isinstance(dev, vim.vm.device.VirtualNVMEController):
+                return "nvme"
+            elif isinstance(dev, vim.vm.device.VirtualIDEController):
+                return "ide"
+            elif isinstance(dev, vim.vm.device.VirtualAHCIController):
+                return "ahci"
+            elif isinstance(dev, vim.vm.device.VirtualSCSIController):
+                return "scsi"
+            return type(dev).__name__
+    return ""
+
+
+def _extract_disks_from_devices(devices: list, **_kw) -> list[DiskInfo]:
+    """Extract disk info from a pre-fetched device list (PropertyCollector path)."""
+    disks: list[DiskInfo] = []
+    for dev in devices:
+        if isinstance(dev, vim.vm.device.VirtualDisk):
+            backing = dev.backing
+            ds_name = ""
+            thin = False
+            disk_mode = ""
+            if hasattr(backing, "datastore") and backing.datastore:
+                ds_name = backing.datastore.name
+            if hasattr(backing, "thinProvisioned"):
+                thin = bool(backing.thinProvisioned)
+            if hasattr(backing, "diskMode"):
+                disk_mode = str(backing.diskMode or "")
+            controller_type = _get_controller_type_from_devices(devices, dev.controllerKey)
+            is_boot = (dev.controllerKey == 1000 and dev.unitNumber == 0)
+            disks.append(DiskInfo(
+                label=dev.deviceInfo.label if dev.deviceInfo else "",
+                capacity_gb=round(dev.capacityInKB / (1024 * 1024), 2) if dev.capacityInKB else 0,
+                thin_provisioned=thin,
+                datastore_name=ds_name,
+                is_boot_disk=is_boot,
+                controller_type=controller_type,
+                controller_key=dev.controllerKey,
+                unit_number=dev.unitNumber,
+                disk_mode=disk_mode,
+            ))
+    return disks
+
+
+def _extract_nics_from_devices(devices: list, ip_map: dict[int, list[str]]) -> list[NetworkInfo]:
+    """Extract NIC info from a pre-fetched device list and guest IP map."""
+    nics: list[NetworkInfo] = []
+    for dev in devices:
+        if isinstance(dev, vim.vm.device.VirtualEthernetCard):
+            net_name = ""
+            try:
+                if hasattr(dev, "backing"):
+                    if hasattr(dev.backing, "network") and dev.backing.network:
+                        net_name = dev.backing.network.name
+                    elif hasattr(dev.backing, "port"):
+                        net_name = getattr(dev.backing.port, "portgroupKey", "")
+            except Exception:
+                pass  # network ref may be stale
+            nics.append(NetworkInfo(
+                name=dev.deviceInfo.label if dev.deviceInfo else "",
+                mac_address=dev.macAddress or "",
+                ip_addresses=ip_map.get(dev.key, []),
+                network_name=net_name,
+                connected=bool(dev.connectable and dev.connectable.connected) if dev.connectable else False,
+            ))
+    return nics
+
+
+def _build_ip_map(guest_nets) -> dict[int, list[str]]:
+    """Build a device-key → IP-addresses map from guest network info."""
+    ip_map: dict[int, list[str]] = {}
+    for gn in guest_nets:
+        key = gn.deviceConfigId
+        ips = []
+        if gn.ipConfig and gn.ipConfig.ipAddress:
+            ips = [ip.ipAddress for ip in gn.ipConfig.ipAddress]
+        elif gn.ipAddress:
+            ips = gn.ipAddress if isinstance(gn.ipAddress, list) else [gn.ipAddress]
+        ip_map[key] = ips
+    return ip_map
+
+
+def _collect_perf_metrics(content: vim.ServiceContent, vm_obj: vim.VirtualMachine,
+                          historical: bool = True) -> PerformanceMetrics:
+    """Collect performance metrics for a VM using vSphere Performance Manager.
+
+    When *historical* is True, fetches up to 7 days of 5-minute rollup data
+    (intervalId=300) and computes avg / P50 / P95 / P99 / max.  Falls back to
+    real-time 20-second samples when historical stats are unavailable.
+    """
+    import statistics
     perf = PerformanceMetrics()
     try:
         perf_manager = content.perfManager
@@ -307,25 +444,149 @@ def _collect_perf_metrics(content: vim.ServiceContent, vm_obj: vim.VirtualMachin
         if not metric_ids:
             return perf
 
-        query_spec = vim.PerformanceManager.QuerySpec(
-            entity=vm_obj,
-            metricId=metric_ids,
-            maxSample=1,
-            intervalId=20,  # real-time 20-second interval
-        )
-        results = perf_manager.QueryPerf(querySpec=[query_spec])
-        if results:
-            for metric_series in results[0].value:
-                field_name = metric_field_map.get(metric_series.id.counterId)
-                if field_name and metric_series.value:
-                    val = metric_series.value[-1]  # most recent sample
-                    # vSphere returns percentages as hundredths (e.g., 5000 = 50%)
-                    if "percent" in field_name or "usage" in field_name:
-                        val = val / 100.0
-                    setattr(perf, field_name, float(val))
+        # --- Try historical (5-min rollup, up to 7 days) first ----------------
+        used_historical = False
+        if historical:
+            try:
+                hist_spec = vim.PerformanceManager.QuerySpec(
+                    entity=vm_obj,
+                    metricId=metric_ids,
+                    maxSample=2016,  # 7 days × 24h × 60min / 5min = 2016
+                    intervalId=300,  # 5-minute rollup
+                )
+                hist_results = perf_manager.QueryPerf(querySpec=[hist_spec])
+                if hist_results and hist_results[0].value:
+                    series_data: dict[str, list[float]] = {}
+                    for metric_series in hist_results[0].value:
+                        field_name = metric_field_map.get(metric_series.id.counterId)
+                        if field_name and metric_series.value:
+                            vals = [float(v) for v in metric_series.value if v >= 0]
+                            if "percent" in field_name or "usage" in field_name:
+                                vals = [v / 100.0 for v in vals]
+                            series_data[field_name] = vals
+
+                    if series_data:
+                        used_historical = True
+                        sample_counts = [len(v) for v in series_data.values()]
+                        perf.sample_count = max(sample_counts) if sample_counts else 0
+                        perf.collection_period_days = min(7, perf.sample_count * 5 // (60 * 24) + 1)
+                        perf.perf_data_source = "vcenter_historical"
+
+                        for field_name, vals in series_data.items():
+                            if not vals:
+                                continue
+                            avg_val = statistics.mean(vals)
+                            setattr(perf, field_name, avg_val)
+
+                            sorted_vals = sorted(vals)
+                            n = len(sorted_vals)
+                            # Compute percentiles for CPU and memory
+                            if field_name == "cpu_usage_percent":
+                                perf.cpu_p50_percent = sorted_vals[int(n * 0.50)] if n > 0 else 0
+                                perf.cpu_p95_percent = sorted_vals[min(int(n * 0.95), n - 1)] if n > 0 else 0
+                                perf.cpu_p99_percent = sorted_vals[min(int(n * 0.99), n - 1)] if n > 0 else 0
+                                perf.cpu_max_percent = sorted_vals[-1] if n > 0 else 0
+                            elif field_name == "memory_usage_percent":
+                                perf.memory_p50_percent = sorted_vals[int(n * 0.50)] if n > 0 else 0
+                                perf.memory_p95_percent = sorted_vals[min(int(n * 0.95), n - 1)] if n > 0 else 0
+                                perf.memory_p99_percent = sorted_vals[min(int(n * 0.99), n - 1)] if n > 0 else 0
+                                perf.memory_max_percent = sorted_vals[-1] if n > 0 else 0
+                            elif field_name in ("disk_iops_read", "disk_iops_write"):
+                                # Accumulate total IOPS P95 from both read+write
+                                p95_val = sorted_vals[min(int(n * 0.95), n - 1)] if n > 0 else 0
+                                perf.disk_iops_p95 += p95_val
+                            elif field_name in ("disk_read_kbps", "disk_write_kbps"):
+                                p95_val = sorted_vals[min(int(n * 0.95), n - 1)] if n > 0 else 0
+                                perf.disk_throughput_p95_kbps += p95_val
+                            elif field_name in ("network_rx_kbps", "network_tx_kbps"):
+                                p95_val = sorted_vals[min(int(n * 0.95), n - 1)] if n > 0 else 0
+                                perf.network_p95_kbps += p95_val
+            except Exception as e:
+                logger.debug("Historical stats not available for %s: %s", vm_obj.name, e)
+
+        # --- Fallback to real-time single sample ------------------------------
+        if not used_historical:
+            query_spec = vim.PerformanceManager.QuerySpec(
+                entity=vm_obj,
+                metricId=metric_ids,
+                maxSample=1,
+                intervalId=20,  # real-time 20-second interval
+            )
+            results = perf_manager.QueryPerf(querySpec=[query_spec])
+            if results:
+                for metric_series in results[0].value:
+                    field_name = metric_field_map.get(metric_series.id.counterId)
+                    if field_name and metric_series.value:
+                        val = metric_series.value[-1]  # most recent sample
+                        if "percent" in field_name or "usage" in field_name:
+                            val = val / 100.0
+                        setattr(perf, field_name, float(val))
+                perf.sample_count = 1
+                perf.perf_data_source = "vcenter_realtime"
+
     except Exception as e:
         logger.warning("Could not collect perf metrics for %s: %s", vm_obj.name, e)
     return perf
+
+
+def _collect_per_disk_perf(content: vim.ServiceContent, vm_obj: vim.VirtualMachine,
+                           disks: list[DiskInfo]) -> None:
+    """Collect per-disk IOPS and throughput metrics and update DiskInfo in-place."""
+    try:
+        perf_manager = content.perfManager
+        counter_map: dict[str, int] = {}
+        for counter in perf_manager.perfCounter:
+            full_name = f"{counter.groupInfo.key}.{counter.nameInfo.key}.{counter.rollupType}"
+            counter_map[full_name] = counter.key
+
+        # Per-disk counters use instance = "scsiX:Y" format
+        disk_counters = {
+            "virtualDisk.numberReadAveraged.average": "iops_read",
+            "virtualDisk.numberWriteAveraged.average": "iops_write",
+            "virtualDisk.read.average": "throughput_read_kbps",
+            "virtualDisk.write.average": "throughput_write_kbps",
+            "virtualDisk.totalReadLatency.average": "latency_read_ms",
+            "virtualDisk.totalWriteLatency.average": "latency_write_ms",
+        }
+
+        metric_ids = []
+        metric_field_map: dict[int, str] = {}
+        for counter_name, field_name in disk_counters.items():
+            cid = counter_map.get(counter_name)
+            if cid is not None:
+                # Use "*" to get all disk instances
+                metric_ids.append(vim.PerformanceManager.MetricId(counterId=cid, instance="*"))
+                metric_field_map[cid] = field_name
+
+        if not metric_ids:
+            return
+
+        query_spec = vim.PerformanceManager.QuerySpec(
+            entity=vm_obj,
+            metricId=metric_ids,
+            maxSample=12,  # last hour of 5-min samples
+            intervalId=300,
+        )
+        results = perf_manager.QueryPerf(querySpec=[query_spec])
+        if not results:
+            return
+
+        # Map instance IDs ("scsi0:0") to disk index
+        for metric_series in results[0].value:
+            field_name = metric_field_map.get(metric_series.id.counterId)
+            instance = metric_series.id.instance  # e.g. "scsi0:0"
+            if not field_name or not instance or not metric_series.value:
+                continue
+            avg_val = sum(float(v) for v in metric_series.value if v >= 0) / max(len(metric_series.value), 1)
+
+            # Match instance to disk by controller:unit pattern
+            for disk in disks:
+                disk_instance = f"scsi{disk.controller_key - 1000}:{disk.unit_number}"
+                if instance == disk_instance:
+                    setattr(disk, field_name, round(avg_val, 2))
+                    break
+    except Exception as e:
+        logger.debug("Could not collect per-disk perf for %s: %s", vm_obj.name, e)
 
 
 def _bulk_fetch_vm_properties(content: vim.ServiceContent) -> list[dict]:
@@ -361,6 +622,11 @@ def _bulk_fetch_vm_properties(content: vim.ServiceContent) -> list[dict]:
             "config.hardware.memoryMB",
             "config.hardware.device",
             "config.annotation",
+            "config.version",                 # hardware version e.g. "vmx-19"
+            "config.firmware",                # "bios" or "efi"
+            "config.cpuHotAddEnabled",
+            "config.memoryHotAddEnabled",
+            "config.guestId",
             "summary.config.name",
             "runtime.powerState",
             "runtime.maxCpuUsage",
@@ -369,8 +635,12 @@ def _bulk_fetch_vm_properties(content: vim.ServiceContent) -> list[dict]:
             "guest.toolsRunningStatus",
             "guest.toolsVersion",
             "guest.net",
+            "guest.guestFullName",            # detailed OS from tools
+            "resourceConfig",                 # CPU/memory reservations, limits, shares
             "resourcePool",
             "parent",
+            "snapshot",                       # snapshot tree
+            "layoutEx",                       # for snapshot/clone size
         ],
     )
     filter_spec = vmodl.query.PropertyCollector.FilterSpec(
@@ -431,53 +701,13 @@ def _discover_vms(content: vim.ServiceContent, collect_perf: bool = True) -> lis
 
             # Extract disks from device list
             devices = vm_props.get("config.hardware.device", []) or []
-            disks: list[DiskInfo] = []
-            nics: list[NetworkInfo] = []
 
             # Build guest IP map FIRST so NIC construction can use it
             guest_nets = vm_props.get("guest.net") or []
-            ip_map: dict[int, list[str]] = {}
-            for gn in guest_nets:
-                key = gn.deviceConfigId
-                ips = []
-                if gn.ipConfig and gn.ipConfig.ipAddress:
-                    ips = [ip.ipAddress for ip in gn.ipConfig.ipAddress]
-                elif gn.ipAddress:
-                    ips = gn.ipAddress if isinstance(gn.ipAddress, list) else [gn.ipAddress]
-                ip_map[key] = ips
+            ip_map = _build_ip_map(guest_nets)
 
-            for dev in devices:
-                if isinstance(dev, vim.vm.device.VirtualDisk):
-                    backing = dev.backing
-                    ds_name = ""
-                    thin = False
-                    if hasattr(backing, "datastore") and backing.datastore:
-                        ds_name = backing.datastore.name
-                    if hasattr(backing, "thinProvisioned"):
-                        thin = bool(backing.thinProvisioned)
-                    disks.append(DiskInfo(
-                        label=dev.deviceInfo.label if dev.deviceInfo else "",
-                        capacity_gb=round(dev.capacityInKB / (1024 * 1024), 2) if dev.capacityInKB else 0,
-                        thin_provisioned=thin,
-                        datastore_name=ds_name,
-                    ))
-                elif isinstance(dev, vim.vm.device.VirtualEthernetCard):
-                    net_name = ""
-                    try:
-                        if hasattr(dev, "backing"):
-                            if hasattr(dev.backing, "network") and dev.backing.network:
-                                net_name = dev.backing.network.name
-                            elif hasattr(dev.backing, "port"):
-                                net_name = getattr(dev.backing.port, "portgroupKey", "")
-                    except Exception:
-                        pass  # network ref may be stale
-                    nics.append(NetworkInfo(
-                        name=dev.deviceInfo.label if dev.deviceInfo else "",
-                        mac_address=dev.macAddress or "",
-                        ip_addresses=ip_map.get(dev.key, []),
-                        network_name=net_name,
-                        connected=bool(dev.connectable and dev.connectable.connected) if dev.connectable else False,
-                    ))
+            disks = _extract_disks_from_devices(devices)
+            nics = _extract_nics_from_devices(devices, ip_map)
 
             # Host name from runtime.host
             host_obj = vm_props.get("runtime.host")
@@ -495,7 +725,67 @@ def _discover_vms(content: vim.ServiceContent, collect_perf: bool = True) -> lis
             # Performance (only if requested and VM is on)
             perf = PerformanceMetrics()
             if collect_perf and power == PowerState.POWERED_ON:
-                perf = _collect_perf_metrics(content, vm_obj)
+                perf = _collect_perf_metrics(content, vm_obj, historical=True)
+                # Collect per-disk performance
+                if disks:
+                    _collect_per_disk_perf(content, vm_obj, disks)
+
+            # --- Snapshots ---------------------------------------------------
+            has_snapshots = False
+            snapshot_count = 0
+            snapshot_size_gb = 0.0
+            has_linked_clones = False
+            snapshot_tree = vm_props.get("snapshot")
+            if snapshot_tree and hasattr(snapshot_tree, "rootSnapshotList"):
+                has_snapshots = True
+                def _count_snapshots(snap_list):
+                    count = 0
+                    for s in snap_list:
+                        count += 1
+                        if s.childSnapshotList:
+                            count += _count_snapshots(s.childSnapshotList)
+                    return count
+                snapshot_count = _count_snapshots(snapshot_tree.rootSnapshotList)
+
+            # Snapshot size from layoutEx
+            layout_ex = vm_props.get("layoutEx")
+            if layout_ex and hasattr(layout_ex, "file"):
+                for f in layout_ex.file:
+                    fname = f.name.lower() if f.name else ""
+                    if "delta" in fname or "sesparse" in fname:
+                        has_linked_clones = True
+                    if any(ext in fname for ext in ("-delta.vmdk", "-sesparse.vmdk", ".vmsn")):
+                        snapshot_size_gb += (f.size or 0) / (1024 ** 3)
+
+            # --- Resource config (CPU/memory reservations, limits, shares) ----
+            cpu_reservation = 0
+            cpu_limit = -1
+            mem_reservation = 0
+            mem_limit = -1
+            cpu_shares_str = ""
+            mem_shares_str = ""
+            res_config = vm_props.get("resourceConfig")
+            if res_config:
+                if hasattr(res_config, "cpuAllocation"):
+                    cpu_alloc = res_config.cpuAllocation
+                    cpu_reservation = cpu_alloc.reservation or 0
+                    cpu_limit = cpu_alloc.limit if cpu_alloc.limit is not None else -1
+                    if cpu_alloc.shares:
+                        cpu_shares_str = str(cpu_alloc.shares.level) if cpu_alloc.shares.level else str(cpu_alloc.shares.shares)
+                if hasattr(res_config, "memoryAllocation"):
+                    mem_alloc = res_config.memoryAllocation
+                    mem_reservation = mem_alloc.reservation or 0
+                    mem_limit = mem_alloc.limit if mem_alloc.limit is not None else -1
+                    if mem_alloc.shares:
+                        mem_shares_str = str(mem_alloc.shares.level) if mem_alloc.shares.level else str(mem_alloc.shares.shares)
+
+            # --- Hardware version & firmware ---------------------------------
+            hw_version = vm_props.get("config.version", "") or ""
+            firmware = vm_props.get("config.firmware", "") or ""
+            boot_type = "efi" if firmware.lower() == "efi" else "bios"
+            cpu_hot_add = bool(vm_props.get("config.cpuHotAddEnabled", False))
+            mem_hot_add = bool(vm_props.get("config.memoryHotAddEnabled", False))
+            guest_os_detailed = vm_props.get("guest.guestFullName", "") or ""
 
             discovered = DiscoveredVM(
                 vcenter_id=str(vm_obj._moId),
@@ -520,6 +810,23 @@ def _discover_vms(content: vim.ServiceContent, collect_perf: bool = True) -> lis
                 tools_version=str(vm_props.get("guest.toolsVersion", "")),
                 perf=perf,
                 annotation=vm_props.get("config.annotation", "") or "",
+                # New fields
+                hardware_version=hw_version,
+                boot_type=boot_type,
+                cpu_reservation_mhz=cpu_reservation,
+                cpu_limit_mhz=cpu_limit,
+                memory_reservation_mb=mem_reservation,
+                memory_limit_mb=mem_limit,
+                cpu_shares=cpu_shares_str,
+                memory_shares=mem_shares_str,
+                has_snapshots=has_snapshots,
+                snapshot_count=snapshot_count,
+                snapshot_size_gb=round(snapshot_size_gb, 2),
+                has_linked_clones=has_linked_clones,
+                cpu_hot_add_enabled=cpu_hot_add,
+                memory_hot_add_enabled=mem_hot_add,
+                guest_os_detailed=guest_os_detailed,
+                firmware=firmware,
             )
             result.append(discovered)
         except Exception as e:
