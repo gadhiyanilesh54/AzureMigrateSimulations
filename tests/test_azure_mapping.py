@@ -1,6 +1,6 @@
 """Tests for azure_mapping.py recommendation engine."""
 
-from digital_twin_migrate.azure_mapping import (
+from azure_migrate_simulations.azure_mapping import (
     VM_CATALOG,
     generate_recommendations,
     _check_os_eol,
@@ -9,7 +9,7 @@ from digital_twin_migrate.azure_mapping import (
     _recommend_disk_per_disk,
     _assess_readiness,
 )
-from digital_twin_migrate.models import (
+from azure_migrate_simulations.models import (
     DiscoveredEnvironment,
     DiscoveredVM,
     DiskInfo,

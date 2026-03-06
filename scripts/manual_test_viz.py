@@ -1,13 +1,13 @@
 """Test visualization using existing discovery_report.json data."""
 import json
 
-from digital_twin_migrate.models import (
+from azure_migrate_simulations.models import (
     DiscoveredEnvironment, DiscoveredVM, DiscoveredHost, DiscoveredCluster,
     DiscoveredDatacenter, DiscoveredDatastore, DiscoveredNetwork,
     DiskInfo, NetworkInfo, PerformanceMetrics, PowerState, GuestOSFamily,
 )
-from digital_twin_migrate.azure_mapping import generate_recommendations
-from digital_twin_migrate.visualization import (
+from azure_migrate_simulations.azure_mapping import generate_recommendations
+from azure_migrate_simulations.visualization import (
     console, print_discovery_summary, print_topology_tree,
     print_vm_table, print_recommendations_table, print_issues_report,
 )

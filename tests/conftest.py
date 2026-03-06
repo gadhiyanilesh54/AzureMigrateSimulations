@@ -1,1 +1,1 @@
-"""Shared fixtures for digital_twin_migrate tests."""
+"""Shared fixtures for azure_migrate_simulations tests."""

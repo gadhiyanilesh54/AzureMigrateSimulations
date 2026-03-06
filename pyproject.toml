@@ -28,8 +28,8 @@ all = [
 ]
 
 [project.scripts]
-dt-migrate = "digital_twin_migrate.main:main"
-dt-migrate-web = "digital_twin_migrate.web.app:main"
+dt-migrate = "azure_migrate_simulations.main:main"
+dt-migrate-web = "azure_migrate_simulations.web.app:main"
 
 # ---------------------------------------------------------------------------
 # Setuptools – src-layout package discovery
@@ -38,7 +38,7 @@ dt-migrate-web = "digital_twin_migrate.web.app:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-digital_twin_migrate = ["dtdl_models.json", "web/templates/**/*"]
+azure_migrate_simulations = ["dtdl_models.json", "web/templates/**/*"]
 
 # ---------------------------------------------------------------------------
 # Pytest configuration

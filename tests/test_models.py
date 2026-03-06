@@ -1,6 +1,6 @@
 """Tests for data models (models.py)."""
 
-from digital_twin_migrate.models import (
+from azure_migrate_simulations.models import (
     DiskInfo,
     DiscoveredVM,
     DiscoveredHost,

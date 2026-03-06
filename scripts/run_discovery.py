@@ -10,10 +10,10 @@ import time
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-from digital_twin_migrate.vcenter_discovery import discover_environment
-from digital_twin_migrate.azure_mapping import generate_recommendations
-from digital_twin_migrate.config import VCenterConfig, _load_dotenv
-from digital_twin_migrate.visualization import build_report
+from azure_migrate_simulations.vcenter_discovery import discover_environment
+from azure_migrate_simulations.azure_mapping import generate_recommendations
+from azure_migrate_simulations.config import VCenterConfig, _load_dotenv
+from azure_migrate_simulations.visualization import build_report
 
 _load_dotenv()
 

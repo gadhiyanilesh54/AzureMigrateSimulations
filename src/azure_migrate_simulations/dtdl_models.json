@@ -1,0 +1,189 @@
+[
+  {
+    "@id": "dtmi:com:microsoft:migrate:Datacenter;1",
+    "@type": "Interface",
+    "displayName": "Datacenter",
+    "description": "A vSphere datacenter — top-level organizational unit.",
+    "contents": [
+      { "@type": "Property", "name": "vcenter_id",   "schema": "string" },
+      { "@type": "Property", "name": "vcenter_host",  "schema": "string" },
+      {
+        "@type": "Relationship",
+        "name": "contains_cluster",
+        "target": "dtmi:com:microsoft:migrate:Cluster;1"
+      },
+      {
+        "@type": "Relationship",
+        "name": "contains_datastore",
+        "target": "dtmi:com:microsoft:migrate:Datastore;1"
+      },
+      {
+        "@type": "Relationship",
+        "name": "contains_network",
+        "target": "dtmi:com:microsoft:migrate:Network;1"
+      }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:Cluster;1",
+    "@type": "Interface",
+    "displayName": "Cluster",
+    "description": "A vSphere compute cluster.",
+    "contents": [
+      { "@type": "Property", "name": "vcenter_id",       "schema": "string" },
+      { "@type": "Property", "name": "datacenter",        "schema": "string" },
+      { "@type": "Property", "name": "total_cpu_mhz",     "schema": "integer" },
+      { "@type": "Property", "name": "total_memory_mb",   "schema": "integer" },
+      { "@type": "Property", "name": "host_count",        "schema": "integer" },
+      { "@type": "Property", "name": "ha_enabled",        "schema": "boolean" },
+      { "@type": "Property", "name": "drs_enabled",       "schema": "boolean" },
+      {
+        "@type": "Relationship",
+        "name": "contains_host",
+        "target": "dtmi:com:microsoft:migrate:Host;1"
+      }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:Host;1",
+    "@type": "Interface",
+    "displayName": "ESXi Host",
+    "description": "A physical ESXi hypervisor host.",
+    "contents": [
+      { "@type": "Property", "name": "vcenter_id",    "schema": "string" },
+      { "@type": "Property", "name": "cpu_model",     "schema": "string" },
+      { "@type": "Property", "name": "cpu_cores",     "schema": "integer" },
+      { "@type": "Property", "name": "cpu_threads",   "schema": "integer" },
+      { "@type": "Property", "name": "cpu_mhz",       "schema": "integer" },
+      { "@type": "Property", "name": "memory_mb",     "schema": "integer" },
+      { "@type": "Property", "name": "vendor",        "schema": "string" },
+      { "@type": "Property", "name": "model",         "schema": "string" },
+      { "@type": "Property", "name": "esxi_version",  "schema": "string" },
+      { "@type": "Property", "name": "datacenter",    "schema": "string" },
+      { "@type": "Property", "name": "cluster",       "schema": "string" },
+      { "@type": "Property", "name": "vm_count",      "schema": "integer" },
+      {
+        "@type": "Relationship",
+        "name": "runs_vm",
+        "target": "dtmi:com:microsoft:migrate:VirtualMachine;1"
+      }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:VirtualMachine;1",
+    "@type": "Interface",
+    "displayName": "Virtual Machine",
+    "description": "A workload VM discovered from vCenter.",
+    "contents": [
+      { "@type": "Property", "name": "vcenter_id",        "schema": "string" },
+      { "@type": "Property", "name": "instance_uuid",     "schema": "string" },
+      { "@type": "Property", "name": "num_cpus",          "schema": "integer" },
+      { "@type": "Property", "name": "cpu_mhz_per_core",  "schema": "integer" },
+      { "@type": "Property", "name": "memory_mb",         "schema": "integer" },
+      { "@type": "Property", "name": "power_state",       "schema": "string" },
+      { "@type": "Property", "name": "guest_os",          "schema": "string" },
+      { "@type": "Property", "name": "guest_os_family",   "schema": "string" },
+      { "@type": "Property", "name": "guest_hostname",    "schema": "string" },
+      { "@type": "Property", "name": "total_disk_gb",     "schema": "double" },
+      { "@type": "Property", "name": "datacenter",        "schema": "string" },
+      { "@type": "Property", "name": "cluster",           "schema": "string" },
+      { "@type": "Property", "name": "host",              "schema": "string" },
+      { "@type": "Property", "name": "folder",            "schema": "string" },
+      { "@type": "Property", "name": "resource_pool",     "schema": "string" },
+      { "@type": "Property", "name": "tools_status",      "schema": "string" },
+      { "@type": "Property", "name": "annotation",        "schema": "string" },
+      {
+        "@type": "Component",
+        "name": "performance",
+        "schema": "dtmi:com:microsoft:migrate:PerformanceMetrics;1"
+      },
+      {
+        "@type": "Component",
+        "name": "azure_recommendation",
+        "schema": "dtmi:com:microsoft:migrate:AzureRecommendation;1"
+      },
+      {
+        "@type": "Relationship",
+        "name": "uses_datastore",
+        "target": "dtmi:com:microsoft:migrate:Datastore;1"
+      },
+      {
+        "@type": "Relationship",
+        "name": "connected_to_network",
+        "target": "dtmi:com:microsoft:migrate:Network;1"
+      },
+      {
+        "@type": "Relationship",
+        "name": "communicates_with",
+        "target": "dtmi:com:microsoft:migrate:VirtualMachine;1"
+      }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:PerformanceMetrics;1",
+    "@type": "Interface",
+    "displayName": "Performance Metrics",
+    "description": "Aggregated performance metrics for a VM.",
+    "contents": [
+      { "@type": "Telemetry", "name": "cpu_usage_mhz",       "schema": "double" },
+      { "@type": "Telemetry", "name": "cpu_usage_percent",    "schema": "double" },
+      { "@type": "Telemetry", "name": "memory_usage_mb",      "schema": "double" },
+      { "@type": "Telemetry", "name": "memory_usage_percent", "schema": "double" },
+      { "@type": "Telemetry", "name": "disk_read_kbps",       "schema": "double" },
+      { "@type": "Telemetry", "name": "disk_write_kbps",      "schema": "double" },
+      { "@type": "Telemetry", "name": "disk_iops_read",       "schema": "double" },
+      { "@type": "Telemetry", "name": "disk_iops_write",      "schema": "double" },
+      { "@type": "Telemetry", "name": "network_rx_kbps",      "schema": "double" },
+      { "@type": "Telemetry", "name": "network_tx_kbps",      "schema": "double" }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:AzureRecommendation;1",
+    "@type": "Interface",
+    "displayName": "Azure Recommendation",
+    "description": "Recommended Azure target for this workload.",
+    "contents": [
+      { "@type": "Property", "name": "recommended_vm_sku",        "schema": "string" },
+      { "@type": "Property", "name": "recommended_vm_family",     "schema": "string" },
+      { "@type": "Property", "name": "recommended_disk_type",     "schema": "string" },
+      { "@type": "Property", "name": "recommended_disk_size_gb",  "schema": "integer" },
+      { "@type": "Property", "name": "estimated_monthly_cost_usd","schema": "double" },
+      { "@type": "Property", "name": "migration_readiness",       "schema": "string" },
+      { "@type": "Property", "name": "migration_issues",          "schema": "string" },
+      { "@type": "Property", "name": "target_region",             "schema": "string" }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:Datastore;1",
+    "@type": "Interface",
+    "displayName": "Datastore",
+    "description": "A vSphere datastore (VMFS, NFS, vSAN).",
+    "contents": [
+      { "@type": "Property", "name": "vcenter_id",     "schema": "string" },
+      { "@type": "Property", "name": "ds_type",        "schema": "string" },
+      { "@type": "Property", "name": "capacity_gb",    "schema": "double" },
+      { "@type": "Property", "name": "free_space_gb",  "schema": "double" },
+      { "@type": "Property", "name": "datacenter",     "schema": "string" }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  },
+  {
+    "@id": "dtmi:com:microsoft:migrate:Network;1",
+    "@type": "Interface",
+    "displayName": "Network",
+    "description": "A vSphere network / port group.",
+    "contents": [
+      { "@type": "Property", "name": "vcenter_id",    "schema": "string" },
+      { "@type": "Property", "name": "vlan_id",       "schema": "integer" },
+      { "@type": "Property", "name": "network_type",  "schema": "string" },
+      { "@type": "Property", "name": "datacenter",    "schema": "string" }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  }
+]

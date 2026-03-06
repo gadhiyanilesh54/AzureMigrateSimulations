@@ -2,7 +2,7 @@
 
 import os
 
-from digital_twin_migrate.config import VCenterConfig, AzureConfig, AppConfig, load_config
+from azure_migrate_simulations.config import VCenterConfig, AzureConfig, AppConfig, load_config
 
 
 class TestVCenterConfig:

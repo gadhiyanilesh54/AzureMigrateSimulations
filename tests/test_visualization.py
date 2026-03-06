@@ -1,14 +1,14 @@
 """Tests for the visualization module, including the shared build_report helper."""
 
-from digital_twin_migrate.visualization import build_report
-from digital_twin_migrate.models import (
+from azure_migrate_simulations.visualization import build_report
+from azure_migrate_simulations.models import (
     DiscoveredEnvironment,
     DiscoveredVM,
     DiskInfo,
     GuestOSFamily,
     PowerState,
 )
-from digital_twin_migrate.azure_mapping import generate_recommendations
+from azure_migrate_simulations.azure_mapping import generate_recommendations
 
 
 def _make_env(n_vms: int = 3) -> DiscoveredEnvironment:

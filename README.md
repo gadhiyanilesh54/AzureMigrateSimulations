@@ -51,7 +51,7 @@
 | **Enrichment Data Loop** | Import telemetry from Dynatrace, New Relic, Datadog, Splunk, Prometheus, AppDynamics, Zabbix to boost confidence scores |
 | **Vulnerability & SLA** | OS lifecycle tracking, software end-of-support detection, and licensing guidance for migration planning |
 | **CSV Export** | Download VM and workload assessment data as CSV for offline analysis |
-| **57 REST API Endpoints** | Programmatic access to every capability — connection, discovery, assessment, simulation, enrichment, perf data |
+| **60 REST API Endpoints** | Programmatic access to every capability — connection, discovery, assessment, simulation, enrichment, perf data, cloud topology |
 
 ---
 
@@ -641,7 +641,7 @@ Download assessment data as CSV files for offline analysis, reporting, or import
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Flask Web Dashboard                         │
-│            (src/digital_twin_migrate/web/app.py)                │
+│            (src/azure_migrate_simulations/web/app.py)                │
 │                    57 REST endpoints                            │
 │                                                                 │
 │  ┌───────────┐ ┌──────────┐ ┌───────────┐ ┌─────────────────┐  │
@@ -721,7 +721,7 @@ python -m venv .venv
 pip install -e .
 
 # Launch the web dashboard
-python -m digital_twin_migrate.web.app
+python -m azure_migrate_simulations.web.app
 # Open http://localhost:5000
 ```
 
@@ -793,7 +793,7 @@ uv run dt-migrate --region eastus
 
 ## API Reference
 
-The web dashboard exposes **57 REST API endpoints** across 9 categories:
+The web dashboard exposes **60 REST API endpoints** across 10 categories:
 
 <details>
 <summary><strong>Connection & Status (5 endpoints)</strong></summary>
@@ -915,6 +915,16 @@ The web dashboard exposes **57 REST API endpoints** across 9 categories:
 
 </details>
 
+<details>
+<summary><strong>Cloud Topology Diagram (2 endpoints)</strong></summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/cloud-topology` | Generate CAF-aligned Azure architecture diagram with WAF scoring |
+| `GET` | `/api/cloud-topology/waf/<resource_id>` | Detailed WAF assessment for a single resource |
+
+</details>
+
 ---
 
 ## Project Structure
@@ -925,7 +935,7 @@ azure-migrate-simulations/
 ├── README.md
 ├── .gitignore
 │
-├── src/digital_twin_migrate/              # Main Python package (src-layout)
+├── src/azure_migrate_simulations/              # Main Python package (src-layout)
 │   ├── __init__.py
 │   ├── config.py                          # Configuration management (.env + env vars)
 │   ├── models.py                          # Infrastructure data models (VMs, hosts, etc.)
@@ -936,6 +946,8 @@ azure-migrate-simulations/
 │   ├── azure_pricing.py                   # Azure Retail Prices API client + fallback
 │   ├── workload_mapping.py                # Azure PaaS service mapping (24 playbooks)
 │   ├── enrichment.py                      # Monitoring data ingestion & confidence boost
+│   ├── vulnerability_sla.py               # OS/software lifecycle & licensing analysis
+│   ├── cloud_topology.py                  # Cloud Topology Diagram — CAF landing zones + WAF scoring
 │   ├── azure_provisioning.py              # Azure Digital Twins provisioning (ARM)
 │   ├── twin_builder.py                    # Digital twin creation
 │   ├── visualization.py                   # CLI Rich console output
