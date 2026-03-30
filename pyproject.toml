@@ -20,16 +20,19 @@ dependencies = [
 
 [project.optional-dependencies]
 web = ["flask>=3.0.0"]
+mcp = ["mcp[server]>=1.0.0"]
+mcp-sse = ["mcp[server]>=1.0.0", "starlette>=0.27.0", "uvicorn>=0.23.0"]
 guest = ["paramiko>=3.0.0", "pywinrm>=0.4.0"]
 db = ["pymssql>=2.2.0", "psycopg2-binary>=2.9.0", "pymongo>=4.0.0"]
 dev = ["pytest>=8.0.0", "pytest-cov>=5.0.0"]
 all = [
-    "azure-migrate-simulations[web,guest,db,dev]",
+    "azure-migrate-simulations[web,guest,db,mcp,dev]",
 ]
 
 [project.scripts]
 dt-migrate = "azure_migrate_simulations.main:main"
 dt-migrate-web = "azure_migrate_simulations.web.app:main"
+dt-migrate-mcp = "azure_migrate_simulations.mcp_server:main"
 
 # ---------------------------------------------------------------------------
 # Setuptools – src-layout package discovery

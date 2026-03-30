@@ -280,39 +280,47 @@
     </nav>
 
     <div class="container-fluid px-4 py-3">
-        <!-- TAB NAV -->
-        <ul class="nav nav-pills mb-3" id="mainTabs" role="tablist">
-            <li class="nav-item">
-                <button class="nav-link active" id="tab-dashboard" data-bs-toggle="pill"
-                        data-bs-target="#pane-dashboard" type="button">
-                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-workloads" data-bs-toggle="pill"
-                        data-bs-target="#pane-workloads" type="button">
-                    <i class="bi bi-layers me-1"></i> Discovery &amp; Assessment
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-businesscase" data-bs-toggle="pill"
-                        data-bs-target="#pane-businesscase" type="button">
-                    <i class="bi bi-briefcase me-1"></i> Business Case
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-enrichment" data-bs-toggle="pill"
-                        data-bs-target="#pane-enrichment" type="button">
-                    <i class="bi bi-graph-up-arrow me-1"></i> Enrichment
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" id="tab-ctd" data-bs-toggle="pill"
-                        data-bs-target="#pane-ctd" type="button">
-                    <i class="bi bi-diagram-3 me-1"></i> Cloud Topology
-                </button>
-            </li>
-        </ul>
+        <!-- MIGRATION JOURNEY STEPPER -->
+        <nav class="d-flex align-items-center justify-content-center mb-3 gap-0" id="journeyStepper">
+            <ul class="nav nav-pills" role="tablist" style="gap:0">
+                <li class="nav-item d-flex align-items-center">
+                    <button class="nav-link active stepper-btn stepper-overview" id="tab-dashboard" data-bs-toggle="pill" data-bs-target="#pane-dashboard" type="button" role="tab">
+                        <i class="bi bi-speedometer2 me-1"></i> Overview
+                    </button>
+                    <span class="text-muted px-2"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                <li class="nav-item d-flex align-items-center">
+                    <button class="nav-link stepper-btn stepper-decide" id="tab-decide" data-bs-toggle="pill" data-bs-target="#pane-decide" type="button" role="tab">
+                        <i class="bi bi-search me-1"></i> Decide
+                    </button>
+                    <span class="text-muted px-2"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                <li class="nav-item d-flex align-items-center">
+                    <button class="nav-link stepper-btn stepper-plan" id="tab-plan" data-bs-toggle="pill" data-bs-target="#pane-plan" type="button" role="tab">
+                        <i class="bi bi-map me-1"></i> Plan
+                    </button>
+                    <span class="text-muted px-2"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link stepper-btn stepper-execute" id="tab-execute" data-bs-toggle="pill" data-bs-target="#pane-execute" type="button" role="tab">
+                        <i class="bi bi-rocket-takeoff me-1"></i> Execute
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <style>
+            .stepper-btn { border-radius: 50px !important; padding: 6px 20px; font-weight: 500; min-width: 120px; border: 2px solid transparent; }
+            .stepper-btn:not(.active) { background: transparent; }
+            .stepper-overview.active { background: var(--azure-blue) !important; border-color: var(--azure-blue); color: #fff !important; }
+            .stepper-decide.active { background: #0ea5e9 !important; border-color: #0ea5e9; color: #fff !important; }
+            .stepper-plan.active { background: #f59e0b !important; border-color: #f59e0b; color: #000 !important; }
+            .stepper-execute.active { background: #10b981 !important; border-color: #10b981; color: #fff !important; }
+            .stepper-btn.active { font-weight: 600; box-shadow: 0 0 0 3px rgba(255,255,255,0.12); }
+            .phase-description { font-size: 0.85rem; color: #8b949e; border-left: 3px solid var(--azure-blue); padding-left: 12px; margin-bottom: 16px; }
+            .subtab-card { cursor: pointer; transition: all 0.15s; border: 1px solid #30363d; }
+            .subtab-card:hover { border-color: var(--azure-blue); transform: translateY(-2px); }
+        </style>
 
         <!-- TAB CONTENT -->
         <div class="tab-content" id="mainTabContent">
@@ -422,8 +430,176 @@
                 </div>
             </div>
 
-            <!-- ==================== DISCOVERY & ASSESSMENT ==================== -->
-            <div class="tab-pane fade" id="pane-workloads" role="tabpanel">
+            <!-- ==================== DECIDE PHASE ==================== -->
+            <div class="tab-pane fade" id="pane-decide" role="tabpanel">
+                <p class="phase-description"><i class="bi bi-info-circle me-1"></i> <strong>Decide</strong> — Discover your estate, enrich with monitoring data, assess readiness, and build the business case for migration.</p>
+                <ul class="nav nav-tabs mb-3" id="decideSubTabs">
+                    <li class="nav-item"><button class="nav-link active" id="decide-discovery-tab" onclick="showDecideSub('decide-discovery')"><i class="bi bi-layers me-1"></i>Discovery &amp; Assessment</button></li>
+                    <li class="nav-item"><button class="nav-link" id="decide-enrichment-tab" onclick="showDecideSub('decide-enrichment')"><i class="bi bi-graph-up-arrow me-1"></i>Enrichment</button></li>
+                    <li class="nav-item"><button class="nav-link" id="decide-businesscase-tab" onclick="showDecideSub('decide-businesscase')"><i class="bi bi-briefcase me-1"></i>Business Case</button></li>
+                    <li class="nav-item"><button class="nav-link" id="decide-pricing-tab" onclick="showDecideSub('decide-pricing')"><i class="bi bi-currency-dollar me-1"></i>Pricing Comparison</button></li>
+                    <li class="nav-item"><button class="nav-link" id="decide-compliance-tab" onclick="showDecideSub('decide-compliance')"><i class="bi bi-shield-check me-1"></i>Compliance</button></li>
+                    <li class="nav-item"><button class="nav-link" id="decide-report-tab" onclick="showDecideSub('decide-report')"><i class="bi bi-file-earmark-text me-1"></i>Executive Report</button></li>
+                </ul>
+                <!-- decide-discovery/enrichment/businesscase are the OLD panes below, restyled -->
+                <div id="decide-pricing" class="decide-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-currency-dollar me-2"></i>Side-by-Side Pricing Comparison</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadPricingComparison()"><i class="bi bi-arrow-repeat me-1"></i>Compare All Models</button>
+                    </div>
+                    <div id="pricing-results"><p class="text-muted">Click "Compare All Models" to see fleet cost under all 7 pricing options simultaneously.</p></div>
+                </div>
+                <div id="decide-compliance" class="decide-sub" style="display:none">
+                    <h5 class="mb-3"><i class="bi bi-shield-check me-2"></i>Compliance Assessment</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8" id="compliance-frameworks">
+                            <label class="form-label small">Frameworks</label><br>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" value="pci-dss" id="fw-pci" checked><label class="form-check-label" for="fw-pci">PCI-DSS</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" value="hipaa" id="fw-hipaa" checked><label class="form-check-label" for="fw-hipaa">HIPAA</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" value="gdpr" id="fw-gdpr" checked><label class="form-check-label" for="fw-gdpr">GDPR</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" value="sox" id="fw-sox"><label class="form-check-label" for="fw-sox">SOX</label></div>
+                            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" value="iso27001" id="fw-iso"><label class="form-check-label" for="fw-iso">ISO 27001</label></div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Region</label>
+                            <select class="form-select form-select-sm" id="compliance-region">
+                                <option value="eastus">East US</option><option value="westeurope">West Europe</option>
+                                <option value="northeurope">North Europe</option><option value="centralindia">Central India</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" onclick="loadCompliance()"><i class="bi bi-shield-check me-1"></i>Assess</button>
+                        </div>
+                    </div>
+                    <div id="compliance-results"></div>
+                </div>
+                <div id="decide-report" class="decide-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Executive Migration Report</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadExecutiveReport()"><i class="bi bi-arrow-repeat me-1"></i>Generate Report</button>
+                    </div>
+                    <div id="report-results"><p class="text-muted">Generates a boardroom-ready 9-section report covering summary, estate, readiness, business case, architecture, waves, risks, and recommendations.</p></div>
+                </div>
+            </div><!-- /pane-decide -->
+
+            <!-- ==================== PLAN PHASE ==================== -->
+            <div class="tab-pane fade" id="pane-plan" role="tabpanel">
+                <p class="phase-description"><i class="bi bi-info-circle me-1"></i> <strong>Plan</strong> — Design the target architecture, optimize costs, plan migration waves, and generate deployment artefacts.</p>
+                <ul class="nav nav-tabs mb-3" id="planSubTabs">
+                    <li class="nav-item"><button class="nav-link active" id="plan-ctd-tab" onclick="showPlanSub('plan-ctd')"><i class="bi bi-diagram-3 me-1"></i>Cloud Topology</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-apps-tab" onclick="showPlanSub('plan-apps')"><i class="bi bi-collection me-1"></i>Application Groups</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-costopt-tab" onclick="showPlanSub('plan-costopt')"><i class="bi bi-graph-down-arrow me-1"></i>Cost Optimization</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-waves-tab" onclick="showPlanSub('plan-waves')"><i class="bi bi-lightning-charge me-1"></i>Wave Planning</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-tags-tab" onclick="showPlanSub('plan-tags')"><i class="bi bi-tags me-1"></i>Tagging</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-iac-tab" onclick="showPlanSub('plan-iac')"><i class="bi bi-file-code me-1"></i>IaC Export</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-runbooks-tab" onclick="showPlanSub('plan-runbooks')"><i class="bi bi-journal-check me-1"></i>Runbooks</button></li>
+                </ul>
+                <!-- plan-ctd is the OLD CTD pane below, restyled -->
+                <div id="plan-apps" class="plan-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Application Groups</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadApplicationGroups()"><i class="bi bi-arrow-repeat me-1"></i>Detect Groups</button>
+                    </div>
+                    <div id="appgroups-results"><p class="text-muted">Auto-discovers application groups from VM dependencies and naming patterns.</p></div>
+                </div>
+                <div id="plan-costopt" class="plan-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-graph-down-arrow me-2"></i>Cost Optimization Engine</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadCostOptimization()"><i class="bi bi-lightning me-1"></i>Optimize</button>
+                    </div>
+                    <div id="costopt-results"><p class="text-muted">Per-VM pricing model recommendations, right-sizing alerts, and zombie VM detection.</p></div>
+                </div>
+                <div id="plan-waves" class="plan-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Dependency-Aware Wave Planning</h5>
+                        <div class="d-flex gap-2 align-items-center">
+                            <label class="form-label small mb-0">Waves:</label>
+                            <select class="form-select form-select-sm" id="wave-plan-count" style="width:80px">
+                                <option value="3">3</option>
+                                <option value="4" selected>4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="loadWavePlan()"><i class="bi bi-lightning-charge me-1"></i>Generate Plan</button>
+                        </div>
+                    </div>
+                    <div id="wave-plan-results"><p class="text-muted">Generate a dependency-aware migration wave plan. VMs are ordered so dependencies are migrated first.</p></div>
+                </div>
+                <div id="plan-tags" class="plan-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-tags me-2"></i>Azure Tagging Strategy</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadTagging()"><i class="bi bi-arrow-repeat me-1"></i>Generate Tags</button>
+                    </div>
+                    <div id="tagging-results"><p class="text-muted">Auto-generates Azure tags from vCenter metadata.</p></div>
+                </div>
+                <div id="plan-iac" class="plan-sub" style="display:none">
+                    <h5 class="mb-3"><i class="bi bi-file-code me-2"></i>Infrastructure as Code Export</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3"><label class="form-label small">Naming Prefix</label><input type="text" class="form-control form-control-sm" id="iac-prefix" value="migrate"></div>
+                        <div class="col-md-3"><label class="form-label small">Environment</label><select class="form-select form-select-sm" id="iac-env"><option value="prod">Production</option><option value="devtest">Dev/Test</option></select></div>
+                        <div class="col-md-6 d-flex align-items-end gap-2">
+                            <button class="btn btn-primary" onclick="generateIaC('terraform')"><i class="bi bi-filetype-tf me-1"></i>Generate Terraform</button>
+                            <button class="btn btn-outline-primary" onclick="generateIaC('bicep')"><i class="bi bi-filetype-json me-1"></i>Generate Bicep</button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info small"><i class="bi bi-info-circle me-2"></i>Generates deployment-ready IaC from your Cloud Topology Diagram.</div>
+                    <div id="iac-results"></div>
+                </div>
+                <div id="plan-runbooks" class="plan-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-journal-check me-2"></i>Migration Runbooks</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadRunbooks()"><i class="bi bi-arrow-repeat me-1"></i>Generate Runbooks</button>
+                    </div>
+                    <div id="runbooks-results"><p class="text-muted">Pre-migration, execution, and post-migration runbooks customised per wave.</p></div>
+                </div>
+            </div><!-- /pane-plan -->
+
+            <!-- ==================== EXECUTE PHASE ==================== -->
+            <div class="tab-pane fade" id="pane-execute" role="tabpanel">
+                <p class="phase-description"><i class="bi bi-info-circle me-1"></i> <strong>Execute</strong> — Track migration progress, validate deployments, and manage project snapshots.</p>
+                <ul class="nav nav-tabs mb-3" id="executeSubTabs">
+                    <li class="nav-item"><button class="nav-link active" id="exec-tracker-tab" onclick="showExecSub('exec-tracker')"><i class="bi bi-kanban me-1"></i>Migration Tracker</button></li>
+                    <li class="nav-item"><button class="nav-link" id="exec-nsg-tab" onclick="showExecSub('exec-nsg')"><i class="bi bi-shield-lock me-1"></i>NSG Rules</button></li>
+                    <li class="nav-item"><button class="nav-link" id="exec-postval-tab" onclick="showExecSub('exec-postval')"><i class="bi bi-check2-all me-1"></i>Post-Migration Validation</button></li>
+                    <li class="nav-item"><button class="nav-link" id="exec-snapshots-tab" onclick="showExecSub('exec-snapshots')"><i class="bi bi-clock-history me-1"></i>Snapshots</button></li>
+                </ul>
+                <div id="exec-tracker" class="exec-sub">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-kanban me-2"></i>Migration Progress Tracker</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadMigrationTracker()"><i class="bi bi-arrow-repeat me-1"></i>Refresh</button>
+                    </div>
+                    <div id="tracker-results"><p class="text-muted">Track per-VM migration status across waves.</p></div>
+                </div>
+                <div id="exec-nsg" class="exec-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>NSG Rules from Dependencies</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadNsgRules()"><i class="bi bi-arrow-repeat me-1"></i>Generate Rules</button>
+                    </div>
+                    <div id="nsg-results"><p class="text-muted">Auto-generates Azure NSG allow rules from discovered TCP dependencies.</p></div>
+                </div>
+                <div id="exec-postval" class="exec-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-check2-all me-2"></i>Post-Migration Validation</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadPostMigrationChecks()"><i class="bi bi-arrow-repeat me-1"></i>Generate Checks</button>
+                    </div>
+                    <div id="postval-results"><p class="text-muted">Health, connectivity, and performance baseline validation checks.</p></div>
+                </div>
+                <div id="exec-snapshots" class="exec-sub" style="display:none">
+                    <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Project Snapshots</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="snapshot-name" placeholder="Snapshot name (e.g. v1-initial-assessment)">
+                                <button class="btn btn-primary" onclick="saveSnapshot()"><i class="bi bi-camera me-1"></i>Save Snapshot</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="snapshots-list"><p class="text-muted">No snapshots yet.</p></div>
+                </div>
+            </div><!-- /pane-execute -->
+
+            <!-- DISCOVERY & ASSESSMENT (inline in Decide phase) -->
+            <div class="decide-sub" id="decide-discovery" role="tabpanel" style="display:none">
 
                 <!-- ── Action Bar ── -->
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -663,35 +839,15 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center gap-3">
                                     <span><i class="bi bi-diagram-3 me-2"></i>Topology</span>
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button class="btn btn-outline-light active" id="topo-view-infra" onclick="switchTopoView('infra')">Infrastructure</button>
-                                        <button class="btn btn-outline-light" id="topo-view-deps" onclick="switchTopoView('deps')" style="display:none">Dependencies</button>
-                                    </div>
                                 </div>
                                 <div>
-                                    <button class="btn btn-sm btn-outline-light me-2" onclick="currentTopoFit()">
+                                    <button class="btn btn-sm btn-outline-light" onclick="currentTopoFit()">
                                         <i class="bi bi-arrows-fullscreen"></i> Fit
                                     </button>
-                                    <button class="btn btn-sm btn-outline-light" id="topo-physics-btn" onclick="togglePhysics()">
-                                        <i class="bi bi-gear"></i> Physics
-                                    </button>
                                 </div>
                             </div>
-                            <!-- Infrastructure view -->
-                            <div id="topo-infra-view">
-                                <div class="topology-legend">
-                                    <div class="legend-item"><span class="legend-dot" style="background:#0078d4"></span> vCenter</div>
-                                    <div class="legend-item"><span class="legend-dot" style="background:#ffd700"></span> Datacenter</div>
-                                    <div class="legend-item"><span class="legend-dot" style="background:#9966ff"></span> Host</div>
-                                    <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> VM (On)</div>
-                                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> VM (Off)</div>
-                                    <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> File Share</div>
-                                    <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span> Network</div>
-                                </div>
-                                <div id="topology-container"></div>
-                            </div>
-                            <!-- Dependencies view (shown after workload discovery) -->
-                            <div id="topo-deps-view" style="display:none;">
+                            <!-- Dependencies view -->
+                            <div id="topo-deps-view">
                                 <div class="topology-legend">
                                     <div class="legend-item"><span class="legend-dot" style="background:#0078d4"></span> VM</div>
                                     <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Database</div>
@@ -1320,7 +1476,7 @@
 
                 </div><!-- /tab-content -->
 
-            </div><!-- /pane-workloads -->
+            </div><!-- /decide-discovery -->
 
             <!-- ── Offcanvas: Discovery Settings ── -->
             <div class="offcanvas offcanvas-end" tabindex="-1" id="discoveryDrawer" aria-labelledby="discoveryDrawerLabel" style="width:460px;background:#161b22;border-left:1px solid #30363d;">
@@ -1543,7 +1699,7 @@
 
 
             <!-- ==================== BUSINESS CASE ==================== -->
-            <div class="tab-pane fade" id="pane-businesscase" role="tabpanel">
+            <div class="decide-sub" id="decide-businesscase" style="display:none" role="tabpanel">
 
                 <!-- Controls Bar -->
                 <div class="card mb-3" style="background:var(--card-bg);border:1px solid var(--border);">
@@ -1811,10 +1967,10 @@
 
                 </div><!-- /bc-results -->
 
-            </div><!-- /pane-businesscase -->
+            </div><!-- /decide-businesscase -->
 
             <!-- ==================== ENRICHMENT DATA LOOP ==================== -->
-            <div class="tab-pane fade" id="pane-enrichment" role="tabpanel">
+            <div class="decide-sub" id="decide-enrichment" style="display:none" role="tabpanel">
 
                 <!-- Status Bar -->
                 <div class="row g-3 mb-4" id="enrichment-status-cards">
@@ -1984,10 +2140,10 @@
                     </div>
                 </div>
 
-            </div><!-- /pane-enrichment -->
+            </div><!-- /decide-enrichment -->
 
-            <!-- ==================== CLOUD TOPOLOGY DIAGRAM ==================== -->
-            <div class="tab-pane fade" id="pane-ctd" role="tabpanel">
+            <!-- Cloud Topology content (for Plan > Cloud Topology sub-tab) -->
+            <div class="plan-sub" id="plan-ctd" role="tabpanel" style="display:none">
 
                 <!-- Empty state -->
                 <div id="ctd-empty" class="text-center py-5">
@@ -2079,7 +2235,7 @@
                     </div>
                 </div>
 
-            </div><!-- /pane-ctd -->
+            </div><!-- /plan-ctd-content -->
 
         </div><!-- /tab-content -->
     </div><!-- /container -->
@@ -3537,14 +3693,13 @@
     // TAB SWITCHING — sub-tabs inside Discovery & Assessment pane
     // ================================================================
     document.getElementById('subtab-topology').addEventListener('shown.bs.tab', () => {
-        if (!topoNetwork) loadTopology();
-        if (wlData && !wlTopoNetwork) loadWorkloadTopology();
+        if (!wlTopoNetwork) loadWorkloadTopology();
     });
     document.getElementById('subtab-assessment').addEventListener('shown.bs.tab', () => { if(!allVMs.length) loadAssessment(); });
-    document.getElementById('subtab-simulation').addEventListener('shown.bs.tab', () => { setTimeout(renderWlSimCharts, 200); });
-    document.getElementById('subtab-vulnsla').addEventListener('shown.bs.tab', () => { if(!_vulnSlaLoaded) loadVulnSla(); });
+    document.getElementById('subtab-simulation')?.addEventListener('shown.bs.tab', () => { setTimeout(renderWlSimCharts, 200); });
+    document.getElementById('subtab-vulnsla')?.addEventListener('shown.bs.tab', () => { if(!_vulnSlaLoaded) loadVulnSla(); });
     // When "Discovery & Assessment" top-level tab is shown, load inventory (default sub-tab)
-    document.getElementById('tab-workloads').addEventListener('shown.bs.tab', () => {
+    document.getElementById('tab-workloads')?.addEventListener('shown.bs.tab', () => {
         // Inventory is default sub-tab, no special load needed
     });
 
@@ -3963,7 +4118,6 @@
         renderWorkloadAssessment();
 
         // Show workload toggle buttons now that discovery is done
-        document.getElementById('topo-view-deps').style.display = '';
         document.getElementById('assess-view-wl').style.display = '';
         document.getElementById('sim-view-wl').style.display = '';
     }
@@ -4678,17 +4832,10 @@
 
     // View switch functions for merged panes
     function switchTopoView(view) {
-        const isInfra = (view === 'infra');
-        document.getElementById('topo-infra-view').style.display = isInfra ? '' : 'none';
-        document.getElementById('topo-deps-view').style.display = isInfra ? 'none' : '';
-        document.getElementById('topo-view-infra').classList.toggle('active', isInfra);
-        document.getElementById('topo-view-deps').classList.toggle('active', !isInfra);
-        document.getElementById('topo-physics-btn').style.display = isInfra ? '' : 'none';
-        if (!isInfra && wlData && !wlTopoNetwork) loadWorkloadTopology();
+        // Dependencies-only view; no-op kept for backward compatibility
     }
     function currentTopoFit() {
-        if (document.getElementById('topo-infra-view').style.display !== 'none') { topologyFit(); }
-        else { wlTopoFit(); }
+        wlTopoFit();
     }
     function switchAssessView(view) {
         const isVms = (view === 'vms');
@@ -6315,6 +6462,185 @@
             });
     }
 
+    // ================================================================
+    // LAZY-LOAD NEW FEATURE TABS
+    // ================================================================
+    document.getElementById('tab-planning')?.addEventListener('shown.bs.tab', () => {
+        // Auto-load first sub-tab content
+    });
+    document.getElementById('subtab-pricing')?.addEventListener('shown.bs.tab', () => {
+        if (!_pricingData) loadPricingComparison();
+    });
+    document.getElementById('subtab-apps')?.addEventListener('shown.bs.tab', () => {
+        if (!_appGroupsData) loadApplicationGroups();
+    });
+    document.getElementById('subtab-costopt')?.addEventListener('shown.bs.tab', () => {
+        if (!_costOptData) loadCostOptimization();
+    });
+    document.getElementById('subtab-compliance')?.addEventListener('shown.bs.tab', () => {
+        // Wait for user to click Assess
+    });
+    document.getElementById('subtab-runbooks')?.addEventListener('shown.bs.tab', () => {
+        // Wait for user to click Generate
+    });
+    document.getElementById('subtab-snapshots')?.addEventListener('shown.bs.tab', () => {
+        loadSnapshots();
+    });
+    document.getElementById('tab-migrate')?.addEventListener('shown.bs.tab', () => {
+        loadMigrationTracker();
+    });
+
+    // NSG + Tagging (inline since small)
+    async function loadNsgRules() {
+        const c = document.getElementById('nsg-results');
+        c.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+        try {
+            const res = await fetch('/api/nsg-rules');
+            const data = await res.json();
+            if (data.error) { c.innerHTML = '<div class="alert alert-warning">'+data.error+'</div>'; return; }
+            let html = '<div class="row g-3 mb-4"><div class="col-md-4"><div class="stat-card"><div class="stat-value">'+data.subnet_count+'</div><div class="stat-label">Subnets</div></div></div>';
+            html += '<div class="col-md-4"><div class="stat-card"><div class="stat-value">'+data.total_rules+'</div><div class="stat-label">Total Rules</div></div></div>';
+            html += '<div class="col-md-4"><div class="stat-card"><div class="stat-value text-info">'+data.dependency_rules+'</div><div class="stat-label">From Dependencies</div></div></div></div>';
+            for (const nsg of (data.nsgs||[])) {
+                html += '<details class="mb-2"><summary class="text-info" style="cursor:pointer"><strong>'+nsg.nsg_name+'</strong> — '+nsg.rule_count+' rules ('+nsg.subnet_label+')</summary>';
+                html += '<div class="table-responsive mt-2"><table class="table table-sm"><thead><tr><th>Priority</th><th>Name</th><th>Dir</th><th>Access</th><th>Protocol</th><th>Source</th><th>Dest Port</th></tr></thead><tbody>';
+                for (const r of nsg.rules) {
+                    const color = r.access === 'Allow' ? '' : 'table-danger';
+                    html += '<tr class="'+color+'"><td>'+r.priority+'</td><td class="small">'+r.name+'</td><td>'+r.direction+'</td><td>'+r.access+'</td><td>'+r.protocol+'</td><td class="small">'+r.source+'</td><td>'+r.destination_port+'</td></tr>';
+                }
+                html += '</tbody></table></div></details>';
+            }
+            c.innerHTML = html;
+        } catch(e) { c.innerHTML = '<div class="alert alert-warning">Generate Cloud Topology first.</div>'; }
+    }
+
+    async function loadTagging() {
+        const c = document.getElementById('tagging-results');
+        c.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+        try {
+            const res = await fetch('/api/tags/strategy');
+            const data = await res.json();
+            let html = '<div class="row g-3 mb-4"><div class="col-md-3"><div class="stat-card"><div class="stat-value">'+data.vm_count+'</div><div class="stat-label">VMs Tagged</div></div></div>';
+            html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value text-primary">'+data.tag_key_count+'</div><div class="stat-label">Tag Keys</div></div></div>';
+            html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value">'+data.environment_values.length+'</div><div class="stat-label">Environments</div></div></div>';
+            html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value">'+data.cost_center_values.length+'</div><div class="stat-label">Cost Centers</div></div></div></div>';
+            html += '<h6 class="mb-2">Tag Keys in Use</h6><div class="mb-3">';
+            for (const k of data.tag_keys_used) html += '<span class="badge bg-primary me-1 mb-1">'+k+'</span>';
+            html += '</div>';
+            html += '<h6 class="mb-2">Environment Values</h6><div class="mb-3">';
+            for (const v of data.environment_values) html += '<span class="badge bg-secondary me-1">'+v+'</span>';
+            html += '</div>';
+            if (data.terraform_locals) {
+                html += '<h6 class="mb-2">Terraform Tags Block (sample)</h6><pre class="bg-dark border rounded p-3 small"><code>'+data.terraform_locals.replace(/</g,'&lt;')+'</code></pre>';
+            }
+            // Sample per-VM tags
+            html += '<h6 class="mb-2">Sample VM Tags</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>VM</th><th>Tags</th></tr></thead><tbody>';
+            for (const vm of (data.per_vm||[]).slice(0,10)) {
+                html += '<tr><td>'+vm.vm_name+'</td><td class="small">'+Object.entries(vm.tags).map(([k,v])=>'<span class="badge bg-dark border me-1">'+k+'='+v+'</span>').join('')+'</td></tr>';
+            }
+            html += '</tbody></table></div>';
+            c.innerHTML = html;
+        } catch(e) { c.innerHTML = '<div class="alert alert-warning">Failed to generate tagging strategy.</div>'; }
+    }
+
+    let _wavePlanData = null;
+
+    function _renderWavePlan(data) {
+        const c = document.getElementById('wave-plan-results');
+        if (data.error) { c.innerHTML = '<div class="alert alert-warning">'+data.error+'</div>'; return; }
+        _wavePlanData = data;
+
+        // Summary cards
+        let html = '<div class="row g-3 mb-4">';
+        html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value">'+data.total_vms+'</div><div class="stat-label">Total VMs</div></div></div>';
+        html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value text-primary">'+data.wave_count+'</div><div class="stat-label">Waves</div></div></div>';
+        html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value">'+(data.dependency_count||0)+'</div><div class="stat-label">Dependencies</div></div></div>';
+        html += '<div class="col-md-3"><div class="stat-card"><div class="stat-value '+(data.circular_dependencies>0?'text-danger':'text-success')+'">'+(data.circular_dependencies||0)+'</div><div class="stat-label">Circular Deps</div></div></div>';
+        html += '</div>';
+
+        // Build wave number options for the move dropdown
+        const waveNums = data.waves.map(w => w.wave);
+
+        // Wave cards
+        for (const wave of data.waves) {
+            const readyCnt = wave.details.filter(d => d.readiness === 'Ready').length;
+            const condCnt = wave.details.filter(d => d.readiness === 'Ready with conditions').length;
+            const notCnt = wave.vm_count - readyCnt - condCnt;
+            html += '<div class="wave-card mb-3">';
+            html += '<div class="d-flex justify-content-between align-items-center mb-2">';
+            html += '<div><span class="wave-num">Wave '+wave.wave+'</span><span class="text-muted ms-3">'+wave.vm_count+' VMs</span></div>';
+            html += '<div>';
+            if (readyCnt) html += '<span class="badge badge-ready me-1">'+readyCnt+' Ready</span>';
+            if (condCnt) html += '<span class="badge badge-conditional me-1">'+condCnt+' Conditional</span>';
+            if (notCnt > 0) html += '<span class="badge badge-not-ready">'+notCnt+' Not Ready</span>';
+            html += '</div></div>';
+
+            // VM table for this wave
+            html += '<div class="table-responsive"><table class="table table-sm table-dark-custom mb-0">';
+            html += '<thead><tr><th>VM Name</th><th>Readiness</th><th>Workload</th><th>Reason</th><th style="width:120px">Move to</th></tr></thead><tbody>';
+            for (const d of wave.details) {
+                const badge = d.readiness === 'Ready' ? 'badge-ready' : d.readiness === 'Ready with conditions' ? 'badge-conditional' : 'badge-not-ready';
+                const otherWaves = waveNums.filter(n => n !== wave.wave);
+                let moveOpts = otherWaves.map(n => '<option value="'+n+'">Wave '+n+'</option>').join('');
+                html += '<tr>';
+                html += '<td><code>'+d.vm_name+'</code></td>';
+                html += '<td><span class="badge '+badge+'">'+d.readiness+'</span></td>';
+                html += '<td>'+(d.workload_type||'\u2014')+'</td>';
+                html += '<td class="small text-muted">'+(d.reason||'')+'</td>';
+                html += '<td><select class="form-select form-select-sm" onchange="moveVmToWave(\''+d.vm_name.replace(/'/g,"\\'")+'\', parseInt(this.value), this)"><option value="">—</option>'+moveOpts+'</select></td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table></div></div>';
+        }
+
+        c.innerHTML = html;
+    }
+
+    async function loadWavePlan() {
+        const c = document.getElementById('wave-plan-results');
+        c.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+        const waveCount = parseInt(document.getElementById('wave-plan-count').value) || 4;
+        try {
+            const res = await fetch('/api/waves/smart-plan', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ wave_count: waveCount })
+            });
+            const data = await res.json();
+            _renderWavePlan(data);
+        } catch(e) { c.innerHTML = '<div class="alert alert-warning">Failed to generate wave plan.</div>'; }
+    }
+
+    async function loadSavedWavePlan() {
+        const c = document.getElementById('wave-plan-results');
+        // Only auto-load if nothing is displayed yet
+        if (_wavePlanData) return;
+        c.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+        try {
+            const res = await fetch('/api/waves/plan');
+            const data = await res.json();
+            if (data.error) { c.innerHTML = '<p class="text-muted">Generate a dependency-aware migration wave plan. VMs are ordered so dependencies are migrated first.</p>'; return; }
+            _renderWavePlan(data);
+        } catch(e) { c.innerHTML = '<p class="text-muted">Generate a dependency-aware migration wave plan. VMs are ordered so dependencies are migrated first.</p>'; }
+    }
+
+    async function moveVmToWave(vmName, targetWave, selectEl) {
+        if (!targetWave) return;
+        try {
+            const res = await fetch('/api/waves/move-vm', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ vm_name: vmName, target_wave: targetWave })
+            });
+            const result = await res.json();
+            if (result.error) { alert(result.error); selectEl.value = ''; return; }
+            // Reload the saved plan to reflect the change
+            _wavePlanData = null;
+            await loadSavedWavePlan();
+        } catch(e) { alert('Failed to move VM.'); selectEl.value = ''; }
+    }
+
     </script>
+    <script src="{{ url_for('static', filename='features.js') }}"></script>
 </body>
 </html>

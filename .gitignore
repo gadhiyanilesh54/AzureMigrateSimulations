@@ -28,3 +28,15 @@ data/enrichment_data.json
 data/retail_price_cache.json
 discovery_report.json
 flask.log
+
+# Node
+node_modules/
+
+# Editor/Tool
+.cursor/
+
+# Test artifacts
+test-results/
+
+# Data snapshots
+data/snapshots/

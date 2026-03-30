@@ -1,0 +1,1456 @@
+{
+  "wave_count": 4,
+  "total_vms": 202,
+  "dependency_count": 11,
+  "circular_dependencies": 1,
+  "region": "eastus",
+  "pricing_model": "payg",
+  "waves": [
+    {
+      "wave": 1,
+      "vm_count": 2,
+      "vms": [
+        "nigadh-swarm-container-linux-m1",
+        "nigadh-swarm-container-linux-w1"
+      ],
+      "details": [
+        {
+          "vm_name": "nigadh-swarm-container-linux-m1",
+          "reason": "Database workload \u2014 scheduled in early wave",
+          "workload_type": "database",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "nigadh-swarm-container-linux-w1",
+          "reason": "Database workload \u2014 scheduled in early wave",
+          "workload_type": "database",
+          "readiness": "Ready"
+        }
+      ]
+    },
+    {
+      "wave": 2,
+      "vm_count": 3,
+      "vms": [
+        "nigadh-k8s-container-w1",
+        "okd-worker-01",
+        "okd-helper"
+      ],
+      "details": [
+        {
+          "vm_name": "nigadh-k8s-container-w1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "orchestrator",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "okd-worker-01",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "orchestrator",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "okd-helper",
+          "reason": "Manually moved from wave 3",
+          "workload_type": "webapp",
+          "readiness": "Ready"
+        }
+      ]
+    },
+    {
+      "wave": 3,
+      "vm_count": 5,
+      "vms": [
+        "appl-sgrover",
+        "shig-2026-02-27-online",
+        "shig-20260226-ccy-onebox",
+        "shig-onebox",
+        "shig-onebox-ecy"
+      ],
+      "details": [
+        {
+          "vm_name": "appl-sgrover",
+          "reason": "Depends on Perf-Ubuntu, Poornima-linux-machine, WebAppGQLTest-Ubuntu (scheduled in earlier wave)",
+          "workload_type": "webapp",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "shig-2026-02-27-online",
+          "reason": "Circular dependency with shig-20260226-ccy-onebox \u2014 migrating together",
+          "workload_type": "webapp",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "shig-20260226-ccy-onebox",
+          "reason": "Circular dependency with shig-2026-02-27-online \u2014 migrating together",
+          "workload_type": "webapp",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "shig-onebox",
+          "reason": "Depends on Perf-Ubuntu, aasinghal-linux (scheduled in earlier wave)",
+          "workload_type": "webapp",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "shig-onebox-ecy",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "webapp",
+          "readiness": "Ready"
+        }
+      ]
+    },
+    {
+      "wave": 4,
+      "vm_count": 192,
+      "vms": [
+        "AMA-sammans",
+        "AppAsmt-AECan-Selfhost-VmWare",
+        "AppCAT-selfhost",
+        "AppCAT-selfhost-dev",
+        "AzMigrateAgentsTAM-LinuxTestVM-DONOTTOUCH",
+        "AzMigrateAgentsTAM-WinTestVM-DONOTTOUCH",
+        "AzureMigrate01app",
+        "BPTco",
+        "ContainerOS-VM",
+        "DmpGqlsLinux082025",
+        "JmamidiUbuntu",
+        "LinuxVM924-Cloned2",
+        "MicrosoftAzureMigration",
+        "MicrosoftAzureMigration-anukritijain",
+        "MongoLinux1",
+        "MongoLinux2",
+        "Perf-Appliance-CCY",
+        "Perf-Ubuntu",
+        "Poornima-linux-machine",
+        "Redhat7.9-VM1",
+        "Rhel8",
+        "RoleTestingWinVm",
+        "RoleTestingWinVm2",
+        "SD2MicrosoftAzureMigration",
+        "SDMicrosoftAzureMigration",
+        "SI-E2E-LIN",
+        "SI-Physical-CCY-0",
+        "SI-Physical-CCY-1",
+        "SI-Physical-ECY-0",
+        "SI-Physical-ECY-1",
+        "SI-VMWare-CCY-0",
+        "SI-VMWare-ECY-0",
+        "SI-VMWare-ECY-1",
+        "SI-Win11",
+        "TestOVARefresh1",
+        "V2arcmRoleTestingapp",
+        "VM-Alma8.10",
+        "VM-Alma9.5",
+        "VM-ContainerOS",
+        "VM-Debian10.13",
+        "VM-Debian11",
+        "VM-Debian7.11",
+        "VM-Debian8.11",
+        "VM-Debian9.5",
+        "VM-Oracle6.9",
+        "VM-Oracle7.9",
+        "VM-Oracle8.10",
+        "VM-Redhat6.1",
+        "VM-Redhat8.1",
+        "VM-Redhat9.0",
+        "VM-Rock9.5",
+        "VM-Rocky8.10",
+        "VM-SUSE11SP4",
+        "VM-SUSE12SP1",
+        "VM-SUSE12SP2",
+        "VM-SUSE12SP3",
+        "VM-SUSE12SP4",
+        "VM-SUSE15SP2",
+        "VM-SUSE15SP3",
+        "VM-Ubuntu12.04",
+        "VM-Ubuntu14.04",
+        "VM-Ubuntu16.04",
+        "WavesGQLAppliance-KOC-1",
+        "WebAppGQLTest-Ubuntu",
+        "WebAppGQLTest-Win",
+        "WebAppGQLTest1",
+        "WindowsVM164",
+        "WindowsVM165",
+        "WindowsVM166",
+        "WindowsVM167",
+        "WindowsVM168",
+        "WindowsVM169",
+        "WindowsVM170",
+        "WindowsVM171",
+        "WindowsVM172",
+        "WindowsVM173",
+        "WindowsVM174",
+        "WindowsVM175",
+        "WindowsVM176",
+        "WindowsVM177",
+        "WindowsVM178",
+        "WindowsVM179",
+        "WindowsVM180",
+        "[DND] hishinde-swc",
+        "[Do-Not-Touch] SI-E2E-Lin-1",
+        "[Do-Not-Touch] SI-E2E-Lin-2",
+        "[Do-Not-Touch] SI-E2E-Win-1",
+        "[Do-Not-Touch] SI-E2E-Win-2",
+        "[Do-Not-Touch] SI-E2E-Win-3",
+        "[Do-Not-Touch]-SI-Linux-1",
+        "aasinghal-linux",
+        "adkanetk-arc10",
+        "adkanetk-arc5",
+        "adkanetk-arc9",
+        "adkanetk-proxy",
+        "adkanetk-scaleout",
+        "akkeshar-devtest",
+        "akkeshar-pg-koc",
+        "appcatecyproj1-selfhost",
+        "appcatecyproj2-selfhost",
+        "azm-gql-australiaeast",
+        "azm-gql-austriaeast",
+        "azm-gql-belgiumcentral",
+        "azm-gql-centralcanada",
+        "azm-gql-centralindia",
+        "azm-gql-centralus",
+        "azm-gql-centraluseuap",
+        "azm-gql-chilecentral",
+        "azm-gql-eastus2euap",
+        "azm-gql-francecentral",
+        "azm-gql-germanywestcentral",
+        "azm-gql-indonesiacentral",
+        "azm-gql-italynorth",
+        "azm-gql-koreacentral",
+        "azm-gql-koreasouth",
+        "azm-gql-malaysiawest",
+        "azm-gql-mexicocentral",
+        "azm-gql-newzealandnorth",
+        "azm-gql-northeurope",
+        "azm-gql-southeastasia",
+        "azm-gql-swedencentral",
+        "azm-gql-taiwannorth",
+        "azm-gql-uksouth",
+        "azm-gql-ukwest",
+        "azm-gql-westus2",
+        "ccy-hyperv",
+        "ccy-physical",
+        "ccy-vmware",
+        "chsamala-idc2",
+        "chsamala-vm1",
+        "dagoutha-appl3",
+        "dagoutha-appl4",
+        "demoha-sii-migrateAppl",
+        "demoha-testvm-1",
+        "dhananamatest",
+        "dhananphys2rcm1",
+        "dhanantestVm1",
+        "diwbhardwajServerAppliacePleaseDontUseIt",
+        "dmpGqlsLinux",
+        "dmpGqlsWindows",
+        "gangadi-VMware",
+        "gangdi-hyper",
+        "harshgidra-vm",
+        "hritikgoyaloracle-vm",
+        "jeevikag-pvtstamptestingvm",
+        "jeevikag-ut-linux",
+        "jmamidi-HyperVAppl",
+        "klakshitha-ecy-testing",
+        "linxsi1_renamed",
+        "lnxsi2",
+        "miniagarwal-MigrateHyperV",
+        "miniagarwal-MigratePhysicalServers",
+        "miniagarwal-MigrateVmware",
+        "miniagarwal-ccyMigrateServer",
+        "miniagarwal-ccyMigrateVmware",
+        "mongolinux-miniagarwal",
+        "nigadh-test-ecy-appliance",
+        "nigadh-win-k8s-container-m1",
+        "nigadh-win-k8s-container-w1",
+        "nikeshbisen_migrateVmware",
+        "okd-master-01",
+        "onboarding-pool-hyperv1",
+        "onboarding-pool-physical1",
+        "onboarding-pool-vmware1",
+        "onboarding-pool-vmware3",
+        "piyusing-vm1",
+        "rahasija-jmamidi-HyperVApplianceclone",
+        "rohan-hyperv",
+        "rohanhyperv8",
+        "rohanwindoes2016test-50-cloneof(35)",
+        "rohanwindows2016machine-55",
+        "sasiServerAppliance",
+        "sasiVMwareMySQLAgent",
+        "sharmaaj-st-vwa",
+        "sharmaaj-vw",
+        "shig-260130-disconnected-test",
+        "shig-fresh-appliance-for-cloning-purpose-ONLY",
+        "si-hyperv-1",
+        "si-physical-1",
+        "si-physical-2",
+        "si-vmware-1",
+        "simp-waveselfhostccyapp",
+        "swjai-appl-02",
+        "swjai-sql-appl",
+        "vermakartik-SIAppliance",
+        "wave-ccygql-vm1",
+        "wave-ccygql-vm2",
+        "wave-selfhost-app-shivam",
+        "waveselfhostapp",
+        "wavesfapp",
+        "yadavravi-appliance-testing-1",
+        "nigadh-k8s-container-m1"
+      ],
+      "details": [
+        {
+          "vm_name": "AMA-sammans",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "AppAsmt-AECan-Selfhost-VmWare",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "AppCAT-selfhost",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "AppCAT-selfhost-dev",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "AzMigrateAgentsTAM-LinuxTestVM-DONOTTOUCH",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "AzMigrateAgentsTAM-WinTestVM-DONOTTOUCH",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "AzureMigrate01app",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "BPTco",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "ContainerOS-VM",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "DmpGqlsLinux082025",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "JmamidiUbuntu",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "LinuxVM924-Cloned2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "MicrosoftAzureMigration",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "MicrosoftAzureMigration-anukritijain",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "MongoLinux1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "MongoLinux2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "Perf-Appliance-CCY",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "Perf-Ubuntu",
+          "reason": "Dependency target \u2014 appl-sgrover, shig-20260226-ccy-onebox, shig-onebox depend on this VM",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "Poornima-linux-machine",
+          "reason": "Dependency target \u2014 appl-sgrover depend on this VM",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "Redhat7.9-VM1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "Rhel8",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "RoleTestingWinVm",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "RoleTestingWinVm2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "SD2MicrosoftAzureMigration",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SDMicrosoftAzureMigration",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "SI-E2E-LIN",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-Physical-CCY-0",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-Physical-CCY-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-Physical-ECY-0",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-Physical-ECY-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-VMWare-CCY-0",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-VMWare-ECY-0",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "SI-VMWare-ECY-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "SI-Win11",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "TestOVARefresh1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "V2arcmRoleTestingapp",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "VM-Alma8.10",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Alma9.5",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-ContainerOS",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Debian10.13",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Debian11",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Debian7.11",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Debian8.11",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Debian9.5",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Oracle6.9",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Oracle7.9",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Oracle8.10",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Redhat6.1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Redhat8.1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Redhat9.0",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Rock9.5",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Rocky8.10",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE11SP4",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE12SP1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE12SP2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE12SP3",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE12SP4",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE15SP2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-SUSE15SP3",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Ubuntu12.04",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Ubuntu14.04",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "VM-Ubuntu16.04",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "WavesGQLAppliance-KOC-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "WebAppGQLTest-Ubuntu",
+          "reason": "Dependency target \u2014 appl-sgrover depend on this VM",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WebAppGQLTest-Win",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "WebAppGQLTest1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM164",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM165",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM166",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "WindowsVM167",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM168",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM169",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM170",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM171",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM172",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM173",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM174",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM175",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM176",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM177",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM178",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM179",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "WindowsVM180",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[DND] hishinde-swc",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[Do-Not-Touch] SI-E2E-Lin-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[Do-Not-Touch] SI-E2E-Lin-2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[Do-Not-Touch] SI-E2E-Win-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[Do-Not-Touch] SI-E2E-Win-2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[Do-Not-Touch] SI-E2E-Win-3",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "[Do-Not-Touch]-SI-Linux-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "aasinghal-linux",
+          "reason": "Dependency target \u2014 shig-onebox depend on this VM",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "adkanetk-arc10",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "adkanetk-arc5",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "adkanetk-arc9",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "adkanetk-proxy",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "adkanetk-scaleout",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "akkeshar-devtest",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "akkeshar-pg-koc",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "appcatecyproj1-selfhost",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "appcatecyproj2-selfhost",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "azm-gql-australiaeast",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-austriaeast",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "azm-gql-belgiumcentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "azm-gql-centralcanada",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-centralindia",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-centralus",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-centraluseuap",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-chilecentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-eastus2euap",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-francecentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-germanywestcentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "azm-gql-indonesiacentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-italynorth",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-koreacentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-koreasouth",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-malaysiawest",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-mexicocentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-newzealandnorth",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-northeurope",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-southeastasia",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-swedencentral",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "azm-gql-taiwannorth",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-uksouth",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-ukwest",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "azm-gql-westus2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "ccy-hyperv",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "ccy-physical",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "ccy-vmware",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "chsamala-idc2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "chsamala-vm1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "dagoutha-appl3",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "dagoutha-appl4",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "demoha-sii-migrateAppl",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "demoha-testvm-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "dhananamatest",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "dhananphys2rcm1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "dhanantestVm1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "diwbhardwajServerAppliacePleaseDontUseIt",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "dmpGqlsLinux",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "dmpGqlsWindows",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "gangadi-VMware",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "gangdi-hyper",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "harshgidra-vm",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "hritikgoyaloracle-vm",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "jeevikag-pvtstamptestingvm",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "jeevikag-ut-linux",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "jmamidi-HyperVAppl",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "klakshitha-ecy-testing",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "linxsi1_renamed",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "lnxsi2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "miniagarwal-MigrateHyperV",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "miniagarwal-MigratePhysicalServers",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "miniagarwal-MigrateVmware",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "miniagarwal-ccyMigrateServer",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "miniagarwal-ccyMigrateVmware",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "mongolinux-miniagarwal",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "nigadh-test-ecy-appliance",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "nigadh-win-k8s-container-m1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "nigadh-win-k8s-container-w1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "nikeshbisen_migrateVmware",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "okd-master-01",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "onboarding-pool-hyperv1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "onboarding-pool-physical1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "onboarding-pool-vmware1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "onboarding-pool-vmware3",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "piyusing-vm1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "rahasija-jmamidi-HyperVApplianceclone",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "rohan-hyperv",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "rohanhyperv8",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "rohanwindoes2016test-50-cloneof(35)",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "rohanwindows2016machine-55",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "sasiServerAppliance",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "sasiVMwareMySQLAgent",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "sharmaaj-st-vwa",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "sharmaaj-vw",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "shig-260130-disconnected-test",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "shig-fresh-appliance-for-cloning-purpose-ONLY",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "si-hyperv-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "si-physical-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "si-physical-2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "si-vmware-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "simp-waveselfhostccyapp",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "swjai-appl-02",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "swjai-sql-appl",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "vermakartik-SIAppliance",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "wave-ccygql-vm1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "wave-ccygql-vm2",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "wave-selfhost-app-shivam",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "waveselfhostapp",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "wavesfapp",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready"
+        },
+        {
+          "vm_name": "yadavravi-appliance-testing-1",
+          "reason": "No dependencies detected \u2014 assigned by workload type",
+          "workload_type": "general_compute",
+          "readiness": "Ready with conditions"
+        },
+        {
+          "vm_name": "nigadh-k8s-container-m1",
+          "reason": "Manually moved from wave 2",
+          "workload_type": "orchestrator",
+          "readiness": "Ready"
+        }
+      ]
+    }
+  ]
+}

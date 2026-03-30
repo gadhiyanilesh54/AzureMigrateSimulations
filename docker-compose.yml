@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MIGRATE_API_KEY=${MIGRATE_API_KEY:-}
+      - PYTHONPATH=/app/src
+    command: python -m azure_migrate_simulations.web.app
+
+  mcp-sse:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MCP_PORT=3001
+      - PYTHONPATH=/app/src
+    command: python -m azure_migrate_simulations.mcp_server --sse
+    depends_on:
+      - web

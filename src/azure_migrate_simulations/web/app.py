@@ -117,6 +117,18 @@ def _load_json(path: Path) -> dict:
 # concurrent requests could corrupt state.
 _state_lock = threading.RLock()
 
+
+def _match_sku_for_dict(vm: dict, catalog: list) -> object:
+    """Find the smallest Azure SKU that fits a VM dict."""
+    vcpus = vm.get("num_cpus", 1)
+    mem_mb = vm.get("memory_mb", 1024)
+    mem_gb = mem_mb / 1024
+    for sku in sorted(catalog, key=lambda s: s.monthly_cost_usd):
+        if sku.vcpus >= vcpus and sku.memory_gb >= mem_gb:
+            return sku
+    return catalog[-1]  # Largest if nothing fits
+
+
 _data: dict = {}
 
 _discovery_state: dict = {
@@ -1330,8 +1342,9 @@ def _generate_waves(vms: list[dict], num_waves: int) -> list[list[dict]]:
     # ---- Build dependency graph from workload discovery --------------------
     # depends_on[A] = {B, C} means VM A depends on B and C (B, C must migrate
     # before or with A).
-    vm_names = {v["name"] for v in vms}
-    depends_on: dict[str, set[str]] = {v["name"]: set() for v in vms}
+    _name_key = "vm_name" if vms and "vm_name" in vms[0] else "name"
+    vm_names = {v[_name_key] for v in vms}
+    depends_on: dict[str, set[str]] = {v[_name_key]: set() for v in vms}
 
     if _workload_data:
         for dep in _workload_data.get("dependencies", []):
@@ -1341,9 +1354,9 @@ def _generate_waves(vms: list[dict], num_waves: int) -> list[list[dict]]:
                 depends_on[src].add(tgt)
 
     # ---- Topological sort for powered-on VMs (shared helper) ---------------
-    on_names = {v["name"] for v in on}
+    on_names = {v[_name_key] for v in on}
     on_depends = {n: depends_on.get(n, set()) & on_names for n in on_names}
-    vm_by_name = {v["name"]: v for v in on}
+    vm_by_name = {v[_name_key]: v for v in on}
 
     layers = _topological_sort_layers(
         on_names,
@@ -3384,6 +3397,448 @@ def api_export_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename={export_type}_assessment.csv"},
     )
+
+
+# ---------------------------------------------------------------------------
+# Tier 1 feature endpoints
+# ---------------------------------------------------------------------------
+
+@app.route("/api/export/terraform", methods=["POST"])
+def api_export_terraform():
+    """Generate Terraform modules from the cloud topology."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    body = request.get_json(silent=True) or {}
+    from azure_migrate_simulations.iac_generator import generate_terraform
+    topology = _load_json(_project_root / "data" / "_last_topology.json") if (_project_root / "data" / "_last_topology.json").exists() else None
+    if not topology:
+        return jsonify({"error": "Generate a cloud topology first."}), 404
+    files = generate_terraform(
+        topology,
+        region=body.get("region", "eastus"),
+        naming_prefix=body.get("naming_prefix", "migrate"),
+        environment=body.get("environment", "prod"),
+        backend=body.get("backend", "local"),
+    )
+    return jsonify({"files": {k: v for k, v in files.items()}, "file_count": len(files)})
+
+
+@app.route("/api/export/bicep", methods=["POST"])
+def api_export_bicep():
+    """Generate Bicep templates from the cloud topology."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    body = request.get_json(silent=True) or {}
+    from azure_migrate_simulations.iac_generator import generate_bicep
+    topology = _load_json(_project_root / "data" / "_last_topology.json") if (_project_root / "data" / "_last_topology.json").exists() else None
+    if not topology:
+        return jsonify({"error": "Generate a cloud topology first."}), 404
+    files = generate_bicep(
+        topology,
+        region=body.get("region", "eastus"),
+        naming_prefix=body.get("naming_prefix", "migrate"),
+        environment=body.get("environment", "prod"),
+    )
+    return jsonify({"files": files, "file_count": len(files)})
+
+
+@app.route("/api/waves/smart-plan", methods=["POST"])
+def api_smart_wave_plan():
+    """Generate a dependency-aware wave plan and save it."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    body = request.get_json(silent=True) or {}
+    from azure_migrate_simulations.wave_planner import generate_smart_wave_plan
+    plan = generate_smart_wave_plan(
+        vms=_data["vms"],
+        recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+        wave_count=body.get("wave_count", 4),
+        region=body.get("region", "eastus"),
+        pricing_model=body.get("pricing_model", "payg"),
+    )
+    # Persist the generated plan so it can be loaded/edited later
+    _save_json(DATA_DIR / "_wave_plan.json", plan)
+    return jsonify(plan)
+
+
+@app.route("/api/waves/plan", methods=["GET"])
+def api_get_wave_plan():
+    """Return the last saved wave plan, or generate one if none exists."""
+    wave_file = DATA_DIR / "_wave_plan.json"
+    if wave_file.exists():
+        plan = _load_json(wave_file)
+        if plan.get("waves"):
+            return jsonify(plan)
+    # No saved plan — generate one
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.wave_planner import generate_smart_wave_plan
+    plan = generate_smart_wave_plan(
+        vms=_data["vms"],
+        recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+    )
+    _save_json(wave_file, plan)
+    return jsonify(plan)
+
+
+@app.route("/api/waves/move-vm", methods=["POST"])
+def api_move_vm_wave():
+    """Move a VM from its current wave to a target wave.
+
+    Body JSON: { "vm_name": "...", "target_wave": 2 }
+    """
+    body = request.get_json(force=True)
+    vm_name = body.get("vm_name", "").strip()
+    target_wave = body.get("target_wave")
+
+    if not vm_name or target_wave is None:
+        return jsonify({"error": "vm_name and target_wave are required."}), 400
+
+    wave_file = DATA_DIR / "_wave_plan.json"
+    if not wave_file.exists():
+        return jsonify({"error": "No wave plan exists. Generate one first."}), 404
+
+    plan = _load_json(wave_file)
+    waves = plan.get("waves", [])
+
+    # Find and remove VM from its current wave
+    source_wave = None
+    vm_detail = None
+    for w in waves:
+        if vm_name in w.get("vms", []):
+            source_wave = w["wave"]
+            w["vms"].remove(vm_name)
+            # Preserve the detail entry
+            for det in w.get("details", []):
+                if det.get("vm_name") == vm_name:
+                    vm_detail = det
+                    break
+            if vm_detail:
+                w["details"] = [d for d in w["details"] if d.get("vm_name") != vm_name]
+            w["vm_count"] = len(w["vms"])
+            break
+
+    if source_wave is None:
+        return jsonify({"error": f"VM '{vm_name}' not found in any wave."}), 404
+
+    # Add VM to target wave
+    target_found = False
+    for w in waves:
+        if w["wave"] == target_wave:
+            w["vms"].append(vm_name)
+            if vm_detail:
+                vm_detail["reason"] = f"Manually moved from wave {source_wave}"
+                w.setdefault("details", []).append(vm_detail)
+            else:
+                w.setdefault("details", []).append({
+                    "vm_name": vm_name,
+                    "readiness": "Unknown",
+                    "reason": f"Manually moved from wave {source_wave}",
+                    "workload_type": "",
+                })
+            w["vm_count"] = len(w["vms"])
+            target_found = True
+            break
+
+    if not target_found:
+        return jsonify({"error": f"Target wave {target_wave} does not exist."}), 400
+
+    _save_json(wave_file, plan)
+    return jsonify({
+        "status": "ok",
+        "vm_name": vm_name,
+        "from_wave": source_wave,
+        "to_wave": target_wave,
+    })
+
+
+@app.route("/api/pricing/comparison", methods=["GET"])
+def api_pricing_comparison():
+    """Side-by-side cost comparison across all 7 pricing models."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.pricing_comparison import compare_pricing_models
+    from azure_migrate_simulations.cloud_topology import _REGION_MULTIPLIERS
+    region = request.args.get("region", "eastus")
+    result = compare_pricing_models(
+        vms=_data["vms"],
+        recommendations=_data.get("recommendations", []),
+        region_multiplier=_REGION_MULTIPLIERS.get(region, 1.0),
+        enrichment_data=_enrichment_data if _enrichment_data else None,
+        perf_history=_perf_history if _perf_history else None,
+    )
+    return jsonify(result)
+
+
+@app.route("/api/applications", methods=["GET"])
+def api_applications():
+    """Detect and list application groups."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.app_grouping import detect_application_groups
+    groups = detect_application_groups(
+        vms=_data["vms"],
+        recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+    )
+    return jsonify({"application_count": len(groups), "applications": groups})
+
+
+@app.route("/api/runbooks/generate", methods=["POST"])
+def api_generate_runbooks():
+    """Generate pre/execution/post migration runbooks."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.runbook_generator import generate_runbooks
+    topology = _load_json(_project_root / "data" / "_last_topology.json") if (_project_root / "data" / "_last_topology.json").exists() else {}
+    wave_plan = _load_json(_project_root / "data" / "_wave_plan.json") if (_project_root / "data" / "_wave_plan.json").exists() else {}
+    if not wave_plan.get("waves"):
+        return jsonify({"error": "Generate a wave plan first (fleet simulation)."}), 404
+    body = request.get_json(silent=True) or {}
+    runbooks = generate_runbooks(
+        topology=topology,
+        wave_plan=wave_plan,
+        vms=_data["vms"],
+        recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+        region=body.get("region", "eastus"),
+    )
+    return jsonify(runbooks)
+
+
+@app.route("/api/reports/executive", methods=["GET"])
+def api_executive_report():
+    """Generate an executive migration report."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.executive_report import generate_executive_report
+    topology = _load_json(_project_root / "data" / "_last_topology.json") if (_project_root / "data" / "_last_topology.json").exists() else None
+    wave_plan = _load_json(_project_root / "data" / "_wave_plan.json") if (_project_root / "data" / "_wave_plan.json").exists() else None
+    report = generate_executive_report(
+        vms=_data["vms"],
+        recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+        topology=topology,
+        wave_plan=wave_plan,
+        enrichment_data=_enrichment_data if _enrichment_data else None,
+    )
+    fmt = request.args.get("format", "json")
+    if fmt == "markdown":
+        from azure_migrate_simulations.executive_report import render_report_markdown
+        return render_report_markdown(report), 200, {"Content-Type": "text/markdown"}
+    return jsonify(report)
+
+
+# ---------------------------------------------------------------------------
+# Tier 2 + Tier 3 feature endpoints
+# ---------------------------------------------------------------------------
+
+@app.route("/api/migration/status", methods=["POST"])
+def api_set_migration_status():
+    """Update a VM's migration status."""
+    body = request.get_json(silent=True) or {}
+    vm_name = body.get("vm_name")
+    new_state = body.get("state")
+    if not vm_name or not new_state:
+        return jsonify({"error": "vm_name and state required"}), 400
+    from azure_migrate_simulations.migration_tracker import set_vm_status
+    status_data = _load_json(DATA_DIR / "migration_status.json")
+    result = set_vm_status(status_data, vm_name, new_state, body.get("note"), body.get("blocker"))
+    if "error" in result:
+        return jsonify(result), 400
+    _save_json(DATA_DIR / "migration_status.json", status_data)
+    return jsonify(result)
+
+
+@app.route("/api/migration/progress", methods=["GET"])
+def api_migration_progress():
+    """Get migration progress summary."""
+    from azure_migrate_simulations.migration_tracker import get_migration_progress
+    status_data = _load_json(DATA_DIR / "migration_status.json")
+    wave_plan = _load_json(DATA_DIR / "_wave_plan.json")
+    return jsonify(get_migration_progress(status_data, wave_plan if wave_plan else None))
+
+
+@app.route("/api/nsg-rules", methods=["GET"])
+def api_nsg_rules():
+    """Generate NSG rules from dependencies."""
+    topology = _load_json(DATA_DIR / "_last_topology.json")
+    if not topology:
+        return jsonify({"error": "Generate cloud topology first."}), 404
+    from azure_migrate_simulations.nsg_generator import generate_nsg_rules
+    result = generate_nsg_rules(topology, _workload_data if _workload_data else None)
+    return jsonify(result)
+
+
+@app.route("/api/tags/strategy", methods=["GET"])
+def api_tagging_strategy():
+    """Generate tagging strategy from vCenter metadata."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.tagging_strategy import generate_tagging_strategy
+    wave_plan = _load_json(DATA_DIR / "_wave_plan.json")
+    result = generate_tagging_strategy(
+        vms=_data["vms"], recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+        wave_plan=wave_plan if wave_plan else None,
+    )
+    return jsonify(result)
+
+
+@app.route("/api/import/rvtools", methods=["POST"])
+def api_import_rvtools():
+    """Import RVTools CSV/XLSX file."""
+    from azure_migrate_simulations.rvtools_import import import_rvtools_csv
+    if "file" in request.files:
+        f = request.files["file"]
+        content = f.read().decode("utf-8", errors="replace")
+        result = import_rvtools_csv(content, f.filename or "rvtools.csv")
+    elif request.is_json:
+        body = request.get_json()
+        result = import_rvtools_csv(body.get("csv_content", ""), body.get("filename", "rvtools.csv"))
+    else:
+        return jsonify({"error": "Upload a CSV file or send csv_content in JSON body"}), 400
+    if "error" in result:
+        return jsonify(result), 400
+    # Save as discovery data and generate recommendations
+    _save_json(_VCENTER_DATA_FILE, result)
+    with _state_lock:
+        _data.clear()
+        _data.update(result)
+    # Generate simple SKU recommendations for imported VMs
+    from azure_migrate_simulations.azure_mapping import VM_CATALOG
+    recs = []
+    for vm in _data.get("vms", []):
+        sku = _match_sku_for_dict(vm, VM_CATALOG)
+        recs.append({
+            "vm_name": vm.get("name", ""),
+            "recommended_vm_sku": sku.name,
+            "recommended_vm_family": sku.family,
+            "estimated_monthly_cost": sku.monthly_cost_usd,
+            "migration_readiness": "Ready",
+            "confidence_score": 50,
+            "os_type": vm.get("guest_os_family", "linux"),
+        })
+    _data["recommendations"] = recs
+    _save_json(_VCENTER_DATA_FILE, _data)
+    return jsonify({"imported": True, "vm_count": result["vm_count"], "host_count": result["host_count"]})
+
+
+@app.route("/api/projects", methods=["GET"])
+def api_list_projects():
+    """List all projects."""
+    from azure_migrate_simulations.multi_project import list_projects
+    return jsonify({"projects": list_projects(DATA_DIR)})
+
+
+@app.route("/api/projects", methods=["POST"])
+def api_create_project():
+    """Create a new project."""
+    body = request.get_json(silent=True) or {}
+    name = body.get("name")
+    if not name:
+        return jsonify({"error": "name required"}), 400
+    from azure_migrate_simulations.multi_project import create_project
+    result = create_project(DATA_DIR, name)
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result), 201
+
+
+@app.route("/api/projects/<project_id>/activate", methods=["POST"])
+def api_switch_project(project_id):
+    """Switch active project."""
+    from azure_migrate_simulations.multi_project import switch_project
+    result = switch_project(DATA_DIR, project_id)
+    if "error" in result:
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@app.route("/api/compliance/assess", methods=["POST"])
+def api_compliance():
+    """Assess compliance against regulatory frameworks."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    body = request.get_json(silent=True) or {}
+    frameworks = body.get("frameworks", ["pci-dss", "hipaa", "gdpr"])
+    from azure_migrate_simulations.compliance_assessment import assess_compliance
+    topology = _load_json(DATA_DIR / "_last_topology.json")
+    result = assess_compliance(
+        frameworks=frameworks, topology=topology,
+        vms=_data["vms"], recommendations=_data.get("recommendations", []),
+        region=body.get("region", "eastus"),
+        enrichment_data=_enrichment_data if _enrichment_data else None,
+    )
+    return jsonify(result)
+
+
+@app.route("/api/validation/post-migration", methods=["POST"])
+def api_post_migration():
+    """Generate post-migration validation checks."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.post_migration import generate_post_migration_checks
+    body = request.get_json(silent=True) or {}
+    result = generate_post_migration_checks(
+        vms=_data["vms"], recommendations=_data.get("recommendations", []),
+        workload_data=_workload_data if _workload_data else None,
+        enrichment_data=_enrichment_data if _enrichment_data else None,
+        perf_history=_perf_history if _perf_history else None,
+        region=body.get("region", "eastus"),
+        resource_group=body.get("resource_group", "rg-migrate-prod"),
+    )
+    return jsonify(result)
+
+
+@app.route("/api/snapshots", methods=["GET"])
+def api_list_snapshots():
+    """List project snapshots."""
+    from azure_migrate_simulations.project_versioning import list_snapshots
+    return jsonify({"snapshots": list_snapshots(DATA_DIR)})
+
+
+@app.route("/api/snapshots", methods=["POST"])
+def api_save_snapshot():
+    """Save a project snapshot."""
+    body = request.get_json(silent=True) or {}
+    name = body.get("name")
+    if not name:
+        return jsonify({"error": "name required"}), 400
+    from azure_migrate_simulations.project_versioning import save_snapshot
+    result = save_snapshot(DATA_DIR, name, body.get("description", ""))
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result), 201
+
+
+@app.route("/api/snapshots/<name>/restore", methods=["POST"])
+def api_restore_snapshot(name):
+    """Restore a project snapshot."""
+    from azure_migrate_simulations.project_versioning import restore_snapshot
+    result = restore_snapshot(DATA_DIR, name)
+    if "error" in result:
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@app.route("/api/cost-optimization", methods=["GET"])
+def api_cost_optimization():
+    """Run cost optimization analysis."""
+    if not _data.get("vms"):
+        return jsonify({"error": "No discovery data loaded."}), 404
+    from azure_migrate_simulations.cost_optimization import optimize_costs
+    from azure_migrate_simulations.cloud_topology import _REGION_MULTIPLIERS
+    region = request.args.get("region", "eastus")
+    result = optimize_costs(
+        vms=_data["vms"], recommendations=_data.get("recommendations", []),
+        enrichment_data=_enrichment_data if _enrichment_data else None,
+        perf_history=_perf_history if _perf_history else None,
+        region_multiplier=_REGION_MULTIPLIERS.get(region, 1.0),
+    )
+    return jsonify(result)
 
 
 # ---------------------------------------------------------------------------

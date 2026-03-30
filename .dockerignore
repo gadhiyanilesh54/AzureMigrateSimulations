@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.git/
+.pytest_cache/
+.mypy_cache/
+docs/
+tests/
+specs/
+scripts/
+*.md
+.vscode/
+.cursor/

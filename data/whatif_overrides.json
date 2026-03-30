@@ -1,1 +1,7 @@
-{}
+{
+  "azm-gql-centralindia": {
+    "sku": "Standard_E4s_v5",
+    "region": "eastus",
+    "pricing": "pay_as_you_go"
+  }
+}
