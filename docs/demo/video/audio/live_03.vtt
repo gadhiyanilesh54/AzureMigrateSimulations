@@ -1,0 +1,5 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 51563108, "text": "First, we look at the current proposed Azure architecture with A I turned off."}
+{"type": "SentenceBoundary", "offset": 52063108, "duration": 44902913, "text": "This is the application landing-zone view produced from the migration assessment."}
+{"type": "SentenceBoundary", "offset": 96966022, "duration": 83737866, "text": "It shows secure ingress, network boundaries, shared platform services, assessed application targets, and data or storage dependencies."}
+{"type": "SentenceBoundary", "offset": 180703888, "duration": 51941749, "text": "At this point, the design answers where and how B P T co could run in Azure."}
+{"type": "SentenceBoundary", "offset": 232645637, "duration": 27063107, "text": "It does not yet add an A I capability."}

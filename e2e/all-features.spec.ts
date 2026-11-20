@@ -323,6 +323,17 @@ test.describe('Plan Phase', () => {
     await expect(page.locator('#plan-apps')).toBeVisible();
   });
 
+  test('Landing Zone follows Application Groups and can be opened', async ({ page }) => {
+    const tabIds = await page.locator('#planSubTabs .nav-link').evaluateAll(
+      (tabs) => tabs.map((tab) => tab.id),
+    );
+    expect(tabIds.indexOf('plan-landing-zone-tab')).toBe(tabIds.indexOf('plan-apps-tab') + 1);
+
+    await page.locator('#plan-landing-zone-tab').click();
+    await expect(page.locator('#plan-landing-zone-tab')).toHaveClass(/active/);
+    await expect(page.locator('#plan-landing-zone')).toBeVisible();
+  });
+
   test('can switch to Cost Optimization sub-tab', async ({ page }) => {
     await page.locator('#plan-costopt-tab').click();
     await expect(page.locator('#plan-costopt')).toBeVisible();
@@ -383,6 +394,28 @@ test.describe('Plan Features', () => {
     ]);
 
     await expect(page.locator('#appgroups-results')).not.toContainText('Auto-discovers', { timeout: 10_000 });
+    await expect(page.locator('#appgroups-results')).toContainText('Web Apps');
+    await expect(page.locator('#appgroups-results')).toContainText('Databases');
+    await expect(page.locator('#appgroups-results')).toContainText('Containers');
+    await expect(page.locator('#appgroups-results')).toContainText('File Shares');
+  });
+
+  test('Landing Zone — Generate application architectures', async ({ page }) => {
+    await page.locator('#plan-landing-zone-tab').click();
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/api/landing-zones') && r.status() === 200),
+      page.locator('#landing-zone-generate-btn').click(),
+    ]);
+
+    await expect(page.locator('#landing-zone-results .landing-zone-card').first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#landing-zone-detail')).toBeVisible();
+    await expect(page.locator('#landing-zone-canvas svg.azure-architecture-svg')).toBeVisible();
+    await expect(page.locator('#landing-zone-canvas .azure-vnet-boundary')).toHaveCount(1);
+    await expect(page.locator('#landing-zone-canvas .azure-subnet-boundary')).toHaveCount(3);
+    expect(await page.locator('#landing-zone-canvas .azure-service-node').count()).toBeGreaterThan(5);
+    expect(await page.locator('#landing-zone-canvas image[href*="/static/icons/azure/"]').count()).toBeGreaterThan(5);
+    await expect(page.locator('.azure-architecture-legend')).toContainText('Application or data flow');
+    await expect(page.locator('#landing-zone-catalogue-entry')).toContainText('n-tier-');
   });
 
   test('Cost Optimization — Optimize', async ({ page }) => {

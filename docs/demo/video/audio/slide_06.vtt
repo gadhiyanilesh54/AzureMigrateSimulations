@@ -1,0 +1,8 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 28990292, "text": "The experience combines two evidence streams."}
+{"type": "SentenceBoundary", "offset": 29490292, "duration": 85800973, "text": "Azure Migrate contributes observed application facts: components, dependencies, runtime, assessed targets, and migration findings."}
+{"type": "SentenceBoundary", "offset": 115291265, "duration": 95509711, "text": "The customer contributes the business meaning: the process to improve, users, desired outcome, data constraints, compliance needs, and expected usage."}
+{"type": "SentenceBoundary", "offset": 210800976, "duration": 146359227, "text": "The assessment then produces a feasibility summary, data and integration readiness, governance considerations, recommended Azure A I services, indicative cost scenarios, an A I-ready architecture extension, and a proof of concept roadmap."}
+{"type": "SentenceBoundary", "offset": 357160204, "duration": 27669903, "text": "The key design principle is explainability."}
+{"type": "SentenceBoundary", "offset": 384830107, "duration": 68932040, "text": "Observed facts, customer-provided context, inferred assumptions, and missing evidence remain visibly separate."}
+{"type": "SentenceBoundary", "offset": 453762148, "duration": 39441748, "text": "Rules and deterministic calculations control the decision pack."}
+{"type": "SentenceBoundary", "offset": 493203897, "duration": 56674758, "text": "Generative A I can improve the narrative, but it does not silently invent readiness or cost."}

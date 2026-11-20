@@ -1,0 +1,3 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 38456311, "text": "Let\u2019s see the proposed experience in the Azure Migrate simulator."}
+{"type": "SentenceBoundary", "offset": 38956311, "duration": 28883495, "text": "Discovery and assessment are already complete."}
+{"type": "SentenceBoundary", "offset": 67839807, "duration": 145024275, "text": "We will start with the B P T co application, inspect its current Azure architecture, capture a document-processing outcome, generate an A I Feasibility Assessment, and then see exactly where the proposed A I services fit in the application landing zone."}

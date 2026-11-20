@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.panel import Panel
+from rich.table import Table
 
 from .azure_mapping import generate_recommendations
 from .azure_provisioning import provision_digital_twins
@@ -86,6 +89,11 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    # Check for 'risk' subcommand first
+    if len(sys.argv) >= 2 and sys.argv[1] == "risk":
+        _handle_risk_cli()
+        return
+
     args = _parse_args()
     _setup_logging(args.verbose)
 
@@ -189,6 +197,161 @@ def main() -> None:
         console.print("\n[dim]--skip-twin specified. Skipping Azure Digital Twins creation.[/]")
 
     console.print("\n[bold green]Done![/]")
+
+
+# ---------------------------------------------------------------------------
+# Risk Heatmap CLI
+# ---------------------------------------------------------------------------
+
+_DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+
+
+def _load_data_file(name: str) -> dict:
+    path = _DATA_DIR / name
+    try:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {}
+
+
+def _band_style(band: str) -> str:
+    if band == "green":
+        return "green"
+    if band == "yellow":
+        return "yellow"
+    return "red"
+
+
+def _handle_risk_cli() -> None:
+    parser = argparse.ArgumentParser(prog="dt-migrate risk")
+    sub = parser.add_subparsers(dest="subcmd")
+
+    hm_parser = sub.add_parser("heatmap", help="Compute fleet-wide risk heatmap")
+    hm_parser.add_argument("--top", type=int, default=10, help="Top-N riskiest VMs (default: 10)")
+    hm_parser.add_argument("--format", dest="fmt", choices=["json", "table"], default="table")
+    hm_parser.add_argument("--band", choices=["green", "yellow", "red"], default=None)
+
+    sc_parser = sub.add_parser("score", help="Compute risk score for a single VM")
+    sc_parser.add_argument("vm_name", help="VM name to score")
+    sc_parser.add_argument("--format", dest="fmt", choices=["json", "table"], default="table")
+
+    args = parser.parse_args(sys.argv[2:])
+
+    if args.subcmd is None:
+        parser.print_help()
+        sys.exit(2)
+
+    disc = _load_data_file("vcenter_discovery.json")
+    vms = disc.get("vms", [])
+    if not vms:
+        console.print("[bold red]Error:[/] No discovery data found. Run discovery first or place vcenter_discovery.json in data/.")
+        sys.exit(1)
+
+    wl = _load_data_file("workload_discovery.json")
+    enr = _load_data_file("enrichment_data.json")
+
+    from .risk_heatmap import compute_heatmap, compute_risk_score, _compute_fleet_stats
+
+    if args.subcmd == "heatmap":
+        _cmd_risk_heatmap(vms, wl, enr, args)
+    elif args.subcmd == "score":
+        _cmd_risk_score(vms, wl, enr, args)
+
+
+def _cmd_risk_heatmap(vms: list, wl: dict, enr: dict, args) -> None:
+    from .risk_heatmap import compute_heatmap
+
+    heatmap = compute_heatmap(vms, wl, enr, top_n=args.top)
+    result = asdict(heatmap)
+
+    if args.band:
+        result["vm_scores"] = [s for s in result["vm_scores"] if s["composite_band"] == args.band]
+
+    if args.fmt == "json":
+        print(json.dumps(result, indent=2))
+        return
+
+    # Rich table output
+    table = Table(title=f"Migration Risk Heatmap ({heatmap.total_vms} VMs)")
+    table.add_column("VM Name", style="bold", max_width=30)
+    table.add_column("Deps", justify="center")
+    table.add_column("OS EOL", justify="center")
+    table.add_column("Wkload", justify="center")
+    table.add_column("Perf", justify="center")
+    table.add_column("Comp", justify="center")
+    table.add_column("Data", justify="center")
+    table.add_column("Composite", justify="center", style="bold")
+
+    for s in result["vm_scores"][:args.top]:
+        factors = {f["name"]: f for f in s.get("factors", [])}
+        row = [s["vm_name"]]
+        for fname in ["dependency_count", "os_eol", "workload_complexity",
+                       "performance_sensitivity", "compliance_scope", "data_volume"]:
+            f = factors.get(fname, {})
+            score = f.get("score", 0)
+            band = f.get("band", "green")
+            row.append(f"[{_band_style(band)}]{score}[/]")
+        comp_band = s.get("composite_band", "green")
+        row.append(f"[{_band_style(comp_band)}]{s['composite_score']}[/]")
+        table.add_row(*row)
+
+    console.print(table)
+    dist = heatmap.band_distribution
+    console.print(f"\n  [green]● {dist.get('green', 0)} Low[/]  [yellow]● {dist.get('yellow', 0)} Medium[/]  [red]● {dist.get('red', 0)} High[/]")
+
+
+def _cmd_risk_score(vms: list, wl: dict, enr: dict, args) -> None:
+    from .risk_heatmap import compute_risk_score, _compute_fleet_stats
+
+    vm = None
+    for v in vms:
+        if v.get("name") == args.vm_name:
+            vm = v
+            break
+
+    if vm is None:
+        console.print(f"[bold red]Error:[/] VM '{args.vm_name}' not found in discovery data.")
+        sys.exit(1)
+
+    max_deps, iops_p75, max_disk = _compute_fleet_stats(vms, wl, enr)
+    score = compute_risk_score(vm, wl, enr, max_deps, iops_p75, max_disk)
+    result = asdict(score)
+
+    if args.fmt == "json":
+        print(json.dumps(result, indent=2))
+        return
+
+    # Rich panel output
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Factor")
+    table.add_column("Raw Value")
+    table.add_column("Score", justify="center")
+    table.add_column("Weight", justify="center")
+    table.add_column("Weighted", justify="center")
+    table.add_column("Band", justify="center")
+
+    for f in score.factors:
+        band_style = _band_style(f.band)
+        avail = "" if f.data_available else " ⚠"
+        table.add_row(
+            f.name.replace("_", " ").title() + avail,
+            f.raw_value,
+            f"[{band_style}]{f.score}[/]",
+            f"{f.weight:.0%}",
+            f"{f.weighted_score:.1f}",
+            f"[{band_style}]{f.band.upper()}[/]",
+        )
+
+    comp_style = _band_style(score.composite_band)
+    panel_title = f"Risk Score: {score.vm_name} — Composite: [{comp_style}]{score.composite_score} ({score.composite_band.upper()})[/]"
+    console.print(Panel(table, title=panel_title, border_style=comp_style))
+
+    if score.mitigations:
+        console.print("\n[bold]Mitigation Suggestions:[/]")
+        for m in score.mitigations:
+            console.print(f"  [{_band_style(m.severity)}]●[/] [{m.factor.replace('_', ' ').title()}] {m.action}")
 
 
 if __name__ == "__main__":

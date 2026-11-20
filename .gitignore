@@ -26,6 +26,8 @@ run_output.txt
 # Generated data
 data/enrichment_data.json
 data/retail_price_cache.json
+data/chat_history.db*
+data/ai_feasibility_assessments.json*
 discovery_report.json
 flask.log
 
@@ -37,6 +39,7 @@ node_modules/
 
 # Test artifacts
 test-results/
+playwright-report/
 
 # Data snapshots
 data/snapshots/

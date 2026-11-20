@@ -1,0 +1,86 @@
+{
+  "video": "Innovation_Studio_AI_Feasibility_Demo.mp4",
+  "captions": "Innovation_Studio_AI_Feasibility_Demo.srt",
+  "resolution": "1920x1080",
+  "fps": 30,
+  "duration_seconds": 112.68,
+  "limit_seconds": 120.0,
+  "voice": "en-US-AvaMultilingualNeural",
+  "rate": "+5%",
+  "segments": [
+    {
+      "id": "opening",
+      "visual_type": "image",
+      "visual": "Slide1.PNG",
+      "text": "Azure Migrate explains how applications move to Azure. AI Feasibility Assessment answers the next question: where can AI create value, and what evidence, controls, and proof are needed?",
+      "segment_file": "segment_01.mp4",
+      "audio_duration": 10.848,
+      "duration": 11.548,
+      "start": 0.0,
+      "end": 11.548
+    },
+    {
+      "id": "selection",
+      "visual_type": "video",
+      "visual": "live_04_application_selection.webm",
+      "visual_start": 3.3,
+      "visual_end": 13.9,
+      "text": "In the simulator, we select B P T co as a complete discovered application and choose Document Processing and Enrichment. The assessment reuses observed dependencies, runtimes, assessed targets, readiness, and cost without assuming AI is feasible.",
+      "segment_file": "segment_02.mp4",
+      "audio_duration": 15.576,
+      "duration": 16.276,
+      "start": 11.548,
+      "end": 27.824
+    },
+    {
+      "id": "intent",
+      "visual_type": "video",
+      "visual": "live_05_intent_outcome.webm",
+      "visual_start": 2.0,
+      "visual_end": 12.8,
+      "text": "The customer supplies what discovery cannot know: classify documents, extract fields, enrich metadata, validate rules, and route exceptions to people, targeting less manual work, faster processing, controlled access, and measurable accuracy.",
+      "segment_file": "segment_03.mp4",
+      "audio_duration": 15.816,
+      "duration": 16.516,
+      "start": 27.824,
+      "end": 44.34
+    },
+    {
+      "id": "decision",
+      "visual_type": "video",
+      "visual": "live_06_decision_pack.webm",
+      "visual_start": 14.5,
+      "visual_end": 37.2,
+      "text": "After consent, Foundry improves only the grounded narrative; deterministic rules control eligibility, gaps, cost, and disposition. The versioned pack separates business, data, integration, governance, operations, and economics; proposes Document Intelligence, AI Search, model access, orchestration, storage, and monitoring; shows low, base, and high scenarios; and defines a bounded proof of concept with acceptance tests and production gates. Proof-of-concept candidate means justified experimentation, not production readiness.",
+      "segment_file": "segment_04.mp4",
+      "audio_duration": 34.848,
+      "duration": 35.548,
+      "start": 44.34,
+      "end": 79.888
+    },
+    {
+      "id": "architecture",
+      "visual_type": "video",
+      "visual": "live_07_ai_ready_architecture.webm",
+      "visual_start": 4.0,
+      "visual_end": 15.8,
+      "text": "One action opens linked AI-ready architecture. The base migration design remains intact, while proposed AI services appear as an explicit extension tied to the assessment revision and costed separately.",
+      "segment_file": "segment_05.mp4",
+      "audio_duration": 13.368,
+      "duration": 14.068,
+      "start": 79.888,
+      "end": 93.956
+    },
+    {
+      "id": "value",
+      "visual_type": "image",
+      "visual": "Slide8.PNG",
+      "text": "This converts migration context into an inspectable investment decision and delivery handoff. It may recommend a proof of concept, remediation, conventional automation, an existing product, or no AI. Azure Migrate understands the application; AI Feasibility helps choose its next value.",
+      "segment_file": "segment_06.mp4",
+      "audio_duration": 18.024,
+      "duration": 18.724,
+      "start": 93.956,
+      "end": 112.68
+    }
+  ]
+}

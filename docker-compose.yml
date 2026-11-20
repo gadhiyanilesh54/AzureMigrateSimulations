@@ -8,6 +8,10 @@ services:
     environment:
       - MIGRATE_API_KEY=${MIGRATE_API_KEY:-}
       - PYTHONPATH=/app/src
+      - AZURE_MIGRATE_CHAT_ENDPOINT=${AZURE_MIGRATE_CHAT_ENDPOINT:-}
+      - AZURE_MIGRATE_CHAT_DEPLOYMENT=${AZURE_MIGRATE_CHAT_DEPLOYMENT:-}
+      - AZURE_MIGRATE_CHAT_API_VERSION=${AZURE_MIGRATE_CHAT_API_VERSION:-2024-12-01-preview}
+      - AZURE_MIGRATE_CHAT_API_KEY=${AZURE_MIGRATE_CHAT_API_KEY:-}
     command: python -m azure_migrate_simulations.web.app
 
   mcp-sse:

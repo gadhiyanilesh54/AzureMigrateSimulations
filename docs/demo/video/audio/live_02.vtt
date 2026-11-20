@@ -1,0 +1,6 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 45980583, "text": "Discovery and assessment are already complete, so we move directly to Plan."}
+{"type": "SentenceBoundary", "offset": 46480583, "duration": 61771846, "text": "Under Plan, Application Groups brings related infrastructure and workloads together as one application."}
+{"type": "SentenceBoundary", "offset": 108252430, "duration": 103155342, "text": "B P T co includes its virtual machines and the discovered web, database, container, orchestration, and file-share components that belong to the application boundary."}
+{"type": "SentenceBoundary", "offset": 211407772, "duration": 23436893, "text": "This is the scope we carry forward."}
+{"type": "SentenceBoundary", "offset": 234844666, "duration": 37606797, "text": "A I feasibility is not assessed against an isolated server."}
+{"type": "SentenceBoundary", "offset": 272451463, "duration": 44053399, "text": "It is assessed against the complete application and a customer-confirmed workflow."}

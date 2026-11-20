@@ -1,0 +1,31 @@
+{
+  "captured_at": "2026-10-03T10:13:31.890Z",
+  "base_url": "http://127.0.0.1:5000",
+  "assessment_id": "aifa-e06753371c94454db7b222b5526e89f1",
+  "clips": [
+    {
+      "id": "live_02_application_groups",
+      "file": "live_02_application_groups.webm"
+    },
+    {
+      "id": "live_03_base_architecture",
+      "file": "live_03_base_architecture.webm"
+    },
+    {
+      "id": "live_04_application_selection",
+      "file": "live_04_application_selection.webm"
+    },
+    {
+      "id": "live_05_intent_outcome",
+      "file": "live_05_intent_outcome.webm"
+    },
+    {
+      "id": "live_06_decision_pack",
+      "file": "live_06_decision_pack.webm"
+    },
+    {
+      "id": "live_07_ai_ready_architecture",
+      "file": "live_07_ai_ready_architecture.webm"
+    }
+  ]
+}

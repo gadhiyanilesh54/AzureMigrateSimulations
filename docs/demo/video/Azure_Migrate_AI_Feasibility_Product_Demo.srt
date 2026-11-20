@@ -1,0 +1,667 @@
+1
+00:00:00,000 --> 00:00:03,604
+Azure Migrate helps customers understand and modernize their on-premises estate.
+
+2
+00:00:03,604 --> 00:00:07,930
+In the AI era, we have an opportunity to extend that journey.
+
+3
+00:00:07,930 --> 00:00:12,255
+Not only helping customers decide how to move an application to Azure,
+
+4
+00:00:12,255 --> 00:00:16,580
+but also helping them identify where AI can create meaningful value, and
+
+5
+00:00:16,580 --> 00:00:19,824
+what it would take to deliver that value responsibly.
+
+6
+00:00:20,824 --> 00:00:23,133
+Azure Migrate begins with discovery.
+
+7
+00:00:23,133 --> 00:00:28,213
+It prepares an inventory of virtual machines, web applications, databases, file
+
+8
+00:00:28,213 --> 00:00:30,522
+shares, containers, and supporting dependencies.
+
+9
+00:00:30,522 --> 00:00:36,063
+Customers can then organize these components as a complete application, a unit
+
+10
+00:00:36,063 --> 00:00:38,372
+that works and moves together.
+
+11
+00:00:38,372 --> 00:00:42,529
+Assessment maps each component to an appropriate Azure target.
+
+12
+00:00:42,529 --> 00:00:46,685
+A web application might map to Azure App Service.
+
+13
+00:00:46,685 --> 00:00:50,841
+SQL Server might map to Azure SQL Managed Instance.
+
+14
+00:00:50,841 --> 00:00:54,997
+A containerized workload might map to Azure Kubernetes Service.
+
+15
+00:00:54,997 --> 00:00:57,768
+This gives us rich application intelligence:
+
+16
+00:00:57,768 --> 00:01:01,924
+the application boundary, runtime, dependencies, assessed targets, readiness, and
+
+17
+00:01:01,924 --> 00:01:02,848
+cost context.
+
+18
+00:01:03,848 --> 00:01:07,213
+That assessment is excellent at answering the cloud-era question:
+
+19
+00:01:07,213 --> 00:01:10,577
+where and how should this application run in Azure?
+
+20
+00:01:10,577 --> 00:01:13,194
+But customers increasingly ask a second question:
+
+21
+00:01:13,194 --> 00:01:16,558
+how can I use AI in this existing application?
+
+22
+00:01:16,558 --> 00:01:21,044
+And, if I already use AI on-premises, how should I modernize that
+
+23
+00:01:21,044 --> 00:01:22,166
+capability in Azure?
+
+24
+00:01:22,166 --> 00:01:24,409
+This leads to two strategic questions.
+
+25
+00:01:24,409 --> 00:01:28,895
+How do we help customers find credible AI opportunities in the applications
+
+26
+00:01:28,895 --> 00:01:30,016
+they already own?
+
+27
+00:01:30,016 --> 00:01:34,502
+And what should the next generation of Azure Migrate look like in
+
+28
+00:01:34,502 --> 00:01:35,624
+the AI era?
+
+29
+00:01:36,624 --> 00:01:41,958
+The proposed idea is an AI Feasibility Assessment as a new step
+
+30
+00:01:41,958 --> 00:01:44,180
+in the Azure Migrate journey.
+
+31
+00:01:44,180 --> 00:01:44,625
+Discover.
+
+32
+00:01:44,625 --> 00:01:45,069
+Assess.
+
+33
+00:01:45,069 --> 00:01:46,403
+AI Feasibility Assessment.
+
+34
+00:01:46,403 --> 00:01:46,847
+Design.
+
+35
+00:01:46,847 --> 00:01:47,292
+Estimate.
+
+36
+00:01:47,292 --> 00:01:47,736
+Modernize.
+
+37
+00:01:47,736 --> 00:01:53,070
+It adds an AI modernization layer on top of existing application intelligence.
+
+38
+00:01:53,070 --> 00:01:58,404
+The goal is not to turn every application into an AI project.
+
+39
+00:01:58,404 --> 00:02:03,738
+The goal is to identify which application and workflow combinations justify a
+
+40
+00:02:03,738 --> 00:02:09,072
+bounded experiment, which need remediation first, and which should not pursue AI.
+
+41
+00:02:10,072 --> 00:02:14,233
+For each selected application, the assessment should answer four practical
+
+42
+00:02:14,233 --> 00:02:14,649
+questions.
+
+43
+00:02:14,649 --> 00:02:18,394
+Where can AI create meaningful business or engineering value?
+
+44
+00:02:18,394 --> 00:02:22,971
+Is the application and its data technically ready for that scenario?
+
+45
+00:02:22,971 --> 00:02:27,132
+Which integrations, Azure services, and security or governance controls are
+
+46
+00:02:27,132 --> 00:02:27,548
+required?
+
+47
+00:02:27,548 --> 00:02:32,542
+And what is the pragmatic path from proof of concept, to pilot,
+
+48
+00:02:32,542 --> 00:02:33,374
+to production?
+
+49
+00:02:33,374 --> 00:02:38,367
+The output is a reviewable decision pack with explicit evidence gaps and
+
+50
+00:02:38,367 --> 00:02:42,112
+production gates, not a generic list of AI ideas.
+
+51
+00:02:43,112 --> 00:02:46,087
+The experience combines two evidence streams.
+
+52
+00:02:46,087 --> 00:02:49,061
+Azure Migrate contributes observed application facts:
+
+53
+00:02:49,061 --> 00:02:53,028
+components, dependencies, runtime, assessed targets, and migration findings.
+
+54
+00:02:53,028 --> 00:02:56,002
+The customer contributes the business meaning:
+
+55
+00:02:56,002 --> 00:03:01,456
+the process to improve, users, desired outcome, data constraints, compliance needs,
+
+56
+00:03:01,456 --> 00:03:02,943
+and expected usage.
+
+57
+00:03:02,943 --> 00:03:08,397
+The assessment then produces a feasibility summary, data and integration readiness,
+
+58
+00:03:08,397 --> 00:03:12,859
+governance considerations, recommended Azure AI services, indicative cost scenarios,
+
+59
+00:03:12,859 --> 00:03:17,817
+an AI-ready architecture extension, and a proof of concept roadmap.
+
+60
+00:03:17,817 --> 00:03:20,792
+The key design principle is explainability.
+
+61
+00:03:20,792 --> 00:03:24,758
+Observed facts, customer-provided context, inferred assumptions, and missing
+
+62
+00:03:24,758 --> 00:03:26,741
+evidence remain visibly separate.
+
+63
+00:03:26,741 --> 00:03:30,707
+Rules and deterministic calculations control the decision pack.
+
+64
+00:03:30,707 --> 00:03:36,657
+Generative AI can improve the narrative, but it does not silently invent
+
+65
+00:03:36,657 --> 00:03:38,144
+readiness or cost.
+
+66
+00:03:39,144 --> 00:03:43,023
+Let’s see the proposed experience in the Azure Migrate simulator.
+
+67
+00:03:43,023 --> 00:03:45,351
+Discovery and assessment are already complete.
+
+68
+00:03:45,351 --> 00:03:50,006
+We will start with the B P T co application, inspect its
+
+69
+00:03:50,006 --> 00:03:53,885
+current Azure architecture, capture a document-processing outcome, generate an AI
+
+70
+00:03:53,885 --> 00:03:58,540
+Feasibility Assessment, and then see exactly where the proposed AI services fit
+
+71
+00:03:58,540 --> 00:04:00,480
+in the application landing zone.
+
+72
+00:04:01,480 --> 00:04:06,482
+Discovery and assessment are already complete, so we move directly to Plan.
+
+73
+00:04:06,482 --> 00:04:10,651
+Under Plan, Application Groups brings related infrastructure and workloads together
+
+74
+00:04:10,651 --> 00:04:11,901
+as one application.
+
+75
+00:04:11,901 --> 00:04:16,903
+B P T co includes its virtual machines and the discovered web,
+
+76
+00:04:16,903 --> 00:04:21,072
+database, container, orchestration, and file-share components that belong to the
+
+77
+00:04:21,072 --> 00:04:21,905
+application boundary.
+
+78
+00:04:21,905 --> 00:04:24,823
+This is the scope we carry forward.
+
+79
+00:04:24,823 --> 00:04:28,575
+AI feasibility is not assessed against an isolated server.
+
+80
+00:04:28,575 --> 00:04:33,160
+It is assessed against the complete application and a customer-confirmed workflow.
+
+81
+00:04:34,160 --> 00:04:38,890
+First, we look at the current proposed Azure architecture with AI turned
+
+82
+00:04:38,890 --> 00:04:39,284
+off.
+
+83
+00:04:39,284 --> 00:04:43,620
+This is the application landing-zone view produced from the migration assessment.
+
+84
+00:04:43,620 --> 00:04:47,562
+It shows secure ingress, network boundaries, shared platform services, assessed
+
+85
+00:04:47,562 --> 00:04:50,321
+application targets, and data or storage dependencies.
+
+86
+00:04:50,321 --> 00:04:55,052
+At this point, the design answers where and how B P T
+
+87
+00:04:55,052 --> 00:04:57,023
+co could run in Azure.
+
+88
+00:04:57,023 --> 00:05:00,176
+It does not yet add an AI capability.
+
+89
+00:05:01,176 --> 00:05:06,264
+Now the customer wants to explore an AI opportunity for the same
+
+90
+00:05:06,264 --> 00:05:06,688
+application.
+
+91
+00:05:06,688 --> 00:05:10,504
+In Decide, the Assessment experience includes AI Feasibility Assessment.
+
+92
+00:05:10,504 --> 00:05:15,592
+We select B P T co, then choose the broad solution idea:
+
+93
+00:05:15,592 --> 00:05:17,288
+Document Processing and Enrichment.
+
+94
+00:05:17,288 --> 00:05:22,376
+These categories guide the assessment; they do not predetermine a service purchase
+
+95
+00:05:22,376 --> 00:05:25,344
+or claim that the scenario is feasible.
+
+96
+00:05:26,344 --> 00:05:30,697
+The customer now supplies the context discovery cannot infer.
+
+97
+00:05:30,697 --> 00:05:36,501
+Here the process is document intake and enrichment across invoices, contracts, and
+
+98
+00:05:36,501 --> 00:05:36,985
+attachments.
+
+99
+00:05:36,985 --> 00:05:41,338
+The intended capability is classification, field extraction, metadata enrichment,
+
+100
+00:05:41,338 --> 00:05:45,207
+summarization, business-rule validation, and human review for exceptions.
+
+101
+00:05:45,207 --> 00:05:47,625
+The business outcome is explicit:
+
+102
+00:05:47,625 --> 00:05:53,429
+reduce manual data entry by sixty percent, reduce processing time by fifty
+
+103
+00:05:53,429 --> 00:05:58,750
+percent, and target ninety-five percent accuracy for critical fields, while keeping
+
+104
+00:05:58,750 --> 00:06:01,168
+controlled access, approval, and auditability.
+
+105
+00:06:02,168 --> 00:06:05,288
+The customer has confirmed the processing boundary.
+
+106
+00:06:05,288 --> 00:06:10,190
+The entered intent, expected outcome, a deterministic local draft, and minimized
+
+107
+00:06:10,190 --> 00:06:14,646
+evidence labels may be sent to the configured Foundry model.
+
+108
+00:06:14,646 --> 00:06:18,657
+Uploaded content is treated as data, not as instructions.
+
+109
+00:06:18,657 --> 00:06:21,776
+The result is a versioned decision pack.
+
+110
+00:06:21,776 --> 00:06:26,233
+It separates business fit, data readiness, integration readiness, security and
+
+111
+00:06:26,233 --> 00:06:28,907
+governance, delivery and operations, and economics.
+
+112
+00:06:28,907 --> 00:06:33,809
+For this scenario, the proposed capability set includes Azure AI Document
+
+113
+00:06:33,809 --> 00:06:38,265
+Intelligence for extraction and classification, Azure AI Search for permission-aware
+
+114
+00:06:38,265 --> 00:06:42,722
+retrieval, a Microsoft Foundry model for grounded enrichment and summarization,
+
+115
+00:06:42,722 --> 00:06:45,395
+workflow orchestration, approved storage, and monitoring.
+
+116
+00:06:45,395 --> 00:06:50,743
+The estimate is shown as low, base, and high scenarios with explicit
+
+117
+00:06:50,743 --> 00:06:52,526
+assumptions and a reserve.
+
+118
+00:06:52,526 --> 00:06:57,873
+The output also identifies evidence gaps and defines the smallest bounded proof
+
+119
+00:06:57,873 --> 00:07:02,330
+of concept and the tests required before any production decision.
+
+120
+00:07:02,330 --> 00:07:06,786
+A proof of concept candidate means justified experimentation, not production
+
+121
+00:07:06,786 --> 00:07:07,232
+readiness.
+
+122
+00:07:08,232 --> 00:07:12,575
+From the assessment we move directly into the AI-ready architecture.
+
+123
+00:07:12,575 --> 00:07:17,786
+The original application design is preserved, but the diagram is replaced with
+
+124
+00:07:17,786 --> 00:07:20,826
+a reviewed AI-ready variant for this application.
+
+125
+00:07:20,826 --> 00:07:25,168
+The new capability extension shows where document intelligence, search, model
+
+126
+00:07:25,168 --> 00:07:29,077
+access, orchestration, approved storage, and observability fit alongside the
+
+127
+00:07:29,077 --> 00:07:31,248
+assessed application and data services.
+
+128
+00:07:31,248 --> 00:07:34,722
+Every AI node is visibly marked as proposed.
+
+129
+00:07:34,722 --> 00:07:39,933
+The diagram links back to the exact assessment revision, and base application
+
+130
+00:07:39,933 --> 00:07:43,842
+cost remains separate from the incremental AI planning budget.
+
+131
+00:07:43,842 --> 00:07:49,053
+If the checkbox is turned off, the architecture returns to the original
+
+132
+00:07:49,053 --> 00:07:49,921
+migration design.
+
+133
+00:07:49,921 --> 00:07:54,264
+AI is an explicit, assessed extension, not a silent default.
+
+134
+00:07:55,264 --> 00:07:59,336
+This demonstration connects four things that are usually separated.
+
+135
+00:07:59,336 --> 00:08:01,598
+It reuses existing application intelligence.
+
+136
+00:08:01,598 --> 00:08:05,218
+It captures the customer’s business intent and outcome.
+
+137
+00:08:05,218 --> 00:08:08,385
+It produces an explainable, evidence-backed decision pack.
+
+138
+00:08:08,385 --> 00:08:13,815
+And it carries the approved scenario into an AI-ready architecture without losing
+
+139
+00:08:13,815 --> 00:08:15,625
+the base application design.
+
+140
+00:08:15,625 --> 00:08:21,054
+The result is a qualified modernization conversation and a practical handoff, not
+
+141
+00:08:21,054 --> 00:08:22,864
+a generic AI brainstorm.
+
+142
+00:08:23,864 --> 00:08:25,696
+The larger vision is simple.
+
+143
+00:08:25,696 --> 00:08:27,895
+Azure Migrate has traditionally helped answer:
+
+144
+00:08:27,895 --> 00:08:30,826
+how do I move this application to Azure?
+
+145
+00:08:30,826 --> 00:08:34,124
+In the AI era, it can also help answer:
+
+146
+00:08:34,124 --> 00:08:38,521
+how can I transform this application with AI, and what would it
+
+147
+00:08:38,521 --> 00:08:39,987
+take to get there?
+
+148
+00:08:39,987 --> 00:08:41,452
+Migration remains the foundation.
+
+149
+00:08:41,452 --> 00:08:45,849
+AI Feasibility adds the next modernization decision at exactly the point where
+
+150
+00:08:45,849 --> 00:08:49,880
+the customer already understands the application and is choosing its future.
+
+151
+00:08:50,880 --> 00:08:56,309
+Azure Migrate already works through a broad ecosystem, including C M F,
+
+152
+00:08:56,309 --> 00:09:01,286
+S A Desk, cloud solution architects, systems integrators, and other delivery
+
+153
+00:09:01,286 --> 00:09:01,738
+partners.
+
+154
+00:09:01,738 --> 00:09:06,262
+AI Feasibility can extend those relationships with a better-qualified application
+
+155
+00:09:06,262 --> 00:09:08,524
+opportunity and a versioned handoff.
+
+156
+00:09:08,524 --> 00:09:13,953
+It can also create new collaboration paths with Microsoft Foundry, Azure Frontier,
+
+157
+00:09:13,953 --> 00:09:17,120
+AI field engineers, and Forward Deployed Engineers.
+
+158
+00:09:17,120 --> 00:09:20,287
+Azure Migrate owns the application-to-opportunity decision experience.
+
+159
+00:09:20,287 --> 00:09:24,359
+Platform and delivery teams validate and build the solution.
+
+160
+00:09:24,359 --> 00:09:29,336
+The customer retains ownership of business value, data authorization, and production
+
+161
+00:09:29,336 --> 00:09:29,788
+acceptance.
+
+162
+00:09:29,788 --> 00:09:33,407
+The next step is a bounded design-partner validation:
+
+163
+00:09:33,407 --> 00:09:37,479
+human-reviewed recommendations, clear evidence gates, and measurable movement from
+
+164
+00:09:37,479 --> 00:09:40,646
+qualified opportunity to customer-owned proof of concept.
+
+165
+00:09:40,646 --> 00:09:43,813
+Azure Migrate helps us understand the application.
+
+166
+00:09:43,813 --> 00:09:49,242
+AI Feasibility helps the customer decide how that application can create new
+
+167
+00:09:49,242 --> 00:09:51,504
+value in the AI era.

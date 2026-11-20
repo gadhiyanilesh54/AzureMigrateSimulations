@@ -1,0 +1,1317 @@
+openapi: "3.0.3"
+info:
+  title: Azure Migrate Simulations API
+  description: |
+    REST API for the Azure Migrate Simulations platform.
+    Discover VMware workloads, assess migration readiness, simulate Azure costs,
+    generate IaC, plan migration waves, and compute risk heatmaps — all offline-first.
+  version: "1.0.0"
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Local development
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Set MIGRATE_API_KEY env var to enable. When not set, no auth required.
+
+tags:
+  - name: Connection & Discovery
+    description: Connect to vCenter, start discovery, upload reports
+  - name: Inventory
+    description: VMs, hosts, datastores, networks
+  - name: Assessment
+    description: Azure recommendations, topology, vulnerability/SLA
+  - name: Simulation
+    description: What-if cost scenarios and fleet simulations
+  - name: What-If Overrides
+    description: Persist SKU/region/pricing overrides per VM
+  - name: Workloads
+    description: Guest-level workload discovery and PaaS mapping
+  - name: Workload Simulation
+    description: Workload-level what-if and PaaS cost analysis
+  - name: Performance
+    description: Perf collection, history, and summaries
+  - name: Enrichment
+    description: APM telemetry ingestion (Dynatrace, New Relic, etc.)
+  - name: Business Case
+    description: On-prem TCO vs Azure cost comparison
+  - name: Cloud Topology
+    description: CAF landing zone architecture and WAF scoring
+  - name: Risk Heatmap
+    description: Composite migration risk scoring across 6 factors
+  - name: Export & IaC
+    description: CSV export, Terraform, Bicep generation
+  - name: Wave Planning
+    description: Dependency-aware migration wave plans
+  - name: Pricing
+    description: SKU catalog, regions, pricing models, comparison
+  - name: Applications
+    description: Auto-detected heterogeneous application groups
+  - name: Application Landing Zones
+    description: CTD catalogue architectures resolved from application assessments
+  - name: AI Feasibility
+    description: Application/workflow AI opportunities, intent ingestion, indicative cost, and AI-ready architecture extensions
+  - name: Migration Copilot
+    description: Evidence-grounded conversational access to discovery, assessment, cost, architecture, and business-case data
+  - name: Runbooks
+    description: Pre/execution/post-migration runbooks
+  - name: Executive Report
+    description: Boardroom-ready migration report
+  - name: Migration Tracker
+    description: VM migration status and progress
+  - name: NSG & Tagging
+    description: NSG rule generation and tagging strategy
+  - name: Compliance
+    description: Regulatory compliance assessment
+  - name: Validation
+    description: Post-migration validation checks
+  - name: Snapshots
+    description: Project state snapshots
+  - name: Cost Optimization
+    description: Right-sizing, zombie VMs, pricing model recommendations
+  - name: Projects
+    description: Multi-project management
+  - name: Import
+    description: RVTools and other import formats
+  - name: Data Files
+    description: Data directory file listing
+
+paths:
+
+  # ── Connection & Discovery ────────────────────────────────────────
+
+  /api/connect:
+    post:
+      tags: [Connection & Discovery]
+      summary: Start live vCenter discovery
+      description: Provide vCenter credentials to start asynchronous discovery of VMs, hosts, and datastores.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vcenter_url, username, password]
+              properties:
+                vcenter_url: {type: string, example: "vcenter.corp.local"}
+                username: {type: string, example: "administrator@vsphere.local"}
+                password: {type: string, format: password}
+                port: {type: integer, default: 443}
+                disable_ssl: {type: boolean, default: true}
+                collect_perf: {type: boolean, default: true}
+                perf_duration_days: {type: integer, default: 7}
+      responses:
+        "200": {description: Discovery started}
+        "400": {description: Missing required fields}
+        "409": {description: Discovery already in progress}
+
+  /api/discover/status:
+    get:
+      tags: [Connection & Discovery]
+      summary: Poll discovery progress
+      responses:
+        "200":
+          description: Current discovery state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, enum: [idle, connecting, discovering, mapping, building, complete, error]}
+                  message: {type: string}
+                  progress: {type: integer, minimum: 0, maximum: 100}
+
+  /api/disconnect:
+    post:
+      tags: [Connection & Discovery]
+      summary: Clear loaded data
+      description: Return to the connection screen by discarding all in-memory data.
+      responses:
+        "200": {description: Disconnected}
+
+  /api/upload:
+    post:
+      tags: [Connection & Discovery]
+      summary: Upload a discovery report JSON
+      description: Load data from a previously exported discovery_report.json file.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200": {description: Data loaded successfully}
+        "400": {description: Invalid file or missing required fields}
+
+  /api/status:
+    get:
+      tags: [Connection & Discovery]
+      summary: Check if data is loaded
+      responses:
+        "200":
+          description: Connection and data status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_data: {type: boolean}
+                  vm_count: {type: integer}
+                  discovery_status: {type: string}
+
+  # ── Inventory ─────────────────────────────────────────────────────
+
+  /api/summary:
+    get:
+      tags: [Inventory]
+      summary: Fleet summary dashboard
+      description: Aggregated counts, sizing, readiness distribution, and cost estimates.
+      responses:
+        "200": {description: Summary data}
+        "404": {description: No data loaded}
+
+  /api/vms:
+    get:
+      tags: [Inventory]
+      summary: List all VMs with recommendations
+      description: Returns all discovered VMs joined with Azure SKU recommendations and enrichment boosts.
+      responses:
+        "200": {description: Array of VM objects}
+        "404": {description: No data loaded}
+
+  /api/hosts:
+    get:
+      tags: [Inventory]
+      summary: List ESXi hosts
+      responses:
+        "200": {description: Array of host objects}
+        "404": {description: No data loaded}
+
+  /api/fileshares:
+    get:
+      tags: [Inventory]
+      summary: List datastores as file shares
+      description: vCenter datastores reframed as file shares for migration planning.
+      responses:
+        "200": {description: Array of file share objects}
+        "404": {description: No data loaded}
+
+  /api/networks:
+    get:
+      tags: [Inventory]
+      summary: List vSphere networks
+      responses:
+        "200": {description: Array of network objects}
+        "404": {description: No data loaded}
+
+  /api/recommendations:
+    get:
+      tags: [Assessment]
+      summary: Azure migration recommendations
+      description: Per-VM Azure SKU recommendations with sizing, cost, and readiness.
+      responses:
+        "200": {description: Array of recommendation objects}
+        "404": {description: No data loaded}
+
+  /api/topology:
+    get:
+      tags: [Assessment]
+      summary: Infrastructure topology graph
+      description: Returns vis.js-compatible nodes and edges for the on-prem infrastructure hierarchy.
+      responses:
+        "200": {description: Topology nodes and edges}
+        "404": {description: No data loaded}
+
+  # ── Simulation ────────────────────────────────────────────────────
+
+  /api/simulate:
+    post:
+      tags: [Simulation]
+      summary: Fleet migration simulation
+      description: Run a what-if migration simulation with custom regions, pricing models, and duration.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                region: {type: string, default: eastus}
+                pricing_model: {type: string, enum: [payg, 1yr_ri, 3yr_ri, 1yr_sp, 3yr_sp, ahub, devtest]}
+                duration_months: {type: integer, default: 12}
+      responses:
+        "200": {description: Simulation results with cost projections}
+        "404": {description: No data loaded}
+
+  /api/simulate_comparison:
+    post:
+      tags: [Simulation]
+      summary: Side-by-side comparison
+      description: Compare original recommendations vs saved what-if overrides.
+      responses:
+        "200": {description: Comparison results}
+        "404": {description: No data loaded}
+
+  /api/simulate_vm:
+    post:
+      tags: [Simulation]
+      summary: Single VM what-if
+      description: Run what-if analysis for a single VM with optional SKU/region/pricing overrides.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vm_name]
+              properties:
+                vm_name: {type: string}
+                sku_override: {type: string}
+                region: {type: string}
+                pricing_model: {type: string}
+      responses:
+        "200": {description: VM simulation results}
+        "404": {description: VM or data not found}
+
+  # ── What-If Overrides ─────────────────────────────────────────────
+
+  /api/whatif_overrides:
+    get:
+      tags: [What-If Overrides]
+      summary: Get all VM overrides
+      responses:
+        "200": {description: Dict of VM name → override settings}
+    post:
+      tags: [What-If Overrides]
+      summary: Save VM override
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vm_name]
+              properties:
+                vm_name: {type: string}
+                sku: {type: string}
+                region: {type: string}
+                pricing_model: {type: string}
+      responses:
+        "200": {description: Override saved}
+    delete:
+      tags: [What-If Overrides]
+      summary: Clear all VM overrides
+      responses:
+        "200": {description: All overrides cleared}
+
+  /api/whatif_overrides/{vm_name}:
+    delete:
+      tags: [What-If Overrides]
+      summary: Delete a single VM override
+      parameters:
+        - name: vm_name
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Override removed}
+
+  # ── Workloads ─────────────────────────────────────────────────────
+
+  /api/workloads/discover:
+    post:
+      tags: [Workloads]
+      summary: Start workload discovery
+      description: Discover databases, web apps, containers, and orchestrators via SSH/WinRM.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                credentials: {type: array, items: {type: object}}
+                scope: {type: string, enum: [all, selected]}
+                vm_names: {type: array, items: {type: string}}
+      responses:
+        "200": {description: Discovery started}
+
+  /api/databases/discover:
+    post:
+      tags: [Workloads]
+      summary: Discover databases directly
+      description: Connect directly to database servers without SSH/WinRM.
+      responses:
+        "200": {description: Database discovery results}
+
+  /api/workloads/status:
+    get:
+      tags: [Workloads]
+      summary: Workload discovery status
+      responses:
+        "200": {description: Discovery progress}
+
+  /api/workloads/results:
+    get:
+      tags: [Workloads]
+      summary: Discovered workloads and recommendations
+      responses:
+        "200": {description: Workload data with PaaS recommendations}
+
+  /api/workloads/topology:
+    get:
+      tags: [Workloads]
+      summary: Workload dependency graph
+      description: Returns vis.js nodes/edges for the cross-VM dependency topology.
+      responses:
+        "200": {description: Topology data}
+
+  # ── Workload Simulation ───────────────────────────────────────────
+
+  /api/workloads/whatif:
+    post:
+      tags: [Workload Simulation]
+      summary: Workload what-if analysis
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workload_key: {type: string}
+                sku_override: {type: string}
+                tier_override: {type: string}
+                region: {type: string}
+      responses:
+        "200": {description: Workload simulation results}
+
+  /api/workloads/whatif_overrides:
+    get:
+      tags: [Workload Simulation]
+      summary: Get workload overrides
+      responses:
+        "200": {description: All workload overrides}
+    post:
+      tags: [Workload Simulation]
+      summary: Save workload override
+      responses:
+        "200": {description: Override saved}
+    delete:
+      tags: [Workload Simulation]
+      summary: Clear all workload overrides
+      responses:
+        "200": {description: Cleared}
+
+  /api/workloads/whatif_overrides/{workload_key}:
+    delete:
+      tags: [Workload Simulation]
+      summary: Delete a workload override
+      parameters:
+        - name: workload_key
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Override removed}
+
+  /api/workloads/simulate:
+    post:
+      tags: [Workload Simulation]
+      summary: Workload migration simulation
+      description: Simulate Azure PaaS costs for discovered workloads.
+      responses:
+        "200": {description: Simulation results}
+
+  # ── Performance ───────────────────────────────────────────────────
+
+  /api/perf/status:
+    get:
+      tags: [Performance]
+      summary: Perf collector status
+      responses:
+        "200": {description: Collector status, duration, sample counts}
+
+  /api/perf/duration:
+    post:
+      tags: [Performance]
+      summary: Set collection duration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                days: {type: integer, minimum: 1, maximum: 30}
+      responses:
+        "200": {description: Duration updated}
+
+  /api/perf/start:
+    post:
+      tags: [Performance]
+      summary: Start perf collector
+      responses:
+        "200": {description: Collector started}
+
+  /api/perf/stop:
+    post:
+      tags: [Performance]
+      summary: Stop perf collector
+      responses:
+        "200": {description: Collector stopped}
+
+  /api/perf/collect:
+    post:
+      tags: [Performance]
+      summary: Trigger immediate collection
+      responses:
+        "200": {description: Collection triggered}
+
+  /api/perf/vm/{vm_name}:
+    get:
+      tags: [Performance]
+      summary: VM perf history
+      parameters:
+        - name: vm_name
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Time-series perf data and statistics}
+
+  /api/perf/vm/{vm_name}/summary:
+    get:
+      tags: [Performance]
+      summary: VM perf summary
+      parameters:
+        - name: vm_name
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Compact perf summary}
+
+  /api/perf/workloads:
+    get:
+      tags: [Performance]
+      summary: All workload perf summaries
+      responses:
+        "200": {description: Perf data for all workloads}
+
+  /api/perf/workload/{workload_key}:
+    get:
+      tags: [Performance]
+      summary: Workload perf history
+      parameters:
+        - name: workload_key
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Workload time-series data}
+
+  /api/perf/summary:
+    get:
+      tags: [Performance]
+      summary: Global perf summary
+      description: Fleet-wide CPU, memory, disk, and network statistics.
+      responses:
+        "200": {description: Aggregated perf metrics}
+
+  # ── Enrichment ────────────────────────────────────────────────────
+
+  /api/enrichment/tools:
+    get:
+      tags: [Enrichment]
+      summary: Supported monitoring tools
+      responses:
+        "200": {description: List of tools with expected formats}
+
+  /api/enrichment/upload:
+    post:
+      tags: [Enrichment]
+      summary: Upload monitoring telemetry
+      description: Ingest APM data from Dynatrace, New Relic, Datadog, Splunk, etc.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tool, data]
+              properties:
+                tool: {type: string, enum: [dynatrace, newrelic, datadog, splunk, prometheus, zabbix, appdynamics, custom]}
+                data: {type: object}
+      responses:
+        "200": {description: Telemetry ingested with match results}
+        "400": {description: Invalid input}
+
+  /api/enrichment/generate_sample:
+    post:
+      tags: [Enrichment]
+      summary: Generate sample telemetry
+      description: Create synthetic monitoring data for demo purposes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tool: {type: string, default: dynatrace}
+      responses:
+        "200": {description: Sample data generated}
+
+  /api/enrichment/status:
+    get:
+      tags: [Enrichment]
+      summary: Enrichment coverage status
+      responses:
+        "200": {description: Per-VM enrichment coverage and confidence boosts}
+
+  /api/enrichment/data:
+    get:
+      tags: [Enrichment]
+      summary: All enrichment records
+      responses:
+        "200": {description: Full telemetry dataset}
+
+  /api/enrichment/vm/{vm_name}:
+    get:
+      tags: [Enrichment]
+      summary: VM enrichment data
+      parameters:
+        - name: vm_name
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Enrichment data for the VM}
+
+  /api/enrichment/history:
+    get:
+      tags: [Enrichment]
+      summary: Ingestion history
+      responses:
+        "200": {description: List of ingestion events}
+
+  /api/enrichment/clear:
+    post:
+      tags: [Enrichment]
+      summary: Clear all enrichment data
+      responses:
+        "200": {description: Enrichment data cleared}
+
+  # ── Vulnerability & SLA ───────────────────────────────────────────
+
+  /api/vulnerability-sla:
+    get:
+      tags: [Assessment]
+      summary: OS & software lifecycle analysis
+      description: Analyse VMs against OS EOL database, software end-of-support, and Azure licensing guidance.
+      responses:
+        "200": {description: Lifecycle analysis results}
+        "404": {description: No data loaded}
+
+  # ── Cloud Topology ────────────────────────────────────────────────
+
+  /api/cloud-topology:
+    get:
+      tags: [Cloud Topology]
+      summary: Generate Azure landing zone topology
+      description: CAF-aligned architecture with landing zones, VNets, subnets, and resource placements.
+      parameters:
+        - name: region
+          in: query
+          schema: {type: string, default: eastus}
+        - name: firewall
+          in: query
+          schema: {type: boolean, default: false}
+        - name: bastion
+          in: query
+          schema: {type: boolean, default: false}
+        - name: vpn
+          in: query
+          schema: {type: boolean, default: false}
+        - name: lb
+          in: query
+          schema: {type: boolean, default: false}
+      responses:
+        "200": {description: Topology with WAF scores and cost summary}
+        "404": {description: No data loaded}
+
+  /api/cloud-topology/waf/{resource_id}:
+    get:
+      tags: [Cloud Topology]
+      summary: WAF assessment for a resource
+      description: Well-Architected Framework scores (0-100) across 5 pillars.
+      parameters:
+        - name: resource_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: WAF pillar scores and recommendations}
+
+  # ── Business Case ─────────────────────────────────────────────────
+
+  /api/businesscase:
+    get:
+      tags: [Business Case]
+      summary: Generate business case
+      description: On-prem TCO vs Azure cost comparison with ROI and payback period.
+      responses:
+        "200": {description: Business case analysis}
+        "404": {description: No data loaded}
+
+  # ── Risk Heatmap ──────────────────────────────────────────────────
+
+  /api/risk/heatmap:
+    get:
+      tags: [Risk Heatmap]
+      summary: Fleet-wide risk heatmap
+      description: |
+        Returns a JSON matrix of VM × risk-factor scores (0-100) with color bands
+        (green 0-30, yellow 31-60, red 61-100). Factors: dependency count, OS EOL,
+        workload complexity, performance sensitivity, compliance scope, data volume.
+      parameters:
+        - name: sort_by
+          in: query
+          schema: {type: string, default: composite_score}
+          description: "Sort by: composite_score, vm_name, or any factor name"
+        - name: sort_order
+          in: query
+          schema: {type: string, enum: [asc, desc], default: desc}
+        - name: band
+          in: query
+          schema: {type: string, enum: [green, yellow, red]}
+          description: Filter by risk band
+        - name: top
+          in: query
+          schema: {type: integer}
+          description: Limit to top-N VMs by composite score
+      responses:
+        "200":
+          description: Risk heatmap matrix
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_vms: {type: integer}
+                  factor_names: {type: array, items: {type: string}}
+                  band_distribution:
+                    type: object
+                    properties:
+                      green: {type: integer}
+                      yellow: {type: integer}
+                      red: {type: integer}
+                  vm_scores:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        vm_name: {type: string}
+                        composite_score: {type: integer, minimum: 0, maximum: 100}
+                        composite_band: {type: string, enum: [green, yellow, red]}
+                        dominant_factor: {type: string}
+                        factors:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name: {type: string}
+                              raw_value: {type: string}
+                              score: {type: integer}
+                              weight: {type: number}
+                              weighted_score: {type: number}
+                              band: {type: string}
+                              data_available: {type: boolean}
+                        mitigations:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              factor: {type: string}
+                              severity: {type: string}
+                              action: {type: string}
+                              expected_risk_reduction: {type: integer}
+                  top_risky: {type: array, items: {type: object}}
+
+  /api/risk/score/{vm_name}:
+    get:
+      tags: [Risk Heatmap]
+      summary: Single VM risk score
+      description: Per-factor risk breakdown with mitigation suggestions.
+      parameters:
+        - name: vm_name
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: VM risk score detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vm_name: {type: string}
+                  composite_score: {type: integer}
+                  composite_band: {type: string}
+                  dominant_factor: {type: string}
+                  factors: {type: array, items: {type: object}}
+                  mitigations: {type: array, items: {type: object}}
+        "404": {description: VM not found}
+
+  # ── Export & IaC ──────────────────────────────────────────────────
+
+  /api/export/csv:
+    get:
+      tags: [Export & IaC]
+      summary: Export CSV
+      description: Download VM assessment data as CSV.
+      parameters:
+        - name: type
+          in: query
+          schema: {type: string, enum: [vms, workloads], default: vms}
+      responses:
+        "200":
+          description: CSV file download
+          content:
+            text/csv: {}
+
+  /api/export/terraform:
+    post:
+      tags: [Export & IaC]
+      summary: Generate Terraform
+      description: Generate deployment-ready Terraform modules from the cloud topology.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                naming_prefix: {type: string, default: migrate}
+                environment: {type: string, default: prod}
+                backend: {type: string, enum: [local, azurerm], default: local}
+      responses:
+        "200": {description: Terraform module files}
+
+  /api/export/bicep:
+    post:
+      tags: [Export & IaC]
+      summary: Generate Bicep
+      description: Generate Bicep templates from the cloud topology.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                naming_prefix: {type: string, default: migrate}
+                environment: {type: string, default: prod}
+      responses:
+        "200": {description: Bicep template files}
+
+  # ── Wave Planning ─────────────────────────────────────────────────
+
+  /api/waves/smart-plan:
+    post:
+      tags: [Wave Planning]
+      summary: Generate smart wave plan
+      description: Dependency-aware wave plan using topological sort on TCP dependency graph.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                wave_count: {type: integer, default: 4}
+      responses:
+        "200": {description: Wave plan with VM assignments and reasoning}
+
+  /api/waves/plan:
+    get:
+      tags: [Wave Planning]
+      summary: Get current wave plan
+      responses:
+        "200": {description: Wave plan data}
+
+  /api/waves/move-vm:
+    post:
+      tags: [Wave Planning]
+      summary: Move VM between waves
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vm_name, target_wave]
+              properties:
+                vm_name: {type: string}
+                target_wave: {type: integer}
+      responses:
+        "200": {description: VM moved}
+
+  # ── Pricing ───────────────────────────────────────────────────────
+
+  /api/sku_catalog:
+    get:
+      tags: [Pricing]
+      summary: Azure VM SKU catalog
+      responses:
+        "200": {description: Available SKUs with specs and costs}
+
+  /api/regions:
+    get:
+      tags: [Pricing]
+      summary: Azure regions
+      responses:
+        "200": {description: Regions with cost multipliers}
+
+  /api/pricing_models:
+    get:
+      tags: [Pricing]
+      summary: Available pricing models
+      responses:
+        "200": {description: List of 7 pricing model definitions}
+
+  /api/pricing/status:
+    get:
+      tags: [Pricing]
+      summary: Live pricing API status
+      responses:
+        "200": {description: Azure Retail Prices integration status}
+
+  /api/pricing/refresh:
+    post:
+      tags: [Pricing]
+      summary: Refresh pricing cache
+      responses:
+        "200": {description: Cache refreshed from Azure Retail Prices API}
+
+  /api/pricing/comparison:
+    get:
+      tags: [Pricing]
+      summary: Side-by-side pricing comparison
+      description: Fleet cost across all 7 pricing models with per-VM optimal recommendation.
+      responses:
+        "200": {description: Pricing comparison matrix}
+
+  # ── Applications ──────────────────────────────────────────────────
+
+  /api/applications:
+    get:
+      tags: [Applications]
+      summary: Detected application groups
+      description: VMs clustered by dependencies and naming patterns with web app, database, container, orchestrator, and file-share members.
+      responses:
+        "200": {description: Application groups with complexity scores}
+
+  /api/landing-zones:
+    get:
+      tags: [Application Landing Zones]
+      summary: Resolve application landing-zone architectures
+      description: Resolve one versioned CTD N-tier catalogue architecture per assessed application.
+      parameters:
+        - name: strategy
+          in: query
+          schema:
+            type: string
+            enum: [lift_and_shift, paas_preferred, paas_centric]
+            default: paas_preferred
+        - name: region
+          in: query
+          schema: {type: string, default: eastus}
+        - name: include_ai
+          in: query
+          description: Replace eligible base views with the latest persisted AI-ready application architecture.
+          schema: {type: boolean, default: false}
+        - name: ai_assessment_id
+          in: query
+          description: Optional exact assessment revision to apply when include_ai is true.
+          schema: {type: string}
+      responses:
+        "200": {description: Application landing zones, resolved slots, members, and graph data}
+        "400": {description: Invalid migration strategy}
+        "404": {description: No discovery data loaded}
+
+  # ── AI Feasibility ──────────────────────────────────────────────
+
+  /api/ai-feasibility/categories:
+    get:
+      tags: [AI Feasibility]
+      summary: List supported AI solution ideas
+      description: Returns the versioned pattern catalog, category guidance, and cost-driving usage fields.
+      responses:
+        "200": {description: Solution categories and upload constraints}
+
+  /api/ai-feasibility/intent-upload:
+    post:
+      tags: [AI Feasibility]
+      summary: Extract customer intent from a document
+      description: Reads UTF-8 Markdown/text or DOCX in memory, treats content as untrusted data, and suggests a broad category without executing the document.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: {type: string, format: binary}
+      responses:
+        "200": {description: Extracted text, digest, and category suggestion}
+        "400": {description: Unsupported, empty, unreadable, or oversized document}
+
+  /api/ai-feasibility/assessments:
+    get:
+      tags: [AI Feasibility]
+      summary: List persisted assessment revisions
+      parameters:
+        - name: application_id
+          in: query
+          schema: {type: string}
+      responses:
+        "200": {description: Versioned AI feasibility assessments}
+    post:
+      tags: [AI Feasibility]
+      summary: Generate an AI Feasibility Assessment
+      description: Applies deterministic evidence gates, pattern selection, usage-based cost arithmetic, and architecture composition; Microsoft Foundry improves only the grounded executive narrative.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [application_id, category_id, intent, business_outcome, consent_confirmed]
+              properties:
+                application_id: {type: string}
+                category_id:
+                  type: string
+                  enum: [audio_processing, video_image_processing, predictive_analysis, mlops, document_processing_enrichment, workflow_automation, chat_with_data]
+                intent: {type: string, minLength: 20, maxLength: 12000}
+                business_outcome: {type: string, minLength: 10, maxLength: 2000}
+                region: {type: string, default: eastus}
+                consent_confirmed: {type: boolean}
+                usage_assumptions: {type: object, additionalProperties: {type: number}}
+                input_source: {type: object}
+      responses:
+        "201": {description: Persisted structured assessment decision pack}
+        "400": {description: Missing consent or invalid assessment input}
+        "404": {description: Application or discovery scope not found}
+
+  /api/ai-feasibility/assessments/{assessment_id}:
+    parameters:
+      - name: assessment_id
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      tags: [AI Feasibility]
+      summary: Get one assessment revision
+      responses:
+        "200": {description: Structured AI feasibility decision pack}
+        "404": {description: Assessment not found}
+    delete:
+      tags: [AI Feasibility]
+      summary: Delete one local assessment revision
+      responses:
+        "200": {description: Assessment deleted}
+        "404": {description: Assessment not found}
+
+  # ── Migration Copilot ────────────────────────────────────────────
+
+  /api/chat/status:
+    get:
+      tags: [Migration Copilot]
+      summary: Get migration chat provider status
+      description: Reports the active Microsoft Foundry generative model, durable SQLite history, supported topics, and data availability.
+      responses:
+        "200":
+          description: Chat mode, privacy status, supported topics, and data availability
+
+  /api/chat:
+    post:
+      tags: [Migration Copilot]
+      summary: Ask a grounded migration question
+      description: |
+        Selects grounded facts from the currently loaded discovery, assessment, pricing,
+        workload, performance, application, CTD, and business-case records, then uses the
+        configured Microsoft Foundry model to generate the final answer. Responses include
+        evidence citations and navigation actions. User and assistant turns are persisted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                conversation_id:
+                  type: string
+                  description: Existing persisted conversation ID. Omit to create a conversation automatically.
+                strategy:
+                  type: string
+                  enum: [lift_and_shift, paas_preferred, paas_centric]
+                  default: paas_preferred
+                region: {type: string, default: eastus}
+      responses:
+        "200":
+          description: Grounded answer with citations, actions, suggestions, provider, and detected intent
+        "400": {description: Invalid message, history, strategy, or region}
+
+  /api/chat/conversations:
+    get:
+      tags: [Migration Copilot]
+      summary: List persisted chat conversations
+      responses:
+        "200": {description: Conversations ordered by most recently updated}
+    post:
+      tags: [Migration Copilot]
+      summary: Create a persisted chat conversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: {type: string}
+      responses:
+        "201": {description: Conversation created}
+
+  /api/chat/conversations/{conversation_id}:
+    parameters:
+      - name: conversation_id
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      tags: [Migration Copilot]
+      summary: Get a persisted conversation and its messages
+      responses:
+        "200": {description: Conversation and messages}
+        "404": {description: Conversation not found}
+    delete:
+      tags: [Migration Copilot]
+      summary: Delete a persisted conversation
+      responses:
+        "200": {description: Conversation deleted}
+        "404": {description: Conversation not found}
+
+  # ── Runbooks ──────────────────────────────────────────────────────
+
+  /api/runbooks/generate:
+    post:
+      tags: [Runbooks]
+      summary: Generate migration runbooks
+      description: Pre-migration, execution, and post-migration validation runbooks per wave.
+      responses:
+        "200": {description: Runbook documents}
+
+  # ── Executive Report ──────────────────────────────────────────────
+
+  /api/reports/executive:
+    get:
+      tags: [Executive Report]
+      summary: Generate executive report
+      description: 9-section boardroom-ready report with summary, readiness, business case, and recommendations.
+      parameters:
+        - name: format
+          in: query
+          schema: {type: string, enum: [json, markdown], default: json}
+      responses:
+        "200": {description: Executive report}
+
+  # ── Migration Tracker ─────────────────────────────────────────────
+
+  /api/migration/status:
+    post:
+      tags: [Migration Tracker]
+      summary: Update VM migration status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vm_name, state]
+              properties:
+                vm_name: {type: string}
+                state: {type: string, enum: [Not Started, Planned, Replicating, Test Failover, Migrated, Validated, Decommissioned]}
+                note: {type: string}
+                blocker: {type: string}
+      responses:
+        "200": {description: Status updated}
+
+  /api/migration/progress:
+    get:
+      tags: [Migration Tracker]
+      summary: Migration progress
+      description: Per-wave status breakdown, overall completion, and blockers.
+      responses:
+        "200": {description: Progress data}
+
+  # ── NSG & Tagging ─────────────────────────────────────────────────
+
+  /api/nsg-rules:
+    get:
+      tags: [NSG & Tagging]
+      summary: Generate NSG rules
+      description: Azure NSG rules from discovered TCP dependencies with least-privilege allow rules.
+      responses:
+        "200": {description: Per-subnet NSG rule sets}
+
+  /api/tags/strategy:
+    get:
+      tags: [NSG & Tagging]
+      summary: Azure tagging strategy
+      description: Tag assignments derived from vCenter metadata (folders, clusters, annotations).
+      responses:
+        "200": {description: Per-VM tag assignments}
+
+  # ── Import ────────────────────────────────────────────────────────
+
+  /api/import/rvtools:
+    post:
+      tags: [Import]
+      summary: Import RVTools export
+      description: Load VM data from an RVTools Excel/CSV export.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: {type: string, format: binary}
+      responses:
+        "200": {description: Data imported}
+        "400": {description: Invalid file}
+
+  # ── Projects ──────────────────────────────────────────────────────
+
+  /api/projects:
+    get:
+      tags: [Projects]
+      summary: List projects
+      responses:
+        "200": {description: Array of project objects}
+    post:
+      tags: [Projects]
+      summary: Create project
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: {type: string}
+      responses:
+        "200": {description: Project created}
+
+  /api/projects/{project_id}/activate:
+    post:
+      tags: [Projects]
+      summary: Activate a project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Project activated}
+
+  # ── Compliance ────────────────────────────────────────────────────
+
+  /api/compliance/assess:
+    post:
+      tags: [Compliance]
+      summary: Compliance assessment
+      description: Assess against PCI-DSS, HIPAA, SOX, GDPR, ISO 27001.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                frameworks:
+                  type: array
+                  items: {type: string, enum: [pci-dss, hipaa, sox, gdpr, iso27001]}
+      responses:
+        "200": {description: Per-control pass/fail with remediation}
+
+  # ── Validation ────────────────────────────────────────────────────
+
+  /api/validation/post-migration:
+    post:
+      tags: [Validation]
+      summary: Post-migration validation checks
+      description: Generate health checks, connectivity tests, and performance baseline comparisons.
+      responses:
+        "200": {description: Validation check results}
+
+  # ── Snapshots ─────────────────────────────────────────────────────
+
+  /api/snapshots:
+    get:
+      tags: [Snapshots]
+      summary: List snapshots
+      responses:
+        "200": {description: Array of snapshot metadata}
+    post:
+      tags: [Snapshots]
+      summary: Save snapshot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: {type: string}
+                description: {type: string}
+      responses:
+        "200": {description: Snapshot saved}
+
+  /api/snapshots/{name}/restore:
+    post:
+      tags: [Snapshots]
+      summary: Restore snapshot
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200": {description: Snapshot restored}
+
+  # ── Cost Optimization ─────────────────────────────────────────────
+
+  /api/cost-optimization:
+    get:
+      tags: [Cost Optimization]
+      summary: Cost optimization analysis
+      description: Right-sizing, zombie VM detection, and per-VM optimal pricing model recommendations.
+      responses:
+        "200": {description: Optimization recommendations}
+
+  # ── Data Files ────────────────────────────────────────────────────
+
+  /api/data/files:
+    get:
+      tags: [Data Files]
+      summary: List data directory files
+      responses:
+        "200": {description: Available data files with sizes}

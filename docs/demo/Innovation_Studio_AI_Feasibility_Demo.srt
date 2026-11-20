@@ -1,0 +1,115 @@
+1
+00:00:00,000 --> 00:00:03,099
+Azure Migrate explains how applications move to Azure.
+
+2
+00:00:03,099 --> 00:00:05,811
+AI Feasibility Assessment answers the next question:
+
+3
+00:00:05,811 --> 00:00:10,461
+where can AI create value, and what evidence, controls, and proof are
+
+4
+00:00:10,461 --> 00:00:10,848
+needed?
+
+5
+00:00:11,548 --> 00:00:16,740
+In the simulator, we select B P T co as a complete
+
+6
+00:00:16,740 --> 00:00:20,201
+discovered application and choose Document Processing and Enrichment.
+
+7
+00:00:20,201 --> 00:00:24,095
+The assessment reuses observed dependencies, runtimes, assessed targets, readiness,
+
+8
+00:00:24,095 --> 00:00:27,124
+and cost without assuming AI is feasible.
+
+9
+00:00:27,824 --> 00:00:31,395
+The customer supplies what discovery cannot know:
+
+10
+00:00:31,395 --> 00:00:36,497
+classify documents, extract fields, enrich metadata, validate rules, and route
+
+11
+00:00:36,497 --> 00:00:41,599
+exceptions to people, targeting less manual work, faster processing, controlled
+
+12
+00:00:41,599 --> 00:00:43,640
+access, and measurable accuracy.
+
+13
+00:00:44,340 --> 00:00:49,701
+After consent, Foundry improves only the grounded narrative; deterministic rules
+
+14
+00:00:49,701 --> 00:00:52,918
+control eligibility, gaps, cost, and disposition.
+
+15
+00:00:52,918 --> 00:00:57,743
+The versioned pack separates business, data, integration, governance, operations,
+
+16
+00:00:57,743 --> 00:01:02,568
+and economics; proposes Document Intelligence, AI Search, model access,
+
+17
+00:01:02,568 --> 00:01:08,466
+orchestration, storage, and monitoring; shows low, base, and high scenarios; and
+
+18
+00:01:08,466 --> 00:01:14,899
+defines a bounded proof of concept with acceptance tests and production gates.
+
+19
+00:01:14,899 --> 00:01:18,652
+Proof-of-concept candidate means justified experimentation, not production
+
+20
+00:01:18,652 --> 00:01:19,188
+readiness.
+
+21
+00:01:19,888 --> 00:01:22,654
+One action opens linked AI-ready architecture.
+
+22
+00:01:22,654 --> 00:01:28,185
+The base migration design remains intact, while proposed AI services appear as
+
+23
+00:01:28,185 --> 00:01:33,256
+an explicit extension tied to the assessment revision and costed separately.
+
+24
+00:01:33,956 --> 00:01:38,913
+This converts migration context into an inspectable investment decision and delivery
+
+25
+00:01:38,913 --> 00:01:39,363
+handoff.
+
+26
+00:01:39,363 --> 00:01:44,320
+It may recommend a proof of concept, remediation, conventional automation, an
+
+27
+00:01:44,320 --> 00:01:46,573
+existing product, or no AI.
+
+28
+00:01:46,573 --> 00:01:51,529
+Azure Migrate understands the application; AI Feasibility helps choose its next
+
+29
+00:01:51,529 --> 00:01:51,980
+value.

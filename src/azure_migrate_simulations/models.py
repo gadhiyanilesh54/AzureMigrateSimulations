@@ -212,3 +212,67 @@ class DiscoveredEnvironment:
     vms: list[DiscoveredVM] = field(default_factory=list)
     datastores: list[DiscoveredDatastore] = field(default_factory=list)
     networks: list[DiscoveredNetwork] = field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Migration Risk Heatmap models
+# ---------------------------------------------------------------------------
+
+
+class RiskFactorName(str, Enum):
+    """Enumeration of the six risk evaluation dimensions."""
+    DEPENDENCY_COUNT = "dependency_count"
+    OS_EOL = "os_eol"
+    WORKLOAD_COMPLEXITY = "workload_complexity"
+    PERFORMANCE_SENSITIVITY = "performance_sensitivity"
+    COMPLIANCE_SCOPE = "compliance_scope"
+    DATA_VOLUME = "data_volume"
+
+
+class RiskBand(str, Enum):
+    """Color band classification for risk scores."""
+    GREEN = "green"
+    YELLOW = "yellow"
+    RED = "red"
+
+
+@dataclass
+class MitigationAction:
+    """A single remediation suggestion tied to a risk factor."""
+    factor: str = ""
+    severity: str = ""
+    action: str = ""
+    expected_risk_reduction: int = 0
+
+
+@dataclass
+class RiskFactor:
+    """Per-factor scoring detail for a single VM."""
+    name: str = ""
+    raw_value: str = ""
+    score: int = 0
+    weight: float = 0.0
+    weighted_score: float = 0.0
+    band: str = "green"
+    data_available: bool = True
+
+
+@dataclass
+class RiskScore:
+    """Complete risk assessment for a single VM."""
+    vm_name: str = ""
+    composite_score: int = 0
+    composite_band: str = "green"
+    factors: list[RiskFactor] = field(default_factory=list)
+    mitigations: list[MitigationAction] = field(default_factory=list)
+    dominant_factor: str = ""
+
+
+@dataclass
+class RiskHeatmap:
+    """Fleet-wide risk matrix."""
+    vm_scores: list[RiskScore] = field(default_factory=list)
+    factor_names: list[str] = field(default_factory=list)
+    top_risky: list[RiskScore] = field(default_factory=list)
+    total_vms: int = 0
+    band_distribution: dict = field(default_factory=dict)

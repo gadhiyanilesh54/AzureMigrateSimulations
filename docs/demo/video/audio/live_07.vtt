@@ -1,0 +1,7 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 43432040, "text": "From the assessment we move directly into the A I-ready architecture."}
+{"type": "SentenceBoundary", "offset": 43932040, "duration": 72451458, "text": "The original application design is preserved, but the diagram is replaced with a reviewed A I-ready variant for this application."}
+{"type": "SentenceBoundary", "offset": 116383498, "duration": 126456314, "text": "The new capability extension shows where document intelligence, search, model access, orchestration, approved storage, and observability fit alongside the assessed application and data services."}
+{"type": "SentenceBoundary", "offset": 242839812, "duration": 33859224, "text": "Every A I node is visibly marked as proposed."}
+{"type": "SentenceBoundary", "offset": 276699036, "duration": 81310681, "text": "The diagram links back to the exact assessment revision, and base application cost remains separate from the incremental A I planning budget."}
+{"type": "SentenceBoundary", "offset": 358009718, "duration": 52063108, "text": "If the checkbox is turned off, the architecture returns to the original migration design."}
+{"type": "SentenceBoundary", "offset": 410072826, "duration": 49757282, "text": "A I is an explicit, assessed extension, not a silent default."}

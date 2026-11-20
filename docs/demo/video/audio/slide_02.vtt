@@ -1,0 +1,8 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 24864078, "text": "Azure Migrate begins with discovery."}
+{"type": "SentenceBoundary", "offset": 25364078, "duration": 82524274, "text": "It prepares an inventory of virtual machines, web applications, databases, file shares, containers, and supporting dependencies."}
+{"type": "SentenceBoundary", "offset": 107888352, "duration": 63106797, "text": "Customers can then organize these components as a complete application, a unit that works and moves together."}
+{"type": "SentenceBoundary", "offset": 170995150, "duration": 42354370, "text": "Assessment maps each component to an appropriate Azure target."}
+{"type": "SentenceBoundary", "offset": 213349520, "duration": 33616505, "text": "A web application might map to Azure App Service."}
+{"type": "SentenceBoundary", "offset": 246966026, "duration": 39563107, "text": "SQL Server might map to Azure SQL Managed Instance."}
+{"type": "SentenceBoundary", "offset": 286529134, "duration": 43082525, "text": "A containerized workload might map to Azure Kubernetes Service."}
+{"type": "SentenceBoundary", "offset": 329611659, "duration": 90169905, "text": "This gives us rich application intelligence: the application boundary, runtime, dependencies, assessed targets, readiness, and cost context."}

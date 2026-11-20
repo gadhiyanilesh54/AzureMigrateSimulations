@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/ai_feasibility.css') }}" rel="stylesheet">
     <!-- vis-network for topology -->
     <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
     <!-- Chart.js -->
@@ -43,6 +44,68 @@
         .card-dark .card-header {
             background: rgba(0,120,212,0.1); border-bottom: 1px solid #30363d;
             font-weight: 600; padding: 12px 20px;
+        }
+
+        /* Azure Architecture Center-style landing-zone diagram */
+        .azure-architecture-shell {
+            overflow: hidden; background: #fff; border: 1px solid #c7e0f4;
+            border-radius: 12px; box-shadow: 0 8px 28px rgba(0, 60, 107, 0.18);
+        }
+        .azure-architecture-toolbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            padding: 12px 16px; color: #323130; background: #f8fbfe;
+            border-bottom: 1px solid #deecf9;
+        }
+        .azure-architecture-toolbar .architecture-eyebrow {
+            color: #0078d4; font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+        }
+        .azure-architecture-toolbar .architecture-caption { color: #605e5c; font-size: 0.78rem; }
+        .azure-architecture-toolbar .btn { color: #005a9e; border-color: #8ac2e8; background: #fff; }
+        .azure-architecture-toolbar .btn:hover { color: #fff; border-color: #0078d4; background: #0078d4; }
+        #landing-zone-canvas {
+            min-height: 680px; overflow: auto; background: #fff;
+            scrollbar-color: #8a8886 #f3f2f1;
+        }
+        .azure-architecture-svg {
+            display: block; width: 100%; min-width: 1050px; height: auto; background: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .azure-architecture-svg .azure-boundary { fill: #fff; stroke: #0078d4; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-landing-boundary { fill: #f8fbfe; stroke: #5ea0ef; stroke-dasharray: 10 6; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-vnet-boundary { fill: #f4f9fd; stroke: #0078d4; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-subnet-boundary { fill: #fff; stroke: #8ac2e8; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-tier-boundary { fill: #faf9f8; stroke: #c8c6c4; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-service-card {
+            fill: #fff; stroke: #d2d0ce; vector-effect: non-scaling-stroke;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.12)); transition: stroke 0.15s ease;
+        }
+        .azure-architecture-svg .azure-service-node:hover .azure-service-card,
+        .azure-architecture-svg .azure-service-node:focus .azure-service-card { stroke: #0078d4; stroke-width: 2; }
+        .azure-architecture-svg .azure-flow { fill: none; stroke: #323130; stroke-width: 2; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-control-flow { fill: none; stroke: #605e5c; stroke-width: 1.5; stroke-dasharray: 7 5; vector-effect: non-scaling-stroke; }
+        .azure-architecture-svg .azure-boundary-title { fill: #005a9e; font-size: 16px; font-weight: 600; }
+        .azure-architecture-svg .azure-subnet-title { fill: #005a9e; font-size: 13px; font-weight: 600; }
+        .azure-architecture-svg .azure-service-title { fill: #201f1e; font-size: 13px; font-weight: 600; }
+        .azure-architecture-svg .azure-service-meta { fill: #605e5c; font-size: 11px; }
+        .azure-architecture-svg .azure-diagram-title { fill: #201f1e; font-size: 24px; font-weight: 600; }
+        .azure-architecture-svg .azure-diagram-meta { fill: #605e5c; font-size: 12px; }
+        .azure-architecture-legend {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 18px;
+            padding: 10px 16px; color: #605e5c; background: #f8fbfe;
+            border-top: 1px solid #deecf9; font-size: 0.75rem;
+        }
+        .azure-architecture-legend .legend-arrow { width: 34px; height: 0; border-top: 2px solid #323130; position: relative; }
+        .azure-architecture-legend .legend-arrow::after {
+            content: ''; position: absolute; right: -1px; top: -5px;
+            border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 7px solid #323130;
+        }
+        .azure-architecture-legend .legend-arrow.control { border-top-style: dashed; border-top-color: #605e5c; }
+        .azure-architecture-legend .legend-boundary { width: 28px; height: 14px; border: 2px solid #0078d4; background: #f4f9fd; }
+        @media(max-width:768px) {
+            .azure-architecture-toolbar { align-items: flex-start; flex-direction: column; }
+            .azure-architecture-svg { min-width: 1200px; }
+            #landing-zone-canvas { min-height: 560px; }
         }
 
         #topology-container { height: 650px; background: #0d1117; border-radius: 8px; border: 1px solid #30363d; }
@@ -168,6 +231,109 @@
         .accordion-button:not(.collapsed) { color: var(--azure-light); }
         .accordion-item { border-color: #30363d !important; }
 
+        /* Migration Copilot */
+        .migration-chat-panel {
+            --chat-border: #30363d;
+            width: min(520px, 100vw) !important; color: #e6edf3; background: #0d1117;
+            border-left: 1px solid var(--chat-border);
+        }
+        .migration-chat-panel .offcanvas-header {
+            padding: 16px 18px; background: linear-gradient(135deg, #003d6b, #0078d4);
+            border-bottom: 1px solid rgba(255,255,255,.16);
+        }
+        .migration-chat-brand-icon {
+            display: inline-grid; width: 38px; height: 38px; place-items: center;
+            color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22);
+            border-radius: 10px; font-size: 1.15rem;
+        }
+        .migration-chat-body { display: flex; min-height: 0; flex: 1; flex-direction: column; padding: 0; }
+        .migration-chat-context-bar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 9px 14px; color: #8b949e; background: #161b22;
+            border-bottom: 1px solid #21262d; font-size: .75rem;
+        }
+        .migration-chat-conversation-bar {
+            display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+            background: #0d1117; border-bottom: 1px solid #21262d;
+        }
+        #migration-chat-conversation-select {
+            min-width: 0; flex: 1; height: 32px; padding-top: 3px; padding-bottom: 3px;
+            color: #c9d1d9; background-color: #161b22; border-color: #30363d; font-size: .75rem;
+        }
+        .migration-chat-new {
+            flex: 0 0 auto; height: 32px; color: #79c0ff; background: #161b22;
+            border: 1px solid #30363d; border-radius: 7px; font-size: .75rem;
+        }
+        .migration-chat-new:hover { color: #fff; border-color: #58a6ff; }
+        .migration-chat-provider { display: inline-flex; align-items: center; gap: 6px; }
+        .migration-chat-provider-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb950; box-shadow: 0 0 0 3px rgba(63,185,80,.12); }
+        .migration-chat-provider-dot.foundry { background: #50e6ff; box-shadow: 0 0 0 3px rgba(80,230,255,.12); }
+        .migration-chat-prompts {
+            display: flex; gap: 7px; padding: 10px 14px; overflow-x: auto;
+            background: #0d1117; border-bottom: 1px solid #21262d; scrollbar-width: none;
+        }
+        .migration-chat-prompts::-webkit-scrollbar { display: none; }
+        .migration-chat-prompt {
+            flex: 0 0 auto; padding: 5px 10px; color: #c9d1d9; background: #161b22;
+            border: 1px solid #30363d; border-radius: 999px; font-size: .75rem; white-space: nowrap;
+        }
+        .migration-chat-prompt:hover { color: #fff; border-color: #58a6ff; background: rgba(0,120,212,.14); }
+        .migration-chat-messages {
+            flex: 1; min-height: 0; padding: 18px 14px 24px; overflow-y: auto;
+            scroll-behavior: smooth; scrollbar-color: #30363d #0d1117;
+        }
+        .migration-chat-message { display: flex; gap: 9px; margin-bottom: 16px; animation: fadeIn .2s ease-out; }
+        .migration-chat-message.user { justify-content: flex-end; }
+        .migration-chat-avatar {
+            display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center;
+            color: #fff; background: #0078d4; border-radius: 9px; font-size: .8rem;
+        }
+        .migration-chat-message.user .migration-chat-avatar { order: 2; color: #0d1117; background: #50e6ff; }
+        .migration-chat-bubble {
+            max-width: 88%; padding: 11px 13px; color: #d8dee4; background: #161b22;
+            border: 1px solid #30363d; border-radius: 5px 14px 14px 14px;
+            font-size: .86rem; line-height: 1.5; white-space: pre-wrap;
+        }
+        .migration-chat-message.user .migration-chat-bubble {
+            color: #fff; background: #005a9e; border-color: #0078d4; border-radius: 14px 5px 14px 14px;
+        }
+        .migration-chat-meta { margin-top: 8px; color: #6e7681; font-size: .68rem; }
+        .migration-chat-citations { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+        .migration-chat-citation {
+            padding: 3px 7px; color: #79c0ff; background: rgba(56,139,253,.1);
+            border: 1px solid rgba(56,139,253,.25); border-radius: 999px; font-size: .66rem;
+        }
+        .migration-chat-actions, .migration-chat-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+        .migration-chat-action, .migration-chat-suggestion {
+            padding: 4px 8px; color: #c9d1d9; background: transparent; border: 1px solid #484f58;
+            border-radius: 6px; font-size: .7rem;
+        }
+        .migration-chat-action { color: #79c0ff; border-color: #1f6feb; }
+        .migration-chat-action:hover, .migration-chat-suggestion:hover { color: #fff; background: rgba(0,120,212,.16); }
+        .migration-chat-composer { padding: 12px 14px 14px; background: #161b22; border-top: 1px solid #30363d; }
+        .migration-chat-input-wrap {
+            display: flex; align-items: flex-end; gap: 8px; padding: 7px;
+            background: #0d1117; border: 1px solid #30363d; border-radius: 12px;
+        }
+        .migration-chat-input-wrap:focus-within { border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(0,120,212,.16); }
+        #migration-chat-input {
+            min-height: 42px; max-height: 130px; resize: none; color: #e6edf3; background: transparent;
+            border: 0; box-shadow: none; line-height: 1.35;
+        }
+        #migration-chat-input:focus { background: transparent; box-shadow: none; }
+        .migration-chat-send {
+            display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center;
+            color: #fff; background: #0078d4; border: 0; border-radius: 9px;
+        }
+        .migration-chat-send:hover { background: #106ebe; }
+        .migration-chat-send:disabled { opacity: .5; }
+        .migration-chat-disclaimer { margin-top: 7px; color: #6e7681; font-size: .66rem; text-align: center; }
+        .migration-chat-thinking { display: inline-flex; align-items: center; gap: 4px; height: 18px; }
+        .migration-chat-thinking span { width: 5px; height: 5px; border-radius: 50%; background: #8b949e; animation: chatThinking 1.1s infinite ease-in-out; }
+        .migration-chat-thinking span:nth-child(2) { animation-delay: .14s; }
+        .migration-chat-thinking span:nth-child(3) { animation-delay: .28s; }
+        @keyframes chatThinking { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-4px); opacity: 1; } }
+
     </style>
 </head>
 <body>
@@ -275,9 +441,75 @@
                         onclick="disconnect()">
                     <i class="bi bi-box-arrow-right me-1"></i>New Connection
                 </button>
+                <button class="btn btn-light btn-sm" id="btnMigrationChat" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#migrationChatPanel"
+                        aria-controls="migrationChatPanel" title="Ask Azure Migrate Copilot">
+                    <i class="bi bi-chat-dots-fill me-1"></i>Chat
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- MIGRATION COPILOT -->
+    <aside class="offcanvas offcanvas-end migration-chat-panel" tabindex="-1" id="migrationChatPanel"
+           aria-labelledby="migrationChatTitle" data-bs-scroll="false">
+        <div class="offcanvas-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="migration-chat-brand-icon"><i class="bi bi-stars"></i></span>
+                <div>
+                    <h5 class="offcanvas-title mb-0" id="migrationChatTitle">Azure Migrate Copilot</h5>
+                    <div class="small text-white-50">Grounded in this migration project</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+                <button type="button" class="btn btn-sm btn-link text-white-50" id="migration-chat-clear"
+                    title="Delete this persisted conversation" aria-label="Delete conversation">
+                    <i class="bi bi-trash3"></i>
+                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="offcanvas-body migration-chat-body">
+            <div class="migration-chat-context-bar">
+                <span class="migration-chat-provider">
+                    <span class="migration-chat-provider-dot" id="migration-chat-provider-dot"></span>
+                    <span id="migration-chat-provider-label">Local grounded</span>
+                </span>
+                <span id="migration-chat-context-label">Checking project context…</span>
+            </div>
+            <div class="migration-chat-conversation-bar">
+                <select class="form-select form-select-sm" id="migration-chat-conversation-select"
+                        aria-label="Persisted conversations">
+                    <option value="">New conversation</option>
+                </select>
+                <button type="button" class="migration-chat-new px-2" id="migration-chat-new">
+                    <i class="bi bi-plus-lg me-1"></i>New
+                </button>
+            </div>
+            <div class="migration-chat-prompts" id="migration-chat-prompts" aria-label="Suggested migration questions">
+                <button type="button" class="migration-chat-prompt" data-chat-prompt="Summarize the assessment">Assessment summary</button>
+                <button type="button" class="migration-chat-prompt" data-chat-prompt="Explain the total Azure cost">Explain cost</button>
+                <button type="button" class="migration-chat-prompt" data-chat-prompt="Why was App Service selected?">Why App Service?</button>
+                <button type="button" class="migration-chat-prompt" data-chat-prompt="Generate landing zones">Landing zones</button>
+                <button type="button" class="migration-chat-prompt" data-chat-prompt="Start an AI feasibility assessment">AI feasibility</button>
+                <button type="button" class="migration-chat-prompt" data-chat-prompt="Build the business case">Business case</button>
+            </div>
+            <div class="migration-chat-messages" id="migration-chat-messages" role="log" aria-live="polite" aria-label="Migration chat messages"></div>
+            <form class="migration-chat-composer" id="migration-chat-form">
+                <div class="migration-chat-input-wrap">
+                    <textarea class="form-control" id="migration-chat-input" rows="2" maxlength="2000"
+                              placeholder="Ask about inventory, costs, targets, readiness, or architecture…"
+                              aria-label="Ask Azure Migrate Copilot"></textarea>
+                    <button class="migration-chat-send" id="migration-chat-send" type="submit" aria-label="Send message">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+                <div class="migration-chat-disclaimer" id="migration-chat-disclaimer">
+                    Generative answers are evidence-grounded, not billing quotes. Conversations persist in the local project database.
+                </div>
+            </form>
+        </div>
+    </aside>
 
     <div class="container-fluid px-4 py-3">
         <!-- MIGRATION JOURNEY STEPPER -->
@@ -440,6 +672,7 @@
                     <li class="nav-item"><button class="nav-link" id="decide-pricing-tab" onclick="showDecideSub('decide-pricing')"><i class="bi bi-currency-dollar me-1"></i>Pricing Comparison</button></li>
                     <li class="nav-item"><button class="nav-link" id="decide-compliance-tab" onclick="showDecideSub('decide-compliance')"><i class="bi bi-shield-check me-1"></i>Compliance</button></li>
                     <li class="nav-item"><button class="nav-link" id="decide-report-tab" onclick="showDecideSub('decide-report')"><i class="bi bi-file-earmark-text me-1"></i>Executive Report</button></li>
+                    <li class="nav-item"><button class="nav-link" id="decide-riskheatmap-tab" onclick="showDecideSub('decide-riskheatmap')"><i class="bi bi-grid-3x3-gap me-1"></i>Risk Heatmap</button></li>
                 </ul>
                 <!-- decide-discovery/enrichment/businesscase are the OLD panes below, restyled -->
                 <div id="decide-pricing" class="decide-sub" style="display:none">
@@ -480,6 +713,15 @@
                     </div>
                     <div id="report-results"><p class="text-muted">Generates a boardroom-ready 9-section report covering summary, estate, readiness, business case, architecture, waves, risks, and recommendations.</p></div>
                 </div>
+                <div id="decide-riskheatmap" class="decide-sub" style="display:none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-grid-3x3-gap me-2"></i>Migration Risk Heatmap</h5>
+                        <button class="btn btn-sm btn-primary" onclick="loadRiskHeatmap()"><i class="bi bi-arrow-repeat me-1"></i>Compute Risks</button>
+                    </div>
+                    <div id="risk-top10-panel"></div>
+                    <div id="risk-heatmap-grid"><p class="text-muted">Click "Compute Risks" to generate the fleet-wide risk heatmap with per-VM composite scores across 6 risk factors.</p></div>
+                    <div id="risk-detail-panel" style="display:none"></div>
+                </div>
             </div><!-- /pane-decide -->
 
             <!-- ==================== PLAN PHASE ==================== -->
@@ -488,6 +730,7 @@
                 <ul class="nav nav-tabs mb-3" id="planSubTabs">
                     <li class="nav-item"><button class="nav-link active" id="plan-ctd-tab" onclick="showPlanSub('plan-ctd')"><i class="bi bi-diagram-3 me-1"></i>Cloud Topology</button></li>
                     <li class="nav-item"><button class="nav-link" id="plan-apps-tab" onclick="showPlanSub('plan-apps')"><i class="bi bi-collection me-1"></i>Application Groups</button></li>
+                    <li class="nav-item"><button class="nav-link" id="plan-landing-zone-tab" onclick="showPlanSub('plan-landing-zone')"><i class="bi bi-boxes me-1"></i>Landing Zone</button></li>
                     <li class="nav-item"><button class="nav-link" id="plan-costopt-tab" onclick="showPlanSub('plan-costopt')"><i class="bi bi-graph-down-arrow me-1"></i>Cost Optimization</button></li>
                     <li class="nav-item"><button class="nav-link" id="plan-waves-tab" onclick="showPlanSub('plan-waves')"><i class="bi bi-lightning-charge me-1"></i>Wave Planning</button></li>
                     <li class="nav-item"><button class="nav-link" id="plan-tags-tab" onclick="showPlanSub('plan-tags')"><i class="bi bi-tags me-1"></i>Tagging</button></li>
@@ -500,7 +743,101 @@
                         <h5 class="mb-0"><i class="bi bi-collection me-2"></i>Application Groups</h5>
                         <button class="btn btn-sm btn-primary" onclick="loadApplicationGroups()"><i class="bi bi-arrow-repeat me-1"></i>Detect Groups</button>
                     </div>
-                    <div id="appgroups-results"><p class="text-muted">Auto-discovers application groups from VM dependencies and naming patterns.</p></div>
+                    <div id="appgroups-results"><p class="text-muted">Auto-discovers complete applications from dependencies and groups their VMs, web apps, databases, containers, orchestrators, and file shares.</p></div>
+                </div>
+                <div id="plan-landing-zone" class="plan-sub" style="display:none">
+                    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
+                        <div>
+                            <h5 class="mb-1"><i class="bi bi-boxes me-2"></i>Application Landing Zones</h5>
+                            <p class="text-muted small mb-0">Resolve an N-tier Azure architecture for each assessed application using the CTD architecture catalogue.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 align-items-end">
+                            <div>
+                                <label class="form-label small mb-1" for="landing-zone-strategy">Migration strategy</label>
+                                <select class="form-select form-select-sm" id="landing-zone-strategy">
+                                    <option value="paas_preferred" selected>PaaS Preferred</option>
+                                    <option value="paas_centric">PaaS Centric</option>
+                                    <option value="lift_and_shift">Lift &amp; Shift</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1" for="landing-zone-region">Azure region</label>
+                                <select class="form-select form-select-sm" id="landing-zone-region">
+                                    <option value="eastus" selected>East US</option>
+                                    <option value="eastus2">East US 2</option>
+                                    <option value="westus2">West US 2</option>
+                                    <option value="northeurope">North Europe</option>
+                                    <option value="westeurope">West Europe</option>
+                                    <option value="uksouth">UK South</option>
+                                    <option value="centralindia">Central India</option>
+                                    <option value="southeastasia">Southeast Asia</option>
+                                    <option value="australiaeast">Australia East</option>
+                                </select>
+                            </div>
+                            <div class="ai-lz-toggle-wrap">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           id="landing-zone-ai-feasibility">
+                                    <label class="form-check-label small" for="landing-zone-ai-feasibility">
+                                        AI-ready architecture
+                                    </label>
+                                </div>
+                                <div class="small text-muted">Uses the latest assessment per application</div>
+                            </div>
+                            <button class="btn btn-sm btn-primary" id="landing-zone-generate-btn" onclick="loadLandingZones()"><i class="bi bi-stars me-1"></i>Generate Architecture</button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info small py-2">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Application boundaries come from Application Groups. Architecture selection follows the Azure Migrate App-Centric Assessments strategies and the versioned CTD catalogue.
+                    </div>
+                    <div id="landing-zone-results"><p class="text-muted">Generate landing zones to map every assessed application and all of its members to a target Azure architecture.</p></div>
+                    <div id="landing-zone-detail" class="mt-4" style="display:none">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                            <div>
+                                <h5 class="mb-0" id="landing-zone-detail-title"></h5>
+                                <div class="small text-muted" id="landing-zone-detail-meta"></div>
+                            </div>
+                            <span class="badge bg-primary" id="landing-zone-catalogue-entry"></span>
+                        </div>
+                        <div class="azure-architecture-shell">
+                            <div class="azure-architecture-toolbar">
+                                <div>
+                                    <div class="architecture-eyebrow">Azure solution architecture</div>
+                                    <div class="architecture-caption">Application view · Network boundaries · Assessed Azure targets</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm" type="button" onclick="fitLandingZoneDiagram()" title="Reset diagram scroll position">
+                                        <i class="bi bi-arrows-fullscreen me-1"></i>Fit
+                                    </button>
+                                    <button class="btn btn-sm" type="button" onclick="downloadLandingZoneSvg()" title="Download a self-contained SVG">
+                                        <i class="bi bi-download me-1"></i>Download SVG
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="landing-zone-canvas" role="img" aria-label="Application landing zone architecture showing Azure subscription, landing zone, virtual network, subnets, application services, data services, and platform services"></div>
+                            <div class="azure-architecture-legend" aria-label="Diagram legend">
+                                <span class="d-flex align-items-center gap-2"><span class="legend-arrow"></span>Application or data flow</span>
+                                <span class="d-flex align-items-center gap-2"><span class="legend-arrow control"></span>Management or control flow</span>
+                                <span class="d-flex align-items-center gap-2"><span class="legend-boundary"></span>Azure network boundary</span>
+                                <span class="ms-auto"><i class="bi bi-microsoft me-1"></i>Official Azure icons where available · Proposed AI nodes clearly marked</span>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-1">
+                            <div class="col-lg-7">
+                                <div class="card-dark h-100">
+                                    <div class="card-header"><i class="bi bi-list-nested me-2"></i>Application Members</div>
+                                    <div class="card-body p-0"><div class="table-responsive" id="landing-zone-members"></div></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="card-dark h-100">
+                                    <div class="card-header"><i class="bi bi-lightbulb me-2"></i>Architecture Reasoning</div>
+                                    <div class="card-body" id="landing-zone-reasoning"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="plan-costopt" class="plan-sub" style="display:none">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -868,6 +1205,146 @@
 
                     <!-- ===== ASSESSMENT ===== -->
                     <div class="tab-pane fade" id="pane-assessment">
+                        <section class="ai-feasibility-launch mb-3" id="ai-feasibility-launch">
+                            <div class="ai-feasibility-launch-icon" aria-hidden="true">
+                                <i class="bi bi-stars"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                    <h5 class="mb-0">AI Feasibility Assessment</h5>
+                                    <span class="badge rounded-pill text-bg-primary">Application + business workflow</span>
+                                </div>
+                                <p class="mb-0 text-muted small">
+                                    Turn discovered application context and customer intent into an evidence-backed AI opportunity,
+                                    indicative cost range, recommended Azure AI services, PoC gates, and an optional AI-ready landing-zone architecture.
+                                </p>
+                            </div>
+                            <button class="btn btn-primary ai-feasibility-open" id="ai-feasibility-open" type="button">
+                                <i class="bi bi-magic me-1"></i>Start assessment
+                            </button>
+                        </section>
+
+                        <section class="ai-feasibility-workspace mb-4" id="ai-feasibility-workspace" style="display:none" aria-labelledby="ai-feasibility-title">
+                            <div class="ai-feasibility-header">
+                                <div>
+                                    <div class="ai-feasibility-eyebrow">Azure Migrate · Decision experience</div>
+                                    <h4 class="mb-1" id="ai-feasibility-title">AI Feasibility Assessment</h4>
+                                    <p class="mb-0 text-muted small">Discovery supplies technical context. You supply the business purpose, outcome, permissions, and usage assumptions.</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-info" type="button" id="ai-feasibility-refresh">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-light" type="button" id="ai-feasibility-close" aria-label="Close AI feasibility workspace">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="ai-feasibility-body">
+                                <div class="ai-feasibility-steps" aria-label="Assessment steps">
+                                    <span class="active"><b>1</b> Application</span>
+                                    <span><b>2</b> Solution idea</span>
+                                    <span><b>3</b> Intent &amp; outcome</span>
+                                    <span><b>4</b> Decision pack</span>
+                                </div>
+
+                                <div class="row g-4">
+                                    <div class="col-xl-5">
+                                        <div class="ai-feasibility-form-card mb-3">
+                                            <label class="form-label fw-semibold" for="ai-feasibility-application">1. Select a discovered application</label>
+                                            <select class="form-select" id="ai-feasibility-application">
+                                                <option value="">Choose an application…</option>
+                                            </select>
+                                            <div class="ai-application-context mt-3" id="ai-feasibility-application-context">
+                                                <span class="text-muted small">Application members and assessed targets will appear here.</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="ai-feasibility-form-card mb-3">
+                                            <div class="d-flex justify-content-between gap-2 align-items-start mb-2">
+                                                <div>
+                                                    <div class="fw-semibold">2. Choose a solution idea</div>
+                                                    <div class="text-muted small">Broad categories route the assessment; they do not predetermine a build.</div>
+                                                </div>
+                                                <span class="badge bg-dark border" id="ai-pattern-version"></span>
+                                            </div>
+                                            <div class="ai-solution-grid" id="ai-feasibility-categories"></div>
+                                        </div>
+
+                                        <div class="ai-feasibility-form-card">
+                                            <label class="form-label fw-semibold" for="ai-feasibility-region">Target Azure region</label>
+                                            <select class="form-select" id="ai-feasibility-region">
+                                                <option value="eastus">East US</option>
+                                                <option value="eastus2">East US 2</option>
+                                                <option value="westus2">West US 2</option>
+                                                <option value="westeurope">West Europe</option>
+                                                <option value="northeurope">North Europe</option>
+                                                <option value="uksouth">UK South</option>
+                                                <option value="centralindia">Central India</option>
+                                                <option value="southeastasia">Southeast Asia</option>
+                                                <option value="australiaeast">Australia East</option>
+                                                <option value="japaneast">Japan East</option>
+                                            </select>
+                                            <details class="mt-3">
+                                                <summary class="small text-info">Usage assumptions (optional)</summary>
+                                                <div class="row g-2 mt-1" id="ai-feasibility-usage"></div>
+                                                <p class="small text-muted mb-0 mt-2">Blank fields use explicit application-informed defaults. All rates remain indicative until repriced.</p>
+                                            </details>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-7">
+                                        <div class="ai-feasibility-form-card mb-3">
+                                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                                <div>
+                                                    <label class="form-label fw-semibold mb-1" for="ai-feasibility-intent">3. Describe the process or workload to improve</label>
+                                                    <p class="small text-muted mb-2">Include current users, repeated friction, data involved, allowed actions, and known constraints.</p>
+                                                </div>
+                                                <label class="btn btn-sm btn-outline-info text-nowrap" for="ai-feasibility-file">
+                                                    <i class="bi bi-paperclip me-1"></i>Upload intent
+                                                </label>
+                                                <input class="visually-hidden" type="file" id="ai-feasibility-file" accept=".md,.markdown,.txt,.docx">
+                                            </div>
+                                            <textarea class="form-control" id="ai-feasibility-intent" rows="7" maxlength="12000"
+                                                      placeholder="Example: Support employees search policy files and order records, then manually draft return responses. We want a cited, read-only assistant with employee approval and no refund or order-write capability."></textarea>
+                                            <div class="d-flex justify-content-between mt-1 small">
+                                                <span id="ai-feasibility-upload-status" class="text-muted">Markdown, text, or DOCX · 1 MB maximum</span>
+                                                <span class="text-muted"><span id="ai-feasibility-intent-count">0</span>/12,000</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="ai-feasibility-form-card mb-3">
+                                            <label class="form-label fw-semibold" for="ai-feasibility-outcome">Expected business outcome</label>
+                                            <textarea class="form-control" id="ai-feasibility-outcome" rows="3" maxlength="2000"
+                                                      placeholder="Example: Reduce median handling time from 8 to 6 minutes while maintaining response quality; use recovered capacity for aged complex cases, not headcount reduction."></textarea>
+                                        </div>
+
+                                        <div class="ai-feasibility-consent mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="ai-feasibility-consent">
+                                                <label class="form-check-label small" for="ai-feasibility-consent">
+                                                    I confirm this assessment may send the entered intent, expected outcome, local deterministic draft,
+                                                    and minimized application evidence labels to the configured Microsoft Foundry model.
+                                                </label>
+                                            </div>
+                                            <div class="small text-muted mt-2"><i class="bi bi-shield-lock me-1"></i>Uploaded text is treated as untrusted data. No file, credential, source code, or business record is executed or automatically shared with a delivery partner.</div>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center">
+                                            <div id="ai-feasibility-generate-status" class="small text-muted">Ready when application, solution idea, intent, outcome, and consent are complete.</div>
+                                            <button class="btn btn-primary" type="button" id="ai-feasibility-generate">
+                                                <i class="bi bi-stars me-1"></i>Generate AI Feasibility Assessment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ai-feasibility-saved mt-4" id="ai-feasibility-saved"></div>
+                                <div class="ai-feasibility-result mt-4" id="ai-feasibility-result"></div>
+                            </div>
+                        </section>
+
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="btn-group btn-group-sm" role="group">
                                 <button class="btn btn-outline-light active" id="assess-view-vms" onclick="switchAssessView('vms')">
@@ -6642,5 +7119,8 @@
 
     </script>
     <script src="{{ url_for('static', filename='features.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/risk_heatmap.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ai_feasibility.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/migration_chat.js') }}"></script>
 </body>
 </html>

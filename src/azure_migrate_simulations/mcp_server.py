@@ -84,6 +84,18 @@ def _get_perf() -> dict:
     return _load_json(_PERF_HISTORY_FILE)
 
 
+# OpenAPI / Swagger spec file (shared with web/app.py)
+_OPENAPI_SPEC_FILE = Path(__file__).resolve().parent / "web" / "openapi.yaml"
+
+
+def _load_openapi_spec() -> str:
+    """Read the OpenAPI YAML spec file."""
+    try:
+        return _OPENAPI_SPEC_FILE.read_text(encoding="utf-8")
+    except Exception:
+        return ""
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 #  MCP Server definition
 # ═══════════════════════════════════════════════════════════════════════════
@@ -106,6 +118,16 @@ async def list_resources() -> list[Resource]:
                 description=f"Data file: {fpath.name}",
             )
         )
+    # Expose the OpenAPI spec as a browsable resource
+    if _OPENAPI_SPEC_FILE.exists():
+        resources.append(
+            Resource(
+                uri="ams://specs/openapi.yaml",
+                name="openapi.yaml",
+                mimeType="application/x-yaml",
+                description="OpenAPI 3.0.3 specification for all REST API endpoints. Read this to discover available APIs, request/response schemas, and parameters.",
+            )
+        )
     return resources
 
 
@@ -113,6 +135,11 @@ async def list_resources() -> list[Resource]:
 async def read_resource(uri: str) -> str:
     """Read a data file by its ams:// URI."""
     # uri = "ams://data/vcenter_discovery.json"
+    # Handle OpenAPI spec resource
+    if uri == "ams://specs/openapi.yaml":
+        spec = _load_openapi_spec()
+        return spec if spec else json.dumps({"error": "OpenAPI spec file not found"})
+
     name = uri.split("/")[-1]
     fpath = DATA_DIR / name
     if not fpath.exists() or not fpath.suffix == ".json":
@@ -190,6 +217,44 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["vm_name"],
             },
+        ),
+        Tool(
+            name="list_hosts",
+            description="List all discovered ESXi hosts with CPU, memory, and VM counts.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="list_networks",
+            description="List all discovered vSphere networks/port groups.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="list_datastores",
+            description="List all discovered vCenter datastores with capacity, free space, and type.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_infrastructure_topology",
+            description=(
+                "Get the on-premises infrastructure topology as vis.js-compatible "
+                "nodes and edges. Shows the vCenter hierarchy: datacenter → cluster → "
+                "host → VM, plus datastore and network connections."
+            ),
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_recommendations",
+            description=(
+                "Get all Azure migration recommendations: per-VM SKU mapping, "
+                "readiness status, confidence score, estimated monthly cost, "
+                "and disk recommendations."
+            ),
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_discovery_status",
+            description="Check whether discovery data is loaded and the current connection state.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="list_workloads",
@@ -400,6 +465,30 @@ async def list_tools() -> list[Tool]:
             description="Clear all saved what-if overrides, resetting to default recommendations.",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
+        Tool(
+            name="get_whatif_overrides",
+            description="Return all saved what-if overrides (VM name → SKU/region/pricing overrides).",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="delete_whatif_override",
+            description="Remove a saved what-if override for a specific VM.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "vm_name": {"type": "string", "description": "VM name to clear override for"},
+                },
+                "required": ["vm_name"],
+            },
+        ),
+        Tool(
+            name="simulate_comparison",
+            description=(
+                "Run a side-by-side comparison: original recommendations vs "
+                "saved what-if overrides. Shows per-VM cost delta and fleet totals."
+            ),
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
 
         # ── Target Recommendations ──────────────────────────────────
         Tool(
@@ -446,6 +535,32 @@ async def list_tools() -> list[Tool]:
                 "Check enrichment data coverage: which VMs have monitoring data, "
                 "from which tools, and the confidence boost applied."
             ),
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_enrichment_data",
+            description="Return all enrichment telemetry records indexed by entity name.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_enrichment_vm",
+            description="Return enrichment data for a specific VM including metrics, dependencies, and tags.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "vm_name": {"type": "string", "description": "VM name"},
+                },
+                "required": ["vm_name"],
+            },
+        ),
+        Tool(
+            name="get_enrichment_tools",
+            description="List supported monitoring tools with expected data formats and field mappings.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_enrichment_history",
+            description="Return the enrichment ingestion history showing upload events and match results.",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
 
@@ -698,6 +813,218 @@ async def list_tools() -> list[Tool]:
                 "required": ["name"],
             },
         ),
+        Tool(
+            name="activate_project",
+            description="Switch to a different migration project by ID.",
+            inputSchema={
+                "type": "object",
+                "properties": {"project_id": {"type": "string", "description": "Project ID to activate"}},
+                "required": ["project_id"],
+            },
+        ),
+
+        # ── Workload Simulation ──────────────────────────────────────
+        Tool(
+            name="simulate_workload_whatif",
+            description=(
+                "Run what-if analysis for a specific workload (database, webapp, container). "
+                "Override Azure PaaS SKU, tier, or region and see cost comparison."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "workload_key": {"type": "string", "description": "Workload key (vm_name:engine:instance or vm_name:runtime:app)"},
+                    "sku_override": {"type": "string", "description": "Override PaaS SKU"},
+                    "tier_override": {"type": "string", "description": "Override PaaS tier"},
+                    "region": {"type": "string", "description": "Target region"},
+                },
+                "required": ["workload_key"],
+            },
+        ),
+        Tool(
+            name="get_workload_whatif_overrides",
+            description="Return all saved workload what-if overrides.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="save_workload_whatif_override",
+            description="Save a what-if override for a workload.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "workload_key": {"type": "string", "description": "Workload key"},
+                    "sku": {"type": "string", "description": "PaaS SKU override"},
+                    "tier": {"type": "string", "description": "PaaS tier override"},
+                    "region": {"type": "string", "description": "Target region"},
+                },
+                "required": ["workload_key"],
+            },
+        ),
+        Tool(
+            name="get_workload_topology",
+            description=(
+                "Get the workload dependency graph as vis.js-compatible nodes and edges. "
+                "Shows cross-VM TCP connections between databases, web apps, and containers."
+            ),
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+
+        # ── Performance Monitoring ───────────────────────────────────
+        Tool(
+            name="get_perf_status",
+            description="Return performance collector status: running/stopped, duration, sample counts, last collection time.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_perf_summary",
+            description="Return fleet-wide performance summary: aggregate CPU, memory, disk I/O, and network metrics across all VMs.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
+            name="get_perf_vm",
+            description="Return performance history and statistics for a specific VM. Includes time-series data and percentile summaries.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "vm_name": {"type": "string", "description": "VM name"},
+                },
+                "required": ["vm_name"],
+            },
+        ),
+        Tool(
+            name="get_perf_vm_summary",
+            description="Return compact performance summary (latest + stats) for a VM.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "vm_name": {"type": "string", "description": "VM name"},
+                },
+                "required": ["vm_name"],
+            },
+        ),
+
+        # ── Pricing Extras ───────────────────────────────────────────
+        Tool(
+            name="get_pricing_models",
+            description="List all 7 available Azure pricing models with descriptions and discount percentages.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+
+        # ── Data Files ───────────────────────────────────────────────
+        Tool(
+            name="list_data_files",
+            description="List all data files in the data/ directory with sizes and last modified timestamps.",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+
+        # ── Risk Heatmap ─────────────────────────────────────────────
+        # ── API Spec Management ───────────────────────────────────────
+        Tool(
+            name="get_api_spec",
+            description=(
+                "Get the full OpenAPI 3.0.3 specification (YAML) for all REST API "
+                "endpoints. Use this to discover available APIs, request/response "
+                "schemas, parameters, and tags. Returns the raw YAML content of "
+                "openapi.yaml. Use filter_tag to get only endpoints for a specific "
+                "tag group (e.g. 'Risk Heatmap', 'Workloads', 'Pricing')."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "filter_tag": {
+                        "type": "string",
+                        "description": "Optional: filter to only show paths matching this tag name (e.g. 'Risk Heatmap', 'Wave Planning')",
+                    },
+                },
+                "required": [],
+            },
+        ),
+        Tool(
+            name="update_api_spec",
+            description=(
+                "Add or update an API endpoint in the OpenAPI specification. "
+                "Use this after implementing a new REST API route or modifying "
+                "an existing one, to keep the Swagger documentation in sync. "
+                "Provide the path, HTTP method, tag, summary, and optionally "
+                "the full YAML definition for parameters, request body, and responses."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "API path (e.g. '/api/risk/heatmap')",
+                    },
+                    "method": {
+                        "type": "string",
+                        "description": "HTTP method: get, post, put, delete",
+                        "enum": ["get", "post", "put", "delete", "patch"],
+                    },
+                    "tag": {
+                        "type": "string",
+                        "description": "Tag group (e.g. 'Risk Heatmap', 'Workloads')",
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "Short summary of the endpoint",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Optional detailed description",
+                    },
+                    "parameters_yaml": {
+                        "type": "string",
+                        "description": "Optional YAML string for parameters array",
+                    },
+                    "request_body_yaml": {
+                        "type": "string",
+                        "description": "Optional YAML string for requestBody",
+                    },
+                    "responses_yaml": {
+                        "type": "string",
+                        "description": "Optional YAML string for responses (default: 200 OK)",
+                    },
+                },
+                "required": ["path", "method", "tag", "summary"],
+            },
+        ),
+
+        # ── Risk Heatmap ─────────────────────────────────────────────────
+        Tool(
+            name="get_risk_heatmap",
+            description=(
+                "Compute the fleet-wide migration risk heatmap. Returns a JSON "
+                "matrix of VM × risk-factor scores (0-100) with color bands "
+                "(green/yellow/red), composite scores, top riskiest VMs, and "
+                "mitigation suggestions. Factors: dependency count, OS EOL, "
+                "workload complexity, performance sensitivity, compliance scope, "
+                "data volume."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "top": {"type": "integer", "description": "Number of top riskiest VMs to highlight (default: 10)"},
+                    "band": {"type": "string", "description": "Filter by risk band: 'green', 'yellow', or 'red'"},
+                    "sort_by": {"type": "string", "description": "Sort field: 'composite_score', 'vm_name', or any factor name"},
+                },
+                "required": [],
+            },
+        ),
+        Tool(
+            name="get_risk_score",
+            description=(
+                "Get the detailed migration risk score for a specific VM. "
+                "Returns per-factor breakdown (6 factors), weighted composite "
+                "score, color band, and actionable mitigation suggestions."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "vm_name": {"type": "string", "description": "VM name to score"},
+                },
+                "required": ["vm_name"],
+            },
+        ),
     ]
 
 
@@ -736,6 +1063,24 @@ async def _dispatch(name: str, args: dict[str, Any]) -> Any:
 
     elif name == "get_vm_details":
         return _tool_vm_details(args["vm_name"])
+
+    elif name == "list_hosts":
+        return _tool_list_hosts()
+
+    elif name == "list_networks":
+        return _tool_list_networks()
+
+    elif name == "list_datastores":
+        return _tool_list_datastores()
+
+    elif name == "get_infrastructure_topology":
+        return _tool_infra_topology()
+
+    elif name == "get_recommendations":
+        return _tool_get_recommendations()
+
+    elif name == "get_discovery_status":
+        return _tool_discovery_status()
 
     elif name == "list_workloads":
         return _tool_list_workloads(args.get("workload_type"))
@@ -794,6 +1139,15 @@ async def _dispatch(name: str, args: dict[str, Any]) -> Any:
     elif name == "clear_whatif_overrides":
         return _tool_clear_overrides()
 
+    elif name == "get_whatif_overrides":
+        return _tool_get_overrides()
+
+    elif name == "delete_whatif_override":
+        return _tool_delete_override(args["vm_name"])
+
+    elif name == "simulate_comparison":
+        return _tool_simulate_comparison()
+
     # ── SKU Catalog & Regions ────────────────────────────────────────
     elif name == "get_sku_catalog":
         return _tool_sku_catalog(
@@ -813,6 +1167,14 @@ async def _dispatch(name: str, args: dict[str, Any]) -> Any:
     # ── Enrichment ───────────────────────────────────────────────────
     elif name == "get_enrichment_status":
         return _tool_enrichment_status()
+    elif name == "get_enrichment_data":
+        return _tool_enrichment_data()
+    elif name == "get_enrichment_vm":
+        return _tool_enrichment_vm(args["vm_name"])
+    elif name == "get_enrichment_tools":
+        return _tool_enrichment_tools()
+    elif name == "get_enrichment_history":
+        return _tool_enrichment_history()
 
     # ── Vulnerability & SLA ──────────────────────────────────────────
     elif name == "get_vulnerability_sla":
@@ -894,6 +1256,48 @@ async def _dispatch(name: str, args: dict[str, Any]) -> Any:
         return _tool_list_projects()
     elif name == "create_project":
         return _tool_create_project(args["name"])
+    elif name == "activate_project":
+        return _tool_activate_project(args["project_id"])
+
+    # ── Workload Simulation ───────────────────────────────────────
+    elif name == "simulate_workload_whatif":
+        return _tool_workload_whatif(args)
+    elif name == "get_workload_whatif_overrides":
+        return _tool_get_workload_overrides()
+    elif name == "save_workload_whatif_override":
+        return _tool_save_workload_override(args)
+    elif name == "get_workload_topology":
+        return _tool_workload_topology()
+
+    # ── Performance Monitoring ────────────────────────────────────
+    elif name == "get_perf_status":
+        return _tool_perf_status()
+    elif name == "get_perf_summary":
+        return _tool_perf_summary()
+    elif name == "get_perf_vm":
+        return _tool_perf_vm(args["vm_name"])
+    elif name == "get_perf_vm_summary":
+        return _tool_perf_vm_summary(args["vm_name"])
+
+    # ── Pricing Extras ─────────────────────────────────────────
+    elif name == "get_pricing_models":
+        return _tool_pricing_models()
+
+    # ── Data Files ─────────────────────────────────────────────
+    elif name == "list_data_files":
+        return _tool_list_data_files()
+
+    # ── API Spec Management ──────────────────────────────────────────
+    elif name == "get_api_spec":
+        return _tool_get_api_spec(args)
+    elif name == "update_api_spec":
+        return _tool_update_api_spec(args)
+
+    # ── Risk Heatmap ─────────────────────────────────────────────────
+    elif name == "get_risk_heatmap":
+        return _tool_risk_heatmap(args)
+    elif name == "get_risk_score":
+        return _tool_risk_score(args)
 
     else:
         return {"error": f"Unknown tool: {name}"}
@@ -1775,6 +2179,538 @@ def _tool_list_projects() -> dict:
 def _tool_create_project(name: str) -> dict:
     from azure_migrate_simulations.multi_project import create_project
     return create_project(DATA_DIR, name)
+
+
+def _tool_activate_project(project_id: str) -> dict:
+    from azure_migrate_simulations.multi_project import activate_project
+    return activate_project(DATA_DIR, project_id)
+
+
+# ── Inventory tools (new) ───────────────────────────────────────────────
+
+
+def _tool_list_hosts() -> dict:
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+    return {"hosts": data.get("hosts", []), "count": len(data.get("hosts", []))}
+
+
+def _tool_list_networks() -> dict:
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+    return {"networks": data.get("networks", []), "count": len(data.get("networks", []))}
+
+
+def _tool_list_datastores() -> dict:
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+    datastores = data.get("datastores", [])
+    return {"datastores": datastores, "count": len(datastores)}
+
+
+def _tool_infra_topology() -> dict:
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+    vms = data.get("vms", [])
+    hosts = data.get("hosts", [])
+    datastores = data.get("datastores", [])
+
+    nodes = []
+    edges = []
+    for h in hosts:
+        nodes.append({"id": f"host-{h.get('name','')}", "label": h.get("name", ""), "type": "host"})
+    for vm in vms:
+        vm_id = f"vm-{vm.get('name','')}"
+        nodes.append({"id": vm_id, "label": vm.get("name", ""), "type": "vm"})
+        host = vm.get("host", "")
+        if host:
+            edges.append({"from": f"host-{host}", "to": vm_id})
+    for ds in datastores:
+        nodes.append({"id": f"ds-{ds.get('name','')}", "label": ds.get("name", ""), "type": "datastore"})
+
+    return {"nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges)}
+
+
+def _tool_get_recommendations() -> dict:
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+    recs = data.get("recommendations", [])
+    return {"recommendations": recs, "count": len(recs)}
+
+
+def _tool_discovery_status() -> dict:
+    data = _get_discovery()
+    has_data = bool(data and data.get("vms"))
+    return {
+        "has_data": has_data,
+        "vm_count": len(data.get("vms", [])) if data else 0,
+        "host_count": len(data.get("hosts", [])) if data else 0,
+        "vcenter_host": data.get("vcenter_host", "") if data else "",
+    }
+
+
+# ── What-If Overrides tools (new) ───────────────────────────────────────
+
+
+def _tool_get_overrides() -> dict:
+    overrides = _load_json(DATA_DIR / "whatif_overrides.json")
+    return {"overrides": overrides, "count": len(overrides)}
+
+
+def _tool_delete_override(vm_name: str) -> dict:
+    overrides = _load_json(DATA_DIR / "whatif_overrides.json")
+    if vm_name in overrides:
+        del overrides[vm_name]
+        _save_json(DATA_DIR / "whatif_overrides.json", overrides)
+        return {"status": "deleted", "vm_name": vm_name}
+    return {"status": "not_found", "vm_name": vm_name}
+
+
+def _tool_simulate_comparison() -> dict:
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+    overrides = _load_json(DATA_DIR / "whatif_overrides.json")
+    if not overrides:
+        return {"error": "No what-if overrides saved. Use save_whatif_override first."}
+
+    recs = data.get("recommendations", [])
+    results = []
+    for r in recs:
+        vm_name = r.get("vm_name", "")
+        original_cost = r.get("estimated_monthly_cost_usd", 0) or r.get("estimated_monthly_cost", 0)
+        if vm_name in overrides:
+            results.append({
+                "vm_name": vm_name,
+                "original_sku": r.get("recommended_vm_size", ""),
+                "override": overrides[vm_name],
+                "original_cost": original_cost,
+            })
+    return {"comparisons": results, "count": len(results), "total_overrides": len(overrides)}
+
+
+# ── Enrichment tools (new) ──────────────────────────────────────────────
+
+
+def _tool_enrichment_data() -> dict:
+    enr = _get_enrichment()
+    telemetry = enr.get("telemetry", enr) if isinstance(enr, dict) else {}
+    return {"telemetry": telemetry, "count": len(telemetry)}
+
+
+def _tool_enrichment_vm(vm_name: str) -> dict:
+    enr = _get_enrichment()
+    telemetry = enr.get("telemetry", enr) if isinstance(enr, dict) else {}
+    vm_data = telemetry.get(vm_name, {})
+    if not vm_data:
+        for key, val in telemetry.items():
+            if key.lower() == vm_name.lower():
+                vm_data = val
+                break
+    if not vm_data:
+        return {"error": f"No enrichment data for VM '{vm_name}'", "vm_name": vm_name}
+    return {"vm_name": vm_name, "enrichment": vm_data}
+
+
+def _tool_enrichment_tools() -> dict:
+    tools = [
+        {"name": "dynatrace", "description": "Dynatrace host/process entity export"},
+        {"name": "newrelic", "description": "New Relic Infrastructure/Insights export"},
+        {"name": "datadog", "description": "Datadog host map / metrics export"},
+        {"name": "splunk", "description": "Splunk JSON search results"},
+        {"name": "prometheus", "description": "Prometheus /api/v1/query results"},
+        {"name": "zabbix", "description": "Zabbix host/item export"},
+        {"name": "appdynamics", "description": "AppDynamics infrastructure export"},
+        {"name": "custom", "description": "Custom JSON format with entity_name and metrics fields"},
+    ]
+    return {"tools": tools, "count": len(tools)}
+
+
+def _tool_enrichment_history() -> dict:
+    enr = _get_enrichment()
+    history = enr.get("history", []) if isinstance(enr, dict) else []
+    return {"history": history, "count": len(history)}
+
+
+# ── Workload Simulation tools (new) ─────────────────────────────────────
+
+
+def _tool_workload_whatif(args: dict) -> dict:
+    wl = _get_workloads()
+    if not wl:
+        return {"error": "No workload data loaded."}
+    workload_key = args.get("workload_key", "")
+    recs = wl.get("recommendations", [])
+    target = None
+    for r in recs:
+        key = f"{r.get('vm_name','')}:{r.get('source_engine', r.get('source_workload',''))}:{r.get('instance_name', r.get('app_name',''))}"
+        if key == workload_key or r.get("vm_name") == workload_key:
+            target = r
+            break
+    if not target:
+        return {"error": f"Workload '{workload_key}' not found"}
+    return {
+        "workload": target,
+        "overrides_applied": {
+            "sku": args.get("sku_override"),
+            "tier": args.get("tier_override"),
+            "region": args.get("region"),
+        },
+    }
+
+
+def _tool_get_workload_overrides() -> dict:
+    overrides = _load_json(DATA_DIR / "workload_whatif_overrides.json")
+    return {"overrides": overrides, "count": len(overrides)}
+
+
+def _tool_save_workload_override(args: dict) -> dict:
+    overrides = _load_json(DATA_DIR / "workload_whatif_overrides.json")
+    key = args["workload_key"]
+    overrides[key] = {
+        "sku": args.get("sku"),
+        "tier": args.get("tier"),
+        "region": args.get("region"),
+    }
+    _save_json(DATA_DIR / "workload_whatif_overrides.json", overrides)
+    return {"status": "saved", "workload_key": key}
+
+
+def _tool_workload_topology() -> dict:
+    wl = _get_workloads()
+    if not wl:
+        return {"error": "No workload data loaded."}
+    deps = wl.get("dependencies", [])
+    workloads = wl.get("workloads", [])
+    nodes = []
+    edges = []
+    seen_vms: set[str] = set()
+    for w in workloads:
+        vm = w.get("vm_name", "")
+        if vm and vm not in seen_vms:
+            seen_vms.add(vm)
+            wl_types = []
+            if w.get("databases"):
+                wl_types.append(f"{len(w['databases'])} DB")
+            if w.get("web_apps"):
+                wl_types.append(f"{len(w['web_apps'])} WebApp")
+            if w.get("container_runtimes"):
+                wl_types.append(f"{len(w['container_runtimes'])} Container")
+            if w.get("orchestrators"):
+                wl_types.append(f"{len(w['orchestrators'])} Orch")
+            nodes.append({"id": vm, "label": vm, "workloads": ", ".join(wl_types) if wl_types else "none"})
+    for d in deps:
+        edges.append({
+            "from": d.get("source_vm", ""),
+            "to": d.get("target_vm", ""),
+            "port": d.get("target_port", ""),
+            "protocol": d.get("protocol", ""),
+        })
+    return {"nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges)}
+
+
+# ── Performance tools (new) ─────────────────────────────────────────────
+
+
+def _tool_perf_status() -> dict:
+    perf = _get_perf()
+    vm_perf = perf.get("vm_perf", {})
+    total_samples = sum(len(samples) for samples in vm_perf.values())
+    return {
+        "vms_with_data": len(vm_perf),
+        "total_samples": total_samples,
+        "has_data": total_samples > 0,
+    }
+
+
+def _tool_perf_summary() -> dict:
+    perf = _get_perf()
+    vm_perf = perf.get("vm_perf", {})
+    if not vm_perf:
+        return {"error": "No performance data collected yet."}
+
+    all_cpu: list[float] = []
+    all_mem: list[float] = []
+    all_iops: list[float] = []
+    for _vm, samples in vm_perf.items():
+        for s in samples:
+            if s.get("cpu_pct"):
+                all_cpu.append(s["cpu_pct"])
+            if s.get("mem_pct"):
+                all_mem.append(s["mem_pct"])
+            if s.get("disk_iops"):
+                all_iops.append(s["disk_iops"])
+
+    def _stats(values: list[float]) -> dict:
+        if not values:
+            return {"avg": 0, "p95": 0, "max": 0, "count": 0}
+        values.sort()
+        return {
+            "avg": round(sum(values) / len(values), 1),
+            "p95": round(values[int(len(values) * 0.95)] if values else 0, 1),
+            "max": round(max(values), 1),
+            "count": len(values),
+        }
+
+    return {
+        "vm_count": len(vm_perf),
+        "cpu": _stats(all_cpu),
+        "memory": _stats(all_mem),
+        "disk_iops": _stats(all_iops),
+    }
+
+
+def _tool_perf_vm(vm_name: str) -> dict:
+    perf = _get_perf()
+    vm_perf = perf.get("vm_perf", {})
+    samples = vm_perf.get(vm_name, [])
+    if not samples:
+        return {"error": f"No perf data for VM '{vm_name}'", "vm_name": vm_name}
+    return {"vm_name": vm_name, "samples": samples, "sample_count": len(samples)}
+
+
+def _tool_perf_vm_summary(vm_name: str) -> dict:
+    perf = _get_perf()
+    vm_perf = perf.get("vm_perf", {})
+    samples = vm_perf.get(vm_name, [])
+    if not samples:
+        return {"error": f"No perf data for VM '{vm_name}'", "vm_name": vm_name}
+
+    latest = samples[-1] if samples else {}
+    cpu_vals = [s.get("cpu_pct", 0) for s in samples if s.get("cpu_pct")]
+    mem_vals = [s.get("mem_pct", 0) for s in samples if s.get("mem_pct")]
+
+    return {
+        "vm_name": vm_name,
+        "sample_count": len(samples),
+        "latest": latest,
+        "cpu_avg": round(sum(cpu_vals) / len(cpu_vals), 1) if cpu_vals else 0,
+        "mem_avg": round(sum(mem_vals) / len(mem_vals), 1) if mem_vals else 0,
+    }
+
+
+# ── Pricing tools (new) ────────────────────────────────────────────────
+
+
+def _tool_pricing_models() -> dict:
+    models = [
+        {"id": "payg", "name": "Pay-As-You-Go", "discount_pct": 0},
+        {"id": "1yr_ri", "name": "1-Year Reserved Instance", "discount_pct": 30},
+        {"id": "3yr_ri", "name": "3-Year Reserved Instance", "discount_pct": 50},
+        {"id": "1yr_sp", "name": "1-Year Savings Plan", "discount_pct": 25},
+        {"id": "3yr_sp", "name": "3-Year Savings Plan", "discount_pct": 45},
+        {"id": "ahub", "name": "Azure Hybrid Benefit", "discount_pct": 40},
+        {"id": "devtest", "name": "Dev/Test Pricing", "discount_pct": 55},
+    ]
+    return {"pricing_models": models, "count": len(models)}
+
+
+# ── Data Files tool (new) ──────────────────────────────────────────────
+
+
+def _tool_list_data_files() -> dict:
+    files = []
+    for fpath in sorted(DATA_DIR.glob("*")):
+        if fpath.is_file():
+            stat = fpath.stat()
+            files.append({
+                "name": fpath.name,
+                "size_bytes": stat.st_size,
+                "size_kb": round(stat.st_size / 1024, 1),
+                "modified": stat.st_mtime,
+            })
+    return {"files": files, "count": len(files), "data_dir": str(DATA_DIR)}
+
+
+# ── API Spec Management tools ───────────────────────────────────────────
+
+
+def _tool_get_api_spec(args: dict) -> dict | str:
+    """Return the OpenAPI spec, optionally filtered by tag."""
+    import yaml
+
+    spec_text = _load_openapi_spec()
+    if not spec_text:
+        return {"error": "OpenAPI spec file not found at web/openapi.yaml"}
+
+    filter_tag = args.get("filter_tag", "")
+    if not filter_tag:
+        # Return the full spec as-is (YAML text)
+        return {"format": "yaml", "spec": spec_text}
+
+    # Parse and filter by tag
+    try:
+        spec = yaml.safe_load(spec_text)
+    except Exception as e:
+        return {"error": f"Failed to parse OpenAPI spec: {e}"}
+
+    filtered_paths: dict = {}
+    for path, methods in spec.get("paths", {}).items():
+        for method, details in methods.items():
+            if method in ("get", "post", "put", "delete", "patch"):
+                tags = details.get("tags", [])
+                if filter_tag.lower() in [t.lower() for t in tags]:
+                    if path not in filtered_paths:
+                        filtered_paths[path] = {}
+                    filtered_paths[path][method] = details
+
+    return {
+        "filter_tag": filter_tag,
+        "matching_paths": len(filtered_paths),
+        "paths": filtered_paths,
+    }
+
+
+def _tool_update_api_spec(args: dict) -> dict:
+    """Add or update an endpoint in the OpenAPI YAML spec."""
+    import yaml
+
+    spec_text = _load_openapi_spec()
+    if not spec_text:
+        return {"error": "OpenAPI spec file not found at web/openapi.yaml"}
+
+    try:
+        spec = yaml.safe_load(spec_text)
+    except Exception as e:
+        return {"error": f"Failed to parse OpenAPI spec: {e}"}
+
+    path = args["path"]
+    method = args["method"].lower()
+    tag = args["tag"]
+    summary = args["summary"]
+    description = args.get("description", "")
+
+    # Build the operation object
+    operation: dict[str, Any] = {
+        "tags": [tag],
+        "summary": summary,
+    }
+    if description:
+        operation["description"] = description
+
+    # Parse optional YAML fragments
+    if args.get("parameters_yaml"):
+        try:
+            operation["parameters"] = yaml.safe_load(args["parameters_yaml"])
+        except Exception:
+            return {"error": "Invalid YAML in parameters_yaml"}
+
+    if args.get("request_body_yaml"):
+        try:
+            operation["requestBody"] = yaml.safe_load(args["request_body_yaml"])
+        except Exception:
+            return {"error": "Invalid YAML in request_body_yaml"}
+
+    if args.get("responses_yaml"):
+        try:
+            operation["responses"] = yaml.safe_load(args["responses_yaml"])
+        except Exception:
+            return {"error": "Invalid YAML in responses_yaml"}
+    else:
+        operation["responses"] = {"200": {"description": "Success"}}
+
+    # Ensure the tag exists
+    existing_tags = [t["name"] for t in spec.get("tags", [])]
+    if tag not in existing_tags:
+        if "tags" not in spec:
+            spec["tags"] = []
+        spec["tags"].append({"name": tag})
+
+    # Upsert the path + method
+    if "paths" not in spec:
+        spec["paths"] = {}
+    if path not in spec["paths"]:
+        spec["paths"][path] = {}
+
+    existing = path in spec["paths"] and method in spec["paths"][path]
+    spec["paths"][path][method] = operation
+
+    # Write back to YAML (preserve formatting as much as possible)
+    try:
+        output = yaml.dump(spec, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        _OPENAPI_SPEC_FILE.write_text(output, encoding="utf-8")
+    except Exception as e:
+        return {"error": f"Failed to write spec file: {e}"}
+
+    action = "updated" if existing else "added"
+    return {
+        "status": "ok",
+        "action": action,
+        "path": path,
+        "method": method,
+        "tag": tag,
+        "summary": summary,
+        "total_paths": len(spec.get("paths", {})),
+    }
+
+
+# ── Risk Heatmap tools ──────────────────────────────────────────────────
+
+
+def _tool_risk_heatmap(args: dict) -> dict:
+    from dataclasses import asdict
+    from azure_migrate_simulations.risk_heatmap import compute_heatmap
+
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded. Upload a vCenter export first."}
+
+    vms = data.get("vms", [])
+    wl = _get_workloads() or {}
+    enr = _get_enrichment() or {}
+    top_n = args.get("top", 10)
+
+    heatmap = compute_heatmap(vms, wl, enr, top_n=top_n)
+    result = asdict(heatmap)
+
+    band_filter = args.get("band")
+    if band_filter and band_filter in ("green", "yellow", "red"):
+        result["vm_scores"] = [
+            s for s in result["vm_scores"] if s["composite_band"] == band_filter
+        ]
+
+    sort_by = args.get("sort_by", "composite_score")
+    if sort_by == "vm_name":
+        result["vm_scores"].sort(key=lambda s: s["vm_name"])
+    elif sort_by == "composite_score":
+        result["vm_scores"].sort(key=lambda s: s["composite_score"], reverse=True)
+
+    return result
+
+
+def _tool_risk_score(args: dict) -> dict:
+    from dataclasses import asdict
+    from azure_migrate_simulations.risk_heatmap import (
+        compute_risk_score, _compute_fleet_stats,
+    )
+
+    data = _get_discovery()
+    if not data:
+        return {"error": "No discovery data loaded."}
+
+    vm_name = args.get("vm_name", "")
+    vms = data.get("vms", [])
+
+    vm = None
+    for v in vms:
+        if v.get("name") == vm_name:
+            vm = v
+            break
+
+    if vm is None:
+        return {"error": "VM not found", "vm_name": vm_name}
+
+    wl = _get_workloads() or {}
+    enr = _get_enrichment() or {}
+    max_deps, iops_p75, max_disk = _compute_fleet_stats(vms, wl, enr)
+
+    score = compute_risk_score(vm, wl, enr, max_deps, iops_p75, max_disk)
+    return asdict(score)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

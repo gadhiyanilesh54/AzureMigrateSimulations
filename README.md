@@ -20,6 +20,7 @@
     - [VM Simulation & What-If](#vm-simulation--what-if)
     - [Workload Simulation & What-If](#workload-simulation--what-if)
     - [Vulnerability & SLA](#vulnerability--sla)
+   - [AI Feasibility Assessment](#ai-feasibility-assessment)
   - [4. Business Case](#4-business-case)
   - [5. Enrichment Data Loop](#5-enrichment-data-loop)
   - [6. Performance Monitoring](#6-performance-monitoring)
@@ -50,8 +51,10 @@
 | **Business Case Generator** | Full on-prem TCO vs Azure cost comparison with ROI, payback period, and strategic recommendations |
 | **Enrichment Data Loop** | Import telemetry from Dynatrace, New Relic, Datadog, Splunk, Prometheus, AppDynamics, Zabbix to boost confidence scores |
 | **Vulnerability & SLA** | OS lifecycle tracking, software end-of-support detection, and licensing guidance for migration planning |
+| **AI Feasibility Assessment** | Select a discovered application and business workflow, compare seven AI solution patterns, ingest Markdown/text/DOCX intent, produce evidence gaps, deterministic cost scenarios, PoC gates, and an AI-ready landing-zone extension |
+| **Migration Copilot** | Microsoft Foundry generative chat with grounded evidence, durable conversations, cost explainability, target rationale, landing zones, and business case |
 | **CSV Export** | Download VM and workload assessment data as CSV for offline analysis |
-| **60 REST API Endpoints** | Programmatic access to every capability — connection, discovery, assessment, simulation, enrichment, perf data, cloud topology |
+| **REST API & MCP Tools** | Programmatic and agent access to connection, discovery, assessment, simulation, enrichment, performance, architecture, and planning capabilities |
 
 ---
 
@@ -427,6 +430,48 @@ The Vulnerability & SLA sub-tab identifies security risks and end-of-support iss
 
 ---
 
+#### AI Feasibility Assessment
+
+The Assessment view includes a guided AI opportunity workflow. The unit of assessment is an
+**application plus a customer-owned business workflow**—not an individual VM and not the entire
+organization.
+
+**Customer flow:**
+1. Select one detected application and review its VM, web, database, container, orchestrator, and file-share context.
+2. Choose a broad solution idea: Audio Processing, Video and Image Processing, Predictive Analysis, MLOps, Document Processing and Enrichment, Workflow Automation, or Chat with Data/Data Insights.
+3. Describe the current process and expected measurable outcome, or upload UTF-8 Markdown/text or a DOCX intent document (1 MB maximum).
+4. Optionally replace application-informed usage defaults with customer volumes, confirm the data-processing notice, and generate a versioned decision pack.
+5. Review the disposition, six independent feasibility dimensions, observed/customer-provided/inferred evidence, proposed Azure services, explicit gaps, low/base/high cost scenarios, and bounded PoC acceptance gates.
+6. In **Plan → Landing Zone**, enable **AI-ready architecture** to replace eligible base diagrams with the latest assessment's proposed AI extension and incremental cost.
+
+The rules engine controls service patterns, evidence gates, and cost arithmetic. Costs use visible
+illustrative planning rates and are labeled as unquoted until current Azure meters and the customer's
+commercial agreement are resolved. Microsoft Foundry `gpt-6.1-sol` improves only the grounded
+executive narrative; it cannot approve data access, select hidden services, change costs, or mark a
+solution production-ready. Uploaded content is parsed without execution and treated as untrusted data.
+
+Migration Copilot also supports a staged entry flow: it lists discovered applications, offers the seven
+solution ideas, captures a brief intent, and opens the guided workspace with the application, category,
+and intent preselected.
+
+**API Endpoints:**
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/ai-feasibility/categories` | Versioned solution-pattern catalog and usage fields |
+| `POST` | `/api/ai-feasibility/intent-upload` | Safe Markdown/text/DOCX extraction and category suggestion |
+| `GET` | `/api/ai-feasibility/assessments` | List persisted assessment revisions |
+| `POST` | `/api/ai-feasibility/assessments` | Generate and persist an assessment decision pack |
+| `GET` | `/api/ai-feasibility/assessments/<id>` | Retrieve one revision |
+| `DELETE` | `/api/ai-feasibility/assessments/<id>` | Delete one local revision |
+| `GET` | `/api/landing-zones?include_ai=true` | Compose latest AI-ready variants into application landing zones |
+
+Generated records persist locally in `data/ai_feasibility_assessments.json`, which is ignored by Git.
+The proposal and implementation boundaries are described in
+[the executive proposal](docs/Azure_Migrate_AI_Feasibility_Assessment_Proposal.md) and
+[the end-to-end walkthrough](docs/Azure_Migrate_AI_Feasibility_EndToEnd_Walkthrough.md).
+
+---
+
 ### 4. Business Case
 
 ![Business Case](docs/screenshots/08_business_case.png)
@@ -760,7 +805,25 @@ AZURE_LOCATION=eastus
 
 # Optional: API key protection for the web dashboard
 MIGRATE_API_KEY=your-api-key
+
+# Microsoft Foundry generative model for Migration Copilot.
+AZURE_MIGRATE_CHAT_ENDPOINT=https://your-resource.services.ai.azure.com
+AZURE_MIGRATE_CHAT_DEPLOYMENT=gpt-6.1-sol
+AZURE_MIGRATE_CHAT_API_VERSION=2024-12-01-preview
+# Optional for local development; otherwise DefaultAzureCredential is used.
+AZURE_MIGRATE_CHAT_API_KEY=your-model-api-key
 ```
+
+Migration Copilot first selects facts from the loaded discovery and assessment, then
+uses the configured Microsoft Foundry model to generate the final evidence-constrained
+answer. Conversation metadata and messages persist in `data/chat_history.db` (SQLite).
+When no API key is configured, `DefaultAzureCredential` uses the signed-in developer or
+the deployed application's managed identity. If Foundry settings are absent, the local
+grounded response remains available as a resilience fallback.
+
+The verified deployment for this workspace is GPT-6.1 Sol (`2026-09-29`) on a
+Global Standard deployment. GPT-6 requests use `max_completion_tokens` and low
+reasoning effort; unsupported sampling overrides are omitted.
 
 ---
 
@@ -793,7 +856,8 @@ uv run dt-migrate --region eastus
 
 ## API Reference
 
-The web dashboard exposes **60 REST API endpoints** across 10 categories:
+The web dashboard exposes a broad REST API across discovery, assessment, planning,
+simulation, explainability, and migration-management categories:
 
 <details>
 <summary><strong>Connection & Status (5 endpoints)</strong></summary>
@@ -922,6 +986,18 @@ The web dashboard exposes **60 REST API endpoints** across 10 categories:
 |---|---|---|
 | `GET` | `/api/cloud-topology` | Generate CAF-aligned Azure architecture diagram with WAF scoring |
 | `GET` | `/api/cloud-topology/waf/<resource_id>` | Detailed WAF assessment for a single resource |
+
+</details>
+
+<details>
+<summary><strong>Migration Copilot (4 route patterns)</strong></summary>
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/chat/status` | Provider mode, privacy posture, data availability, and supported topics |
+| `POST` | `/api/chat` | Grounded migration answer with citations, navigation actions, and suggested follow-ups |
+| `GET/POST` | `/api/chat/conversations` | List or create persisted conversations |
+| `GET/DELETE` | `/api/chat/conversations/<conversation_id>` | Restore or delete a persisted conversation |
 
 </details>
 

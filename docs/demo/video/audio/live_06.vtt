@@ -1,0 +1,9 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 27412622, "text": "The customer has confirmed the processing boundary."}
+{"type": "SentenceBoundary", "offset": 27912622, "duration": 88834953, "text": "The entered intent, expected outcome, a deterministic local draft, and minimized evidence labels may be sent to the configured Foundry model."}
+{"type": "SentenceBoundary", "offset": 116747576, "duration": 40655340, "text": "Uploaded content is treated as data, not as instructions."}
+{"type": "SentenceBoundary", "offset": 157402916, "duration": 24271845, "text": "The result is a versioned decision pack."}
+{"type": "SentenceBoundary", "offset": 181674762, "duration": 83737866, "text": "It separates business fit, data readiness, integration readiness, security and governance, delivery and operations, and economics."}
+{"type": "SentenceBoundary", "offset": 265412628, "duration": 180946606, "text": "For this scenario, the proposed capability set includes Azure A I Document Intelligence for extraction and classification, Azure A I Search for permission-aware retrieval, a Microsoft Foundry model for grounded enrichment and summarization, workflow orchestration, approved storage, and monitoring."}
+{"type": "SentenceBoundary", "offset": 446359235, "duration": 63592234, "text": "The estimate is shown as low, base, and high scenarios with explicit assumptions and a reserve."}
+{"type": "SentenceBoundary", "offset": 509951470, "duration": 83980584, "text": "The output also identifies evidence gaps and defines the smallest bounded proof of concept and the tests required before any production decision."}
+{"type": "SentenceBoundary", "offset": 593932055, "duration": 56067962, "text": "A proof of concept candidate means justified experimentation, not production readiness."}

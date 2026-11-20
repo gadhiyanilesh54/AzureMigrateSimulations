@@ -1,0 +1,6 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 53262137, "text": "For each selected application, the assessment should answer four practical questions."}
+{"type": "SentenceBoundary", "offset": 53762137, "duration": 39927185, "text": "Where can A I create meaningful business or engineering value?"}
+{"type": "SentenceBoundary", "offset": 93689322, "duration": 39441748, "text": "Is the application and its data technically ready for that scenario?"}
+{"type": "SentenceBoundary", "offset": 133131071, "duration": 52063108, "text": "Which integrations, Azure services, and security or governance controls are required?"}
+{"type": "SentenceBoundary", "offset": 185194179, "duration": 54490292, "text": "And what is the pragmatic path from proof of concept, to pilot, to production?"}
+{"type": "SentenceBoundary", "offset": 239684472, "duration": 80339808, "text": "The output is a reviewable decision pack with explicit evidence gaps and production gates, not a generic list of A I ideas."}

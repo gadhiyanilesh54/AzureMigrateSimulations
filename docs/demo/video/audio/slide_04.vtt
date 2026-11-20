@@ -1,0 +1,10 @@
+{"type": "SentenceBoundary", "offset": 500000, "duration": 57266991, "text": "The proposed idea is an A I Feasibility Assessment as a new step in the Azure Migrate journey."}
+{"type": "SentenceBoundary", "offset": 57766991, "duration": 9951456, "text": "Discover."}
+{"type": "SentenceBoundary", "offset": 67718448, "duration": 10080097, "text": "Assess."}
+{"type": "SentenceBoundary", "offset": 77798545, "duration": 22686893, "text": "A I Feasibility Assessment."}
+{"type": "SentenceBoundary", "offset": 100485439, "duration": 9708738, "text": "Design."}
+{"type": "SentenceBoundary", "offset": 110194177, "duration": 9223301, "text": "Estimate."}
+{"type": "SentenceBoundary", "offset": 119417479, "duration": 11654126, "text": "Modernize."}
+{"type": "SentenceBoundary", "offset": 131071605, "duration": 50724515, "text": "It adds an A I modernization layer on top of existing application intelligence."}
+{"type": "SentenceBoundary", "offset": 181796121, "duration": 41504855, "text": "The goal is not to turn every application into an A I project."}
+{"type": "SentenceBoundary", "offset": 223300977, "duration": 100849517, "text": "The goal is to identify which application and workflow combinations justify a bounded experiment, which need remediation first, and which should not pursue A I."}
